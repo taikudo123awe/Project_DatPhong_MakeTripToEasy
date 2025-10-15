@@ -1,0 +1,3 @@
+# Môi trường và các gói cài đặt
+.env
+node_modules
