@@ -8,7 +8,7 @@ exports.getAllRooms = async (req, res) => {
         include: { model: Provider }
       });
   
-      res.render('rooms/list', { rooms });
+      res.render('home', { rooms });
     } catch (err) {
       console.error(err);
       res.status(500).send('Lỗi khi tải danh sách phòng');
