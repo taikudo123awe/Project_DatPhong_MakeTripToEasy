@@ -1,3 +1,4 @@
 # Môi trường và các gói cài đặt
-.env
+#file .env này push lên luôn làm local mà sợ gì
+# .env
 node_modules
