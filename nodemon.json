@@ -1,0 +1,14 @@
+{
+  "watch": [
+    "app.js",
+    "config",
+    "controllers",
+    "models",
+    "routes",
+    "middlewares",
+    "views"
+  ],
+  "ext": "js,json,ejs",
+  "ignore": ["node_modules"],
+  "exec": "node app.js"
+}
