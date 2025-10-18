@@ -2,3 +2,4 @@
 #file .env này push lên luôn làm local mà sợ gì
 # .env
 node_modules
+.DS_Store
