@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:latest
+    container_name: mydb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: db_datphong
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 123456
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mynetwork
+
+  phpmyadmin:
+    image: arm64v8/phpmyadmin:latest
+    container_name: myadmin
+    restart: always
+    environment:
+      PMA_HOST: mydb
+      PMA_PORT: 3306
+      PMA_USER: admin
+      PMA_PASSWORD: 123456
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+
+volumes:
+  mysql_data:
