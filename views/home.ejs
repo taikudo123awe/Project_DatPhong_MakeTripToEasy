@@ -3,9 +3,201 @@
 <head>
   <title>Trang chủ</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .picker-toggle { cursor: pointer; }
+    .dropdown-panel {
+      position: absolute; z-index: 10; background: #fff; border: 1px solid #dee2e6; border-radius: .5rem;
+      padding: 1rem; width: 320px; box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    }
+    .counter { display: flex; align-items: center; gap: .75rem; }
+    .counter button { width: 32px; height: 32px; border-radius: 50%; }
+    .muted { color: #6c757d; font-size: .875rem; }
+  </style>
 </head>
 <body class="container mt-4">
-  <h1>Chào mừng đến với ứng dụng đặt phòng!</h1>
-  <a href="/rooms" class="btn btn-primary mt-3">Xem danh sách phòng</a>
+
+  <h1 class="mb-4">Tìm phòng phù hợp cho chuyến đi của bạn</h1>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="alert alert-danger"><%= error %></div>
+  <% } %>
+
+  <form class="row gy-3 gx-3 align-items-end" method="GET" action="/search" onsubmit="return validateForm()">
+    <!-- ĐỊA CHỈ (TRỞ VỀ NHƯ CŨ) -->
+    <div class="col-12 col-lg-5 position-relative">
+      <label class="form-label">Địa chỉ / Từ khóa</label>
+      <input type="text" class="form-control" id="address" name="address"
+             placeholder="Ví dụ: Đà Nẵng, Quận 1..."
+             value="<%= (form && form.address) || '' %>">
+      <div class="form-text">Tạm thời tìm theo tên/mô tả phòng.</div>
+    </div>
+
+    <!-- NHẬN/TRẢ PHÒNG -->
+    <div class="col-6 col-lg-2">
+      <label class="form-label">Nhận phòng</label>
+      <input type="date" class="form-control" id="checkIn" name="checkIn"
+             value="<%= (form && form.checkIn) || '' %>" required>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label class="form-label">Trả phòng</label>
+      <input type="date" class="form-control" id="checkOut" name="checkOut"
+             value="<%= (form && form.checkOut) || '' %>" required>
+    </div>
+
+    <!-- NGƯỜI / PHÒNG -->
+    <div class="col-12 col-lg-3 position-relative">
+      <label class="form-label">Khách & Phòng</label>
+      <div class="form-control picker-toggle" id="guestRoomToggle" aria-expanded="false">
+        <span id="guestRoomSummary">—</span>
+      </div>
+
+      <div id="guestRoomPanel" class="dropdown-panel mt-2 d-none" role="dialog" aria-label="Chọn số khách và phòng">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div><div class="fw-semibold">Phòng</div></div>
+          <div class="counter">
+            <button type="button" class="btn btn-outline-secondary" id="roomMinus">−</button>
+            <span id="roomCount">1</span>
+            <button type="button" class="btn btn-outline-secondary" id="roomPlus">+</button>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-semibold">Người lớn</div>
+            <div class="muted">Từ 18 tuổi trở lên</div>
+          </div>
+          <div class="counter">
+            <button type="button" class="btn btn-outline-secondary" id="adultMinus">−</button>
+            <span id="adultCount">1</span>
+            <button type="button" class="btn btn-outline-secondary" id="adultPlus">+</button>
+          </div>
+        </div>
+
+        <div class="mt-3 muted">* Số phòng phải <strong>≤</strong> số người.</div>
+        <div class="mt-3 d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-outline-secondary" id="closePicker">Đóng</button>
+        </div>
+      </div>
+
+      <!-- Hidden fields để submit -->
+      <input type="hidden" name="guests" id="guestsInput" value="<%= (form && form.guests) || '1' %>">
+      <input type="hidden" name="rooms"  id="roomsInput"  value="<%= (form && form.rooms)  || '1' %>">
+    </div>
+
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Tìm phòng</button>
+      <a href="/rooms" class="btn btn-outline-secondary ms-2">Xem tất cả phòng</a>
+    </div>
+  </form>
+
+  <script>
+    // ======= Khởi tạo ngày tối thiểu =======
+    (function initDates(){
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth()+1).padStart(2,'0');
+      const dd = String(today.getDate()).padStart(2,'0');
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+
+      const cin = document.getElementById('checkIn');
+      const cout = document.getElementById('checkOut');
+
+      if (cin && !cin.value) cin.value = todayStr;
+      if (cin) cin.min = todayStr;
+
+      const minOut = addDays(cin.value, 1);
+      if (cout && !cout.value) cout.value = minOut;
+      if (cout) cout.min = minOut;
+
+      cin.addEventListener('change', () => {
+        cout.min = addDays(cin.value, 1);
+        if (cout.value <= cin.value) cout.value = cout.min;
+      });
+    })();
+
+    function addDays(yyyyMMdd, n){
+      const d = new Date(yyyyMMdd); d.setDate(d.getDate() + n);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // ======= Guest/Room picker =======
+    const initAdults = Math.max(parseInt('<%= (form && form.guests) || "1" %>', 10) || 1, 1);
+    const initRooms  = Math.max(parseInt('<%= (form && form.rooms)  || "1" %>', 10) || 1, 1);
+
+    const state = { adults: initAdults, rooms: Math.min(initRooms, initAdults) };
+
+    const guestsInput = document.getElementById('guestsInput');
+    const roomsInput  = document.getElementById('roomsInput');
+    const summary     = document.getElementById('guestRoomSummary');
+
+    const panel  = document.getElementById('guestRoomPanel');
+    const toggle = document.getElementById('guestRoomToggle');
+
+    const adultCount = document.getElementById('adultCount');
+    const roomCount  = document.getElementById('roomCount');
+
+    function plural(n, s, p){ return n + ' ' + (n > 1 ? p : s); }
+
+    function updateUI(){
+      if (state.rooms > state.adults) state.rooms = state.adults;
+
+      adultCount.textContent = state.adults;
+      roomCount.textContent  = state.rooms;
+
+      guestsInput.value = state.adults;
+      roomsInput.value  = state.rooms;
+
+      summary.textContent = `${plural(state.adults, 'người lớn', 'người lớn')} · ${plural(state.rooms, 'phòng', 'phòng')}`;
+
+      document.getElementById('adultMinus').disabled = state.adults <= 1;
+      document.getElementById('roomMinus').disabled  = state.rooms  <= 1;
+      document.getElementById('roomPlus').disabled   = state.rooms  >= state.adults;
+    }
+
+    document.getElementById('adultMinus').onclick = () => { if (state.adults > 1) { state.adults--; updateUI(); }};
+    document.getElementById('adultPlus').onclick  = () => { state.adults++; updateUI(); };
+    document.getElementById('roomMinus').onclick  = () => { if (state.rooms > 1)  { state.rooms--;  updateUI(); }};
+    document.getElementById('roomPlus').onclick   = () => { if (state.rooms < state.adults) { state.rooms++; updateUI(); }};
+
+    toggle.addEventListener('click', () => {
+      const open = panel.classList.contains('d-none');
+      panel.classList.toggle('d-none', !open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.getElementById('closePicker').onclick = () => {
+      panel.classList.add('d-none');
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+    document.addEventListener('click', (e) => {
+      if (!panel.contains(e.target) && !toggle.contains(e.target)) {
+        panel.classList.add('d-none');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Khởi tạo lần đầu
+    updateUI();
+
+    // ======= Validate form client-side =======
+    function validateForm(){
+      const cin = document.getElementById('checkIn').value;
+      const cout = document.getElementById('checkOut').value;
+      if (!cin || !cout || cout <= cin) {
+        alert('Thời gian trả phòng phải sau thời gian nhận phòng.');
+        return false;
+      }
+      const g = parseInt(guestsInput.value, 10) || 1;
+      const r = parseInt(roomsInput.value, 10) || 1;
+      if (r > g) {
+        alert('Số phòng phải nhỏ hơn hoặc bằng số người.');
+        return false;
+      }
+      return true;
+    }
+    window.validateForm = validateForm;
+  </script>
 </body>
 </html>
