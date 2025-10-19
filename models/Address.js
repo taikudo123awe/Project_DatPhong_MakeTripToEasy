@@ -1,18 +1,26 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 
-// Định nghĩa model Address
 const Address = sequelize.define(
   "Address",
   {
     addressId: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
       autoIncrement: true,
+      primaryKey: true,
     },
-    city: DataTypes.STRING,
-    district: DataTypes.STRING,
-    ward: DataTypes.STRING,
+    city: {
+      type: DataTypes.STRING(58),
+      allowNull: true,
+    },
+    district: {
+      type: DataTypes.STRING(58),
+      allowNull: true,
+    },
+    ward: {
+      type: DataTypes.STRING(58),
+      allowNull: true,
+    },
   },
   {
     tableName: "Address",
