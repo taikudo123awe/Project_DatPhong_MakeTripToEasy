@@ -33,7 +33,7 @@ const PaymentInfo = sequelize.define('PaymentInfo', {
     }
   }
 }, {
-  tableName: 'paymentinfo', // Đặt tên bảng chữ thường cho nhất quán
+  tableName: 'PaymentInfo', // Đặt tên bảng chữ thường cho nhất quán
   timestamps: false
 });
 

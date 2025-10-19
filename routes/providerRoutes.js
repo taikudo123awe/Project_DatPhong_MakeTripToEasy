@@ -45,8 +45,7 @@ router.get('/edit-profile', ensureProviderLoggedIn, providerController.showEditP
 // POST: Xử lý cập nhật
 // *** ÁP DỤNG MIDDLEWARE UPLOAD VÀO ĐÂY ***
 // 'qrCodeImage' là tên của trường <input type="file"> trong form
-router.post(
-  '/edit-profile', 
+router.post('/edit-profile', 
   ensureProviderLoggedIn, 
   upload.single('qrCodeImage'), // Thêm middleware
   providerController.updateProfile
