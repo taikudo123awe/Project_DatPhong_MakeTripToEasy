@@ -1,17 +1,45 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const roomController = require('../controllers/roomController');
+const { ensureProviderLoggedIn } = require("../middlewares/authMiddleware");
+const roomController = require("../controllers/roomController");
+const providerController = require("../controllers/providerController");
 
-//Lấy danh sách phòng
-router.get('/', roomController.getAllRooms);
+const multer = require("multer");
+const path = require("path");
 
-// Form thêm phòng (cho provider)
-router.get('/add', roomController.showAddRoomForm);
+// --- Cấu hình upload ảnh phòng ---
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./public/uploads/rooms/");
+  },
+  filename: (req, file, cb) => {
+    const providerId = req.session.provider.providerId;
+    const uniqueName = `${providerId}-room-${Date.now()}${path.extname(
+      file.originalname
+    )}`;
+    cb(null, uniqueName);
+  },
+});
+const upload = multer({ storage: storage });
+// ---------------------------------
 
-// Xử lý thêm phòng
-router.post('/add', roomController.createRoom);
+router.get("/add-room", ensureProviderLoggedIn, roomController.showAddRoomForm);
+router.post(
+  "/add-room",
+  ensureProviderLoggedIn,
+  upload.single("image"),
+  roomController.createRoom
+);
 
-// Trang chi tiết phòng
-router.get('/:id', roomController.getRoomDetail);
+router.get(
+  "/dashboard",
+  ensureProviderLoggedIn,
+  providerController.showDashboard
+);
+router.get(
+  "/edit-profile",
+  ensureProviderLoggedIn,
+  providerController.showEditProfileForm
+);
 
 module.exports = router;
