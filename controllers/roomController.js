@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const Room = require('../models/Room');
 const Provider = require('../models/Provider');
 
@@ -40,6 +41,7 @@ exports.createRoom = async (req, res) => {
     res.status(500).send('Lỗi khi thêm phòng');
   }
 };
+
 exports.getRoomDetail = async (req, res) => {
   const roomId = req.params.id;
 
@@ -52,6 +54,7 @@ exports.getRoomDetail = async (req, res) => {
     if (!room) {
       return res.status(404).send('Không tìm thấy phòng');
     }
+
 
     res.render('rooms/detail', { room });
   } catch (err) {
@@ -69,7 +72,19 @@ exports.getRoomsForHome = async (req, res) => {
       limit: 8
     });
 
-    res.render('home', { rooms });
+    const { error, address = '', checkIn = '', checkOut = '', guests = '1', rooms: roomNum = '1' } = req.query;
+
+    res.render('home', {
+      rooms,
+      error,
+      form: {
+        address,
+        checkIn,
+        checkOut,
+        guests,
+        rooms: roomNum
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send('Lỗi khi tải phòng trang chủ');
