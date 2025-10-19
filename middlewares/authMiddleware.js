@@ -5,4 +5,11 @@ exports.ensureProviderLoggedIn = (req, res, next) => {
       res.redirect('/login');
     }
   };
+
+exports.ensureCustomerLoggedIn = (req, res, next) => {
+  if (req.session && req.session.customer) {
+    return next();
+  }
+  return res.redirect('/customer/login');
+};
   
