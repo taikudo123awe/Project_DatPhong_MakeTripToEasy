@@ -1,55 +1,74 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { ensureProviderLoggedIn } = require('../middlewares/authMiddleware');
-const roomController = require('../controllers/roomController');
-const providerController = require('../controllers/providerController');
-const Room = require('../models/Room');
+const { ensureProviderLoggedIn } = require("../middlewares/authMiddleware");
+const roomController = require("../controllers/roomController");
+const providerController = require("../controllers/providerController");
+const Room = require("../models/Room");
 
-// --- THÊM CẤU HÌNH MULTER ---
-const multer = require('multer');
-const path = require('path');
+const multer = require("multer");
+const path = require("path");
 
-// Cấu hình nơi lưu trữ file
+// --- Cấu hình upload QR code (cho phần hồ sơ nhà cung cấp) ---
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    // Lưu file vào thư mục public/uploads/qrcodes
-    // Bạn cần tạo thư mục 'uploads/qrcodes' bên trong thư mục 'public'
-    cb(null, './public/uploads/qrcodes/');
+    cb(null, "./public/uploads/qrcodes/");
   },
   filename: function (req, file, cb) {
-    // Tạo tên file duy nhất: providerId-qr-timestamp.ext
     const providerId = req.session.provider.providerId;
     const uniqueSuffix = Date.now() + path.extname(file.originalname);
-    cb(null, providerId + '-qr-' + uniqueSuffix);
-  }
+    cb(null, providerId + "-qr-" + uniqueSuffix);
+  },
 });
-
-// Khởi tạo middleware upload
 const upload = multer({ storage: storage });
-// --- KẾT THÚC CẤU HÌNH MULTER ---
 
+// --- Cấu hình upload ảnh phòng ---
+const storageRoom = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "./public/uploads/imgrooms/");
+  },
+  filename: (req, file, cb) => {
+    const providerId = req.session.provider.providerId || "unknown";
+    cb(
+      null,
+      `${providerId}-room-${Date.now()}${path.extname(file.originalname)}`
+    );
+  },
+});
+const uploadRoom = multer({ storage: storageRoom });
 
-// Hiển thị form
-router.get('/add-room', ensureProviderLoggedIn, roomController.showAddRoomForm);
+// -------------------- ROUTES --------------------
 
-// Xử lý form
-router.post('/add-room', ensureProviderLoggedIn, roomController.createRoom);
+// Hiển thị form thêm phòng
+router.get("/add-room", ensureProviderLoggedIn, roomController.showAddRoomForm);
 
-// Cập nhật route dashboard để dùng controller
-router.get('/dashboard', ensureProviderLoggedIn, providerController.showDashboard);
+// Xử lý thêm phòng
+router.post(
+  "/add-room",
+  ensureProviderLoggedIn,
+  uploadRoom.single("image"),
+  roomController.createRoom
+);
 
-// --- THÊM ROUTE MỚI CHO EDIT PROFILE ---
-// GET: Hiển thị form
-router.get('/edit-profile', ensureProviderLoggedIn, providerController.showEditProfileForm);
+// Dashboard của provider
+router.get(
+  "/dashboard",
+  ensureProviderLoggedIn,
+  providerController.showDashboard
+);
 
-// POST: Xử lý cập nhật
-// *** ÁP DỤNG MIDDLEWARE UPLOAD VÀO ĐÂY ***
-// 'qrCodeImage' là tên của trường <input type="file"> trong form
-router.post('/edit-profile', 
-  ensureProviderLoggedIn, 
-  upload.single('qrCodeImage'), // Thêm middleware
+// Hiển thị form chỉnh sửa hồ sơ
+router.get(
+  "/edit-profile",
+  ensureProviderLoggedIn,
+  providerController.showEditProfileForm
+);
+
+// Cập nhật hồ sơ + upload QR
+router.post(
+  "/edit-profile",
+  ensureProviderLoggedIn,
+  upload.single("qrCodeImage"),
   providerController.updateProfile
 );
-// --- KẾT THÚC THÊM ---
 
 module.exports = router;
