@@ -3,6 +3,6 @@ const router = express.Router();
 const roomController = require('../controllers/roomController');
 
 router.get('/', roomController.getRoomsForHome);
-router.get('/search', roomController.searchRooms);
+router.get('/rooms', roomController.getAllRooms);
 
 module.exports = router;

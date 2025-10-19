@@ -1,6 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Account = require('./Account');
+// Xóa "const PaymentInfo = require('./PaymentInfo');" nếu bạn đã thêm ở lần trước
+// Xóa quan hệ với PaymentInfo ở cuối file nếu bạn đã thêm ở lần trước
 
 const Provider = sequelize.define('Provider', {
   providerId: {
@@ -9,7 +11,7 @@ const Provider = sequelize.define('Provider', {
     primaryKey: true
   },
   providerName: {
-    type: DataTypes.STRING(50),
+    type: DataTypes.STRING(50), // Sửa lại đúng schema
     allowNull: false
   },
   email: {
@@ -21,7 +23,7 @@ const Provider = sequelize.define('Provider', {
     allowNull: false
   },
   taxCode: {
-    type: DataTypes.STRING(20)
+    type: DataTypes.STRING(20) // Sửa lại đúng schema
   },
   accountId: {
     type: DataTypes.INTEGER,
