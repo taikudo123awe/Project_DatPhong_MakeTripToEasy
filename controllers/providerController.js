@@ -3,9 +3,13 @@ const Room = require('../models/Room');
 const PaymentInfo = require('../models/PaymentInfo'); // <-- THÊM MỚI
 const validator = require('validator');
 // ... (exports.showDashboard không đổi) ...
+const bcrypt = require('bcryptjs');
+const sequelize = require('../config/database');
+const Account = require('../models/Account');
+
 exports.showDashboard = async (req, res) => {
   try {
-    const providerId = req.session.provider.providerId;
+    const providerId = req.session.provider.id; // ✅ Sửa ở đây
     console.log('>> providerId:', providerId);
 
     const providerRooms = await Room.findAll({
@@ -26,6 +30,7 @@ exports.showDashboard = async (req, res) => {
 };
 
 
+
 // --- CẬP NHẬT LOGIC EDIT PROFILE ---
 
 // Hiển thị form với thông tin có sẵn
@@ -33,18 +38,18 @@ exports.showEditProfileForm = async (req, res) => {
   try {
     const providerId = req.session.provider.providerId;
     const provider = await Provider.findByPk(providerId);
-    
+
     // Tìm thông tin thanh toán ĐẦU TIÊN
-    const paymentInfo = await PaymentInfo.findOne({ 
-      where: { providerId } 
+    const paymentInfo = await PaymentInfo.findOne({
+      where: { providerId }
     });
 
     if (!provider) {
       return res.status(404).send('Không tìm thấy nhà cung cấp.');
     }
 
-    res.render('provider/edit-profile', { 
-      provider, 
+    res.render('provider/edit-profile', {
+      provider,
       paymentInfo // Gửi paymentInfo (có thể là null)
     });
   } catch (err) {
@@ -162,4 +167,58 @@ exports.updateProfile = async (req, res) => {
       console.error('❌ Lỗi khi cập nhật thông tin:', err);
       res.status(500).send('Lỗi khi cập nhật thông tin');
     }
-  };
+    // *** KẾT THÚC XỬ LÝ FILE ***
+};
+// controllers/providerController.js
+
+exports.registerProvider = async (req, res) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const { providerName, email, phoneNumber, identityNumber, taxCode, password, confirmPassword } = req.body;
+
+    // 1️⃣ Kiểm tra mật khẩu nhập lại
+    if (password !== confirmPassword) {
+      return res.render('provider/register', { error: 'Mật khẩu nhập lại không khớp!', success: null, formData: req.body });
+    }
+
+    // 2️⃣ Kiểm tra trùng số điện thoại (username)
+    const existing = await Account.findOne({ where: { username: phoneNumber } });
+    if (existing) {
+      return res.render('provider/register', { error: 'Số điện thoại đã được sử dụng!', success: null, formData: req.body });
+    }
+
+    // 3️⃣ Mã hóa mật khẩu
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 4️⃣ Tạo tài khoản Account
+    const account = await Account.create({
+      username: phoneNumber,
+      password: hashedPassword,
+      role: 1
+    }, { transaction: t });
+
+    // 5️⃣ Tạo Provider
+    await Provider.create({
+      providerName,
+      email,
+      phoneNumber,
+      identityNumber,
+      taxCode,
+      accountId: account.accountId
+    }, { transaction: t });
+
+    await t.commit();
+
+    //Điều hướng sang login sau khi đăng ký thành công
+    return res.redirect('/provider/login');
+
+  } catch (error) {
+    await t.rollback();
+    return res.render('provider/register', {
+      error: 'Đăng ký thất bại: ' + error.message,
+      success: null,
+      formData: req.body
+    });
+  }
+};
