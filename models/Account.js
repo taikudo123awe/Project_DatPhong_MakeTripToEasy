@@ -26,7 +26,7 @@ const Account = sequelize.define('Account', {
     defaultValue: 'active'
   }
 }, {
-  tableName: 'account',
+  tableName: 'Account',
   timestamps: false
 });
 

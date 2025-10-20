@@ -1,8 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Account = require('./Account');
-// Xóa "const PaymentInfo = require('./PaymentInfo');" nếu bạn đã thêm ở lần trước
-// Xóa quan hệ với PaymentInfo ở cuối file nếu bạn đã thêm ở lần trước
+const Feedback = require('./Feedback');
 
 const Provider = sequelize.define('Provider', {
   providerId: {

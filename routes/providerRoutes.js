@@ -4,7 +4,7 @@ const { ensureProviderLoggedIn } = require('../middlewares/authMiddleware');
 const roomController = require('../controllers/roomController');
 const providerController = require('../controllers/providerController');
 const Room = require('../models/Room');
-
+const reviewController = require('../controllers/reviewController');
 // --- THÊM CẤU HÌNH MULTER ---
 const multer = require('multer');
 const path = require('path');
@@ -52,5 +52,11 @@ router.post(
   providerController.updateProfile
 );
 // --- KẾT THÚC THÊM ---
+// --- THÊM ROUTE MỚI CHO CHỨC NĂNG ĐÁNH GIÁ ---
 
+router.get('/reviews', ensureProviderLoggedIn, reviewController.showReviewedRooms);
+router.get('/reviews/:roomId', ensureProviderLoggedIn, reviewController.showRoomReviews);
+router.post('/reviews/feedback', ensureProviderLoggedIn, reviewController.addFeedback);
+
+// --- KẾT THÚC THÊM ---
 module.exports = router;

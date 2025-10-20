@@ -1,7 +1,7 @@
 const Provider = require('../models/Provider');
 const Room = require('../models/Room');
 const PaymentInfo = require('../models/PaymentInfo'); // <-- THÊM MỚI
-
+const validator = require('validator');
 // ... (exports.showDashboard không đổi) ...
 exports.showDashboard = async (req, res) => {
   try {
@@ -66,7 +66,54 @@ exports.updateProfile = async (req, res) => {
         accountHolder,
         accountNumber
       } = req.body;
-  
+      const errors = [];
+      //Kiem tra ten nha cung cap, ten ngan hang, ten chu tai khoan
+      if (!providerName || providerName.trim() === '') {
+        errors.push('Tên nhà cung cấp không được bỏ trống.');
+      }
+      if (!bankName || bankName.trim() === '') {
+        errors.push('Tên ngân hàng không được bỏ trống.');
+      }
+      if (!accountHolder || accountHolder.trim() === '') {
+        errors.push('Tên chủ tài khoản không được bỏ trống.');
+      }
+    // 1. Kiểm tra Email
+    if (!email || !validator.isEmail(email)) {
+      errors.push('Email không hợp lệ hoặc bị bỏ trống.');
+    }
+
+    // 2. Kiểm tra Số điện thoại
+    if (!phoneNumber) {
+      errors.push('Số điện thoại không được bỏ trống.');
+    } else if (phoneNumber.length !== 10) {
+      errors.push('Số điện thoại phải có đúng 10 ký tự.');
+    } else if (!validator.isNumeric(phoneNumber, { no_symbols: true })) {
+      errors.push('Số điện thoại chỉ được chứa số.');
+    }
+
+    // 3. Kiểm tra Số tài khoản
+    // (Chỉ kiểm tra nếu một trong các trường bank có dữ liệu)
+    if (bankName || accountHolder || accountNumber) {
+      if (!accountNumber) {
+        errors.push('Số tài khoản không được bỏ trống khi nhập thông tin ngân hàng.');
+      } else if (!validator.isNumeric(accountNumber, { no_symbols: true })) {
+        errors.push('Số tài khoản chỉ được chứa số.');
+      }
+    }
+    
+    // 4. Nếu có lỗi, render lại trang edit với lỗi
+    if (errors.length > 0) {
+      // Chúng ta cần lấy lại thông tin gốc để hiển thị QR
+      const provider = await Provider.findByPk(providerId);
+      const paymentInfo = await PaymentInfo.findOne({ where: { providerId } });
+
+      return res.render('provider/edit-profile', {
+        errors,       // Danh sách lỗi
+        provider,     // Dữ liệu provider gốc
+        paymentInfo,  // Dữ liệu payment gốc
+        userInput: req.body // Dữ liệu người dùng vừa nhập (để fill lại form)
+      });
+    }
       // 1. Cập nhật thông tin Provider
       await Provider.update({
         providerName,

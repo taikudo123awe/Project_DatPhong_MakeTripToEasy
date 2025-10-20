@@ -1,0 +1,91 @@
+const Room = require('../models/Room');
+const Review = require('../models/Review');
+const Customer = require('../models/Customer');
+const Feedback = require('../models/Feedback');
+const { Op } = require('sequelize');
+const sequelize = require('../config/database');
+// Bước 2: Hiển thị danh sách các phòng đã có đánh giá
+exports.showReviewedRooms = async (req, res) => {
+  try {
+    const providerId = req.session.provider.providerId;
+
+    const roomsWithReviews = await Room.findAll({
+      where: { providerId },
+      include: [{
+        model: Review,
+        required: true, // Chỉ lấy phòng CÓ đánh giá
+        attributes: [] // Không cần lấy chi tiết review ở đây
+      }],
+      // Đếm số lượng review
+      attributes: [
+        'roomId', 'roomName', 'price',
+        [sequelize.fn('COUNT', sequelize.col('Reviews.reviewId')), 'reviewCount']
+      ],
+      group: ['Room.roomId', 'Room.roomName', 'Room.price'],
+      order: [['roomName', 'ASC']]
+    });
+
+    res.render('provider/reviews', { rooms: roomsWithReviews });
+  } catch (err) {
+    console.error('Lỗi khi lấy phòng có đánh giá:', err);
+    res.status(500).send('Lỗi máy chủ');
+  }
+};
+
+// Bước 3 & 4: Hiển thị chi tiết đánh giá của một phòng
+exports.showRoomReviews = async (req, res) => {
+  try {
+    const providerId = req.session.provider.providerId;
+    const { roomId } = req.params;
+
+    const room = await Room.findOne({
+      where: { 
+        roomId, 
+        providerId 
+      },
+      include: [{
+        model: Review,
+        include: [
+          { model: Customer }, // Lấy tên khách hàng
+          { model: Feedback }  // Lấy phản hồi (nếu có)
+        ],
+        order: [['reviewDate', 'DESC']]
+      }]
+    });
+
+    if (!room) {
+      return res.status(404).send('Không tìm thấy phòng hoặc bạn không có quyền.');
+    }
+
+    res.render('provider/review-details', { room });
+  } catch (err) {
+    console.error('Lỗi khi lấy chi tiết đánh giá:', err);
+    res.status(500).send('Lỗi máy chủ');
+  }
+};
+
+// Bước 5 & 6: Lưu phản hồi
+exports.addFeedback = async (req, res) => {
+  try {
+    const providerId = req.session.provider.providerId;
+    const { reviewId, message, roomId } = req.body; // roomId dùng để redirect
+
+    // Kiểm tra xem đã phản hồi chưa (để tránh spam)
+    const existingFeedback = await Feedback.findOne({ where: { reviewId } });
+    if (existingFeedback) {
+      return res.status(400).send('Đánh giá này đã được phản hồi.');
+    }
+
+    await Feedback.create({
+      providerId,
+      reviewId,
+      message,
+      feedbackDate: new Date()
+    });
+
+    res.redirect(`/provider/reviews/${roomId}`);
+  } catch (err) {
+    console.error('Lỗi khi gửi phản hồi:', err);
+    res.status(500).send('Lỗi máy chủ');
+  }
+};

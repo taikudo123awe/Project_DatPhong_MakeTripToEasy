@@ -7,7 +7,7 @@ const session = require('express-session');
 require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const providerRoutes = require('./routes/providerRoutes');
-
+require('./models/associations');
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, 'views'));
   
