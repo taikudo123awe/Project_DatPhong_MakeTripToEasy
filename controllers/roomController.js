@@ -9,6 +9,7 @@ exports.getAllRooms = async (req, res) => {
     const rooms = await Room.findAll({
       where: { approvalStatus: "Đã duyệt" },
       include: { model: Provider, as: "provider" },
+      order: [["postedAt", "DESC"]],
     });
     res.render("rooms/list", { rooms });
   } catch (err) {
@@ -36,35 +37,34 @@ exports.getRoomsForHome = async (req, res) => {
 };
 
 // ===========================
-// Thêm phòng (Form + Submit)
+// Hiển thị form thêm phòng
 // ===========================
 exports.showAddRoomForm = (req, res) => {
   res.render("provider/add-room", { error: null, success: null });
 };
 
+// ===========================
+// Thêm phòng mới
+// ===========================
 exports.createRoom = async (req, res) => {
   try {
     const providerId = req.session.provider?.id;
     if (!providerId) {
-      throw new Error("Provider chưa đăng nhập hoặc session hết hạn.");
+      throw new Error("Provider chưa đăng nhập hoặc session đã hết hạn.");
     }
 
     const { roomName, fullAddress, capacity, price, amenities, description } =
       req.body;
     const errors = [];
 
-    if (!roomName || roomName.trim() === "")
-      errors.push("Tên phòng không được để trống.");
-    if (!fullAddress || fullAddress.trim() === "")
-      errors.push("Địa chỉ không được để trống.");
+    if (!roomName?.trim()) errors.push("Tên phòng không được để trống.");
+    if (!fullAddress?.trim()) errors.push("Địa chỉ không được để trống.");
     if (!capacity || isNaN(capacity) || capacity < 1)
       errors.push("Số lượng người ở phải ≥ 1.");
     if (!price || isNaN(price) || price <= 0)
       errors.push("Giá phòng phải là số > 0.");
-    if (!amenities || amenities.trim() === "")
-      errors.push("Vui lòng nhập tiện ích của phòng.");
-    if (!description || description.trim() === "")
-      errors.push("Vui lòng nhập mô tả phòng.");
+    if (!amenities?.trim()) errors.push("Vui lòng nhập tiện ích của phòng.");
+    if (!description?.trim()) errors.push("Vui lòng nhập mô tả phòng.");
 
     let imagePath = null;
     if (!req.file) {
@@ -74,9 +74,7 @@ exports.createRoom = async (req, res) => {
       if (!allowedTypes.includes(req.file.mimetype)) {
         errors.push("Ảnh không đúng định dạng (.jpg, .jpeg, .png).");
       } else {
-        imagePath = req.file.path
-          .replace("public\\", "")
-          .replace("public/", "");
+        imagePath = req.file.path.replace(/^public[\\/]/, "");
       }
     }
 
@@ -101,6 +99,7 @@ exports.createRoom = async (req, res) => {
       postedAt: new Date(),
     });
 
+    req.session.success = "Phòng đã được thêm thành công!";
     res.redirect("/provider/dashboard");
   } catch (err) {
     console.error("❌ Lỗi khi thêm phòng:", err);
@@ -117,43 +116,45 @@ exports.getRoomDetail = async (req, res) => {
   try {
     const room = await Room.findOne({
       where: { roomId, approvalStatus: "Đã duyệt" },
-      include: Provider,
+      include: { model: Provider, as: "provider" }, // ✅ alias đồng bộ
     });
 
-    if (!room) {
-      return res.status(404).send("Không tìm thấy phòng");
-    }
+    if (!room) return res.status(404).send("Không tìm thấy phòng.");
 
     res.render("rooms/detail", { room });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Lỗi khi tải thông tin phòng:", err);
     res.status(500).send("Lỗi khi tải thông tin phòng");
   }
 };
 
 // ===========================
-// Sửa phòng
+// Hiển thị form chỉnh sửa
 // ===========================
 exports.showEditRoomForm = async (req, res) => {
   try {
     const roomId = req.params.roomId;
     const room = await Room.findByPk(roomId);
-    if (!room) return res.status(404).send("Không tìm thấy phòng");
+    if (!room) return res.status(404).send("Không tìm thấy phòng.");
     res.render("provider/edit-room", { room, error: null });
   } catch (err) {
-    console.error("❌ Lỗi load form:", err);
-    res.status(500).send("Lỗi khi tải form sửa phòng");
+    console.error("❌ Lỗi khi tải form chỉnh sửa:", err);
+    res.status(500).send("Lỗi khi tải form chỉnh sửa phòng.");
   }
 };
 
+// ===========================
+// Cập nhật phòng
+// ===========================
 exports.updateRoom = async (req, res) => {
   try {
     const roomId = req.params.roomId;
     const { roomName, fullAddress, capacity, price, amenities, description } =
       req.body;
+
     let image = null;
-    if (req.files && req.files.length > 0) {
-      image = req.files[0].path.replace("public\\", "").replace("public/", "");
+    if (req.files?.length > 0) {
+      image = req.files[0].path.replace(/^public[\\/]/, "");
     }
 
     const updateData = {
@@ -165,14 +166,15 @@ exports.updateRoom = async (req, res) => {
       description,
       approvalStatus: "Chờ duyệt",
     };
-
     if (image) updateData.image = image;
 
     await Room.update(updateData, { where: { roomId } });
+    req.session.success = "Cập nhật phòng thành công!";
     res.redirect("/provider/dashboard");
   } catch (err) {
-    console.error("❌ Lỗi cập nhật phòng:", err);
-    res.status(500).send("Lỗi khi cập nhật phòng");
+    console.error("❌ Lỗi khi cập nhật phòng:", err);
+    req.session.error = "Đã xảy ra lỗi khi cập nhật phòng.";
+    res.redirect("/provider/dashboard");
   }
 };
 
@@ -183,6 +185,7 @@ exports.deleteRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
     const room = await Room.findByPk(roomId);
+
     if (!room) {
       req.session.error = "Không tìm thấy phòng cần xóa.";
       return res.redirect("/provider/dashboard");
