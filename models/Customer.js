@@ -18,7 +18,7 @@ const Customer = sequelize.define('Customer', {
     type: DataTypes.STRING(15),
     allowNull: false 
   },
-  idCard: {
+  identityNumber: {
     type: DataTypes.STRING(20),
     allowNull: false
   },

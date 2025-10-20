@@ -45,22 +45,25 @@ exports.showCustomerRegisterForm = (req, res) => {
   res.render('auth/register', { form:{} });
 };
 
+//Hàm đăng ký tài khoản customer
 exports.registerCustomer = async (req, res) => {
   const { email, phoneNumber, idCard, password, confirmPassword } = req.body;
+  const { email, phoneNumber, identityNumber, password, confirmPassword } = req.body;
 
   try {
     // 1) Kiểm tra hợp lệ cơ bản
     if (!email || !phoneNumber || !idCard || !password || !confirmPassword) {
+    if (!email || !phoneNumber || !identityNumber || !password || !confirmPassword) {
       return res.render('auth/register', {
         error: 'Vui lòng nhập đầy đủ thông tin.',
-        form: { email, phoneNumber, idCard }
+        form: { email, phoneNumber, identityNumber }
       });
     }
 
     if (password !== confirmPassword) {
       return res.render('auth/register', {
         error: 'Mật khẩu xác nhận không khớp.',
-        form: { email, phoneNumber, idCard }
+        form: { email, phoneNumber, identityNumber }
       });
     }
 
@@ -69,7 +72,7 @@ exports.registerCustomer = async (req, res) => {
     if (existed) {
       return res.render('auth/register', {
         error: 'Email đã được sử dụng để đăng ký tài khoản.',
-        form: { email, phoneNumber, idCard }
+        form: { email, phoneNumber, identityNumber }
       });
     }
 
@@ -81,18 +84,18 @@ exports.registerCustomer = async (req, res) => {
       );
 
       await Customer.create(
-        { email, phoneNumber, idCard, accountId: account.accountId },
+        { email, phoneNumber, identityNumber, accountId: account.accountId },
         { transaction: t }
       );
     });
 
     // 4) Trả về trang đăng nhập kèm thông báo thành công
-    return res.render('auth/login', { success: 'Đăng ký thành công! Mời bạn đăng nhập.' });
+    return res.render('auth/customer-login', { success: 'Đăng ký thành công! Mời bạn đăng nhập.' });
   } catch (err) {
     console.error('❌ Lỗi đăng ký customer:', err);
     return res.render('auth/register', {
       error: 'Có lỗi xảy ra. Vui lòng thử lại.',
-      form: { email, phoneNumber, idCard }
+      form: { email, phoneNumber, identityNumber }
     });
   }
 };
@@ -100,9 +103,10 @@ exports.registerCustomer = async (req, res) => {
 // Đăng nhập/ Đăng xuất của customer
 // Hiển thị form đăng nhập Customer
 exports.showCustomerLoginForm = (req, res) => {
-  console.log('👉 Rendering customer login form...');
+  console.log('👉 showCustomerLoginForm triggered');
   res.render('auth/customer-login');
 };
+
 // Xử lý đăng nhập Customer
 exports.loginCustomer = async (req, res) => {
   const { email, password } = req.body;
@@ -137,7 +141,7 @@ exports.loginCustomer = async (req, res) => {
       email: customer.email
     };
     // Điều hướng đến trang danh sách phòng cho khách
-    return res.redirect('/rooms');
+    return res.redirect('/');
   } catch (err) {
     console.error('❌ Lỗi đăng nhập customer:', err);
     return res.render('auth/customer-login', {
@@ -147,8 +151,16 @@ exports.loginCustomer = async (req, res) => {
 };
   // Đăng xuất Customer
 exports.logoutCustomer = (req, res) => {
-  if (req.session && req.session.customer) {
-    delete req.session.customer;
-  }
-  res.redirect('/customer/login');
+  if (!req.session) return res.redirect('/');
+  req.session.destroy(err => {
+    if (err) {
+      console.error('❌ Lỗi huỷ session:', err);
+      // fallback: xoá field customer và về trang chủ
+      if (req.session) delete req.session.customer;
+      return res.redirect('/');
+    }
+    // cookie mặc định của express-session là 'connect.sid'
+    res.clearCookie('connect.sid');
+    return res.redirect('/');
+  });
 };
