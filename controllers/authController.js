@@ -49,62 +49,40 @@ exports.showCustomerRegisterForm = (req, res) => {
 
 //Hàm đăng ký tài khoản customer
 exports.registerCustomer = async (req, res) => {
-  const { fullName, email, phoneNumber, identityNumber, password, confirmPassword } = req.body;
+  const t = await sequelize.transaction();
 
   try {
-    // 1) Kiểm tra hợp lệ cơ bản
-    if (!fullName || !email || !phoneNumber || !identityNumber || !password || !confirmPassword) {
-      return res.render('customer/register', {
-        error: 'Vui lòng nhập đầy đủ thông tin.',
-        form: { fullName, email, phoneNumber, identityNumber }
-      });
-    }
+    const { fullName, email, phoneNumber, identityNumber, password } = req.body;
 
-    // Kiểm tra số điện thoại
-    const phoneRegex = /^0[0-9]{8,11}$/;
-    if (!phoneRegex.test(phoneNumber)) {
-      return res.render('customer/register', {
-        error: 'Số điện thoại phải bắt đầu bằng số 0 và có 9–12 chữ số.',
-        form: { fullName, email, phoneNumber, identityNumber }
-      });
-    }
+    // 1️⃣ Mã hóa mật khẩu
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (password !== confirmPassword) {
-      return res.render('customer/register', {
-        error: 'Mật khẩu xác nhận không khớp.',
-        form: { fullName, email, phoneNumber, identityNumber }
-      });
-    }
+    // 2️⃣ Tạo tài khoản Account (role = 2: Customer)
+    const account = await Account.create({
+      username: email,
+      password: hashedPassword,
+      role: 2
+    }, { transaction: t });
 
-    // 2) Email được dùng làm username -> không trùng
-    const existed = await Account.findOne({ where: { username: email } });
-    if (existed) {
-      return res.render('customer/register', {
-        error: 'Email đã được sử dụng để đăng ký tài khoản.',
-        form: { fullName, email, phoneNumber, identityNumber }
-      });
-    }
+    // 3️⃣ Tạo bản ghi Customer
+    await Customer.create({
+      fullName,
+      email,
+      phoneNumber,
+      identityNumber,
+      accountId: account.accountId
+    }, { transaction: t });
 
-    // 3) Tạo Account (role = 2: customer) + Customer trong 1 transaction
-    await sequelize.transaction(async (t) => {
-      const account = await Account.create(
-        { username: email, password, role: 2 }, // 0: admin, 1: provider, 2: customer
-        { transaction: t }
-      );
-
-      await Customer.create(
-        { fullName, email, phoneNumber, identityNumber, accountId: account.accountId },
-        { transaction: t }
-      );
+    await t.commit();
+    return res.render('auth/customer-login', {
+      success: 'Đăng ký thành công! Mời bạn đăng nhập.'
     });
-
-    // 4) Trả về trang đăng nhập kèm thông báo thành công
-    return res.render('customer/login', { success: 'Đăng ký thành công! Mời bạn đăng nhập.' });
-  } catch (err) {
-    console.error('❌ Lỗi đăng ký customer:', err);
-    return res.render('customer/register', {
-      error: 'Có lỗi xảy ra. Vui lòng thử lại.',
-      form: { fullName, email, phoneNumber, identityNumber }
+  } catch (error) {
+    await t.rollback();
+    console.error('❌ Lỗi khi đăng ký khách hàng:', error);
+    return res.render('auth/register', {
+      error: 'Đăng ký thất bại. Vui lòng thử lại!',
+      form: req.body
     });
   }
 };
