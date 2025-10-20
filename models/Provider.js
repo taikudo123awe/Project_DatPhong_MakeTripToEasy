@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Account = require('./Account');
-
 const Provider = sequelize.define('Provider', {
   providerId: {
     type: DataTypes.INTEGER,
@@ -9,6 +8,10 @@ const Provider = sequelize.define('Provider', {
     primaryKey: true
   },
   providerName: {
+    type: DataTypes.STRING(50),
+    allowNull: false
+  },
+  identityNumber: {
     type: DataTypes.STRING(50),
     allowNull: false
   },
@@ -30,7 +33,7 @@ const Provider = sequelize.define('Provider', {
       model: 'Account',
       key: 'accountId'
     }
-  }
+  },
 }, {
   tableName: 'Provider',
   timestamps: false

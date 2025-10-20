@@ -1,11 +1,13 @@
 const sequelize = require('../config/database');
-const Account = require('../models/Account'); // Model Sequelize
+const Account = require('../models/Account');
 const Provider = require('../models/Provider');
 const Customer = require('../models/Customer');
+const bcrypt = require('bcrypt');
 
 exports.showLoginForm = (req, res) => {
-  res.render('auth/login');
+  res.render('provider/login', { error: null, success: null });
 };
+
 
 exports.login = async (req, res) => {
   const { username, password } = req.body;
@@ -42,12 +44,11 @@ exports.logout = (req, res) => {
 
 //đăng ký customer
 exports.showCustomerRegisterForm = (req, res) => {
-  res.render('auth/register', { form:{} });
+  res.render('auth/register', { form: {} });
 };
 
 //Hàm đăng ký tài khoản customer
 exports.registerCustomer = async (req, res) => {
-  const { email, phoneNumber, idCard, password, confirmPassword } = req.body;
   const { email, phoneNumber, identityNumber, password, confirmPassword } = req.body;
 
   try {

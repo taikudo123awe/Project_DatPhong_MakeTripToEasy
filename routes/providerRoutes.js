@@ -2,35 +2,54 @@ const express = require('express');
 const router = express.Router();
 const { ensureProviderLoggedIn } = require('../middlewares/authMiddleware');
 const roomController = require('../controllers/roomController');
+const providerController = require('../controllers/providerController');
+const validateProvider = require('../middlewares/validateProvider');
 const Room = require('../models/Room');
+
+// --- THÊM CẤU HÌNH MULTER ---
+const multer = require('multer');
+const path = require('path');
+
+// Cấu hình nơi lưu trữ file
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './public/uploads/qrcodes/');
+  },
+  filename: function (req, file, cb) {
+    // Tạo tên file duy nhất: providerId-qr-timestamp.ext
+    const providerId = req.session.provider.providerId;
+    const uniqueSuffix = Date.now() + path.extname(file.originalname);
+    cb(null, providerId + '-qr-' + uniqueSuffix);
+  }
+});
+
+// Khởi tạo middleware upload
+const upload = multer({ storage: storage });
 // Hiển thị form
 router.get('/add-room', ensureProviderLoggedIn, roomController.showAddRoomForm);
 
 // Xử lý form
 router.post('/add-room', ensureProviderLoggedIn, roomController.createRoom);
 
-router.get('/dashboard', ensureProviderLoggedIn, async (req, res) => {
-    try {
-      const providerId = req.session.provider.providerId;
-      console.log('>> providerId:', providerId);  // <== kiểm tra ID
-  
-      const providerRooms = await Room.findAll({
-        where: { providerId },
-        order: [['postedAt', 'DESC']]
-      });
-  
-      console.log('>> Số phòng tìm được:', providerRooms.length);  // <== debug data
-  
-      res.render('provider/dashboard', {
-        provider: req.session.provider,
-        providerRooms
-      });
-    } catch (err) {
-      console.error('❌ Lỗi khi lấy danh sách phòng:', err);
-      res.status(500).send('Lỗi khi tải phòng');
-    }
-  });
+// Cập nhật route dashboard để dùng controller
+router.get('/dashboard', ensureProviderLoggedIn, providerController.showDashboard);
 
+// GET: Hiển thị form
+router.get('/edit-profile', ensureProviderLoggedIn, providerController.showEditProfileForm);
 
+// POST: Xử lý cập nhật
+router.post('/edit-profile',
+  ensureProviderLoggedIn,
+  upload.single('qrCodeImage'), // Thêm middleware
+  providerController.updateProfile
+);
+
+// Hiển thị form đăng ký
+router.get('/register', (req, res) => {
+  res.render('provider/register', { error: null, success: null, formData: {} });
+});
+
+// Xử lý đăng ký (kèm middleware kiểm tra)
+router.post('/register', validateProvider, providerController.registerProvider);
 
 module.exports = router;

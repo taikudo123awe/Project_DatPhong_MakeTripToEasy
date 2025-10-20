@@ -7,6 +7,7 @@ const Customer = require('../models/Customer');
 router.get('/login', authController.showLoginForm);
 router.post('/login', authController.login);
 router.get('/logout', authController.logout);
+
 //Đăng ký customer
 router.get('/register', authController.showCustomerRegisterForm);
 router.post('/register', authController.registerCustomer);

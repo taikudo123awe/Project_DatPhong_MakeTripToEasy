@@ -1,0 +1,15 @@
+<!-- public/images/logo.svg -->
+<svg width="220" height="60" viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="160" rx="20" fill="#e0f7fa"/>
+  <g font-family="Arial, sans-serif" font-weight="bold">
+    <text x="130" y="95" font-size="38" fill="#0277bd">Make Trip To Easy</text>
+  </g>
+  <g transform="translate(20, 40)">
+    <!-- Plane -->
+    <path d="M25 30 L45 10 L55 20 L35 40 Z" fill="#0288d1"/>
+    <!-- Sun -->
+    <circle cx="80" cy="40" r="12" fill="#ffd54f"/>
+    <!-- Waves -->
+    <path d="M70 70 Q80 65 90 70 T110 70" stroke="#4fc3f7" stroke-width="3" fill="none"/>
+  </g>
+</svg>

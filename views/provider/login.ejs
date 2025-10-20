@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập Nhà Cung Cấp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="container mt-5">
+    <h2>Đăng nhập Nhà cung cấp</h2>
+
+    <% if (success) { %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+        <% } %>
+
+            <% if (error) { %>
+                <div class="alert alert-danger">
+                    <%= error %>
+                </div>
+                <% } %>
+
+                    <form method="POST" action="/provider/login">
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label">Số điện thoại</label>
+                            <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                        <a href="/provider/register" class="btn btn-link">Chưa có tài khoản? Đăng ký</a>
+                    </form>
+</body>
+
+</html>
