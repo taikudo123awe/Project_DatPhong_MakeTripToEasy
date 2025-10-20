@@ -1,10 +1,8 @@
-// models/Customer.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
-const Account = require('./Account');
 
 const Customer = sequelize.define('Customer', {
-  customerId: { 
+  customerId: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true
@@ -13,34 +11,26 @@ const Customer = sequelize.define('Customer', {
     type: DataTypes.STRING(58),
     allowNull: false
   },
-  email: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-    unique: true
-  },
-  phoneNumber: {
-    type: DataTypes.STRING(15),
-    allowNull: false 
-  },
   identityNumber: {
-    type: DataTypes.STRING(20),
+    type: DataTypes.STRING(12),
     allowNull: false
   },
-  accountId: { 
-    type: DataTypes.INTEGER, 
-    allowNull: false,
+  email: {
+    type: DataTypes.STRING(255)
+  },
+  phoneNumber: {
+    type: DataTypes.STRING(15)
+  },
+  accountId: {
+    type: DataTypes.INTEGER,
     references: {
-        model: 'Account',
-        key: 'accountId'
+      model: 'Account',
+      key: 'accountId'
     }
   }
 }, {
   tableName: 'Customer',
   timestamps: false
 });
-
-// Quan hệ 1-1 với Account
-Customer.belongsTo(Account, { foreignKey: 'accountId' });
-Account.hasOne(Customer,   { foreignKey: 'accountId' });
 
 module.exports = Customer;
