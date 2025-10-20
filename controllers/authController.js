@@ -5,8 +5,9 @@ const Customer = require('../models/Customer');
 const bcrypt = require('bcrypt');
 
 exports.showLoginForm = (req, res) => {
-  res.render('auth/login');
+  res.render('provider/login', { error: null, success: null });
 };
+
 
 exports.login = async (req, res) => {
   const { username, password } = req.body;

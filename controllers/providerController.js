@@ -7,7 +7,7 @@ const Account = require('../models/Account');
 
 exports.showDashboard = async (req, res) => {
   try {
-    const providerId = req.session.provider.providerId;
+    const providerId = req.session.provider.id; // ✅ Sửa ở đây
     console.log('>> providerId:', providerId);
 
     const providerRooms = await Room.findAll({
@@ -26,6 +26,7 @@ exports.showDashboard = async (req, res) => {
     res.status(500).send('Lỗi khi tải phòng');
   }
 };
+
 
 
 // --- CẬP NHẬT LOGIC EDIT PROFILE ---
@@ -144,7 +145,7 @@ exports.registerProvider = async (req, res) => {
     const account = await Account.create({
       username: phoneNumber,
       password: hashedPassword,
-      role: '1'
+      role: 1
     }, { transaction: t });
 
     // 5️⃣ Tạo Provider
