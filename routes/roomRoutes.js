@@ -41,5 +41,5 @@ router.get(
   ensureProviderLoggedIn,
   providerController.showEditProfileForm
 );
-
+router.get("/:id", roomController.getRoomDetail);
 module.exports = router;
