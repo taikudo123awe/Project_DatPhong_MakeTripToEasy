@@ -1,0 +1,111 @@
+<%- include('../partials/header') %>
+
+<main class="container py-5">
+  <div class="card shadow-lg border-0 overflow-hidden">
+    <div class="row g-0">
+      <!-- Hình ảnh phòng -->
+      <div class="col-md-6">
+        <img
+          src="/<%= room.image %>"
+          class="img-fluid h-100 w-100 object-fit-cover"
+          alt="<%= room.roomName %>"
+          style="object-fit: cover"
+        />
+      </div>
+
+      <!-- Thông tin chi tiết -->
+      <div class="col-md-6 p-4 p-md-5 bg-light">
+        <h2 class="text-uppercase fw-bold text-primary mb-4">
+          <i class="fa-solid fa-bed me-2"></i> <%= room.roomName %>
+        </h2>
+
+        <ul class="list-unstyled mb-4">
+          <li class="mb-2">
+            <i class="fa-solid fa-location-dot text-danger me-2"></i>
+            <strong>Địa chỉ:</strong> <%= room.fullAddress %>
+          </li>
+          <li class="mb-2">
+            <i class="fa-solid fa-user-group text-success me-2"></i>
+            <strong>Sức chứa:</strong> <%= room.capacity %> người
+          </li>
+          <li class="mb-2">
+            <i class="fa-solid fa-coins text-warning me-2"></i>
+            <strong>Giá:</strong> <%= room.price.toLocaleString() %> VND / đêm
+          </li>
+          <li class="mb-2">
+            <i class="fa-solid fa-wifi text-info me-2"></i>
+            <strong>Tiện ích:</strong> <%= room.amenities %>
+          </li>
+        </ul>
+
+        <div class="mb-4">
+          <h5 class="fw-bold text-secondary mb-2">
+            <i class="fa-solid fa-info-circle me-2"></i> Mô tả
+          </h5>
+          <p class="text-muted" style="line-height: 1.6">
+            <%= room.description %>
+          </p>
+        </div>
+
+        <hr />
+
+        <div class="mb-4">
+          <h5 class="fw-bold text-secondary mb-3">
+            <i class="fa-solid fa-user-tie me-2"></i> Nhà cung cấp
+          </h5>
+          <div class="ps-2">
+            <p class="mb-1">
+              <strong>Tên:</strong> <%= room.provider?.providerName %>
+            </p>
+            <p class="mb-1">
+              <strong>Email:</strong> <%= room.provider?.email %>
+            </p>
+            <p class="mb-0">
+              <strong>SĐT:</strong> <%= room.provider?.phoneNumber %>
+            </p>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3 mt-4">
+          <a href="/" class="btn btn-outline-secondary px-4">
+            <i class="fa-solid fa-arrow-left me-2"></i> Quay lại
+          </a>
+          <a href="/booking/<%= room.roomId %>" class="btn btn-primary px-4">
+            <i class="fa-solid fa-calendar-check me-2"></i> Đặt phòng ngay
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>
+
+<style>
+  .object-fit-cover {
+    object-fit: cover;
+    height: 100%;
+  }
+
+  .card {
+    border-radius: 18px;
+  }
+
+  .btn-primary {
+    background-color: #8b7d6b;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background-color: #a68f6a;
+  }
+
+  .btn-outline-secondary:hover {
+    color: #fff;
+    background-color: #6c757d;
+  }
+
+  .text-primary {
+    color: #8b7d6b !important;
+  }
+</style>
