@@ -22,7 +22,14 @@ exports.showAddRoomForm = (req, res) => {
 exports.createRoom = async (req, res) => {
   try {
     const { roomName, capacity, price, description, image } = req.body;
-    const providerId = req.session.provider.providerId;
+    
+    // 🔹 Sửa lại chỗ này: đúng key là "id"
+    const providerId = req.session.provider.id;
+
+    if (!providerId) {
+      console.error("❌ Không tìm thấy providerId trong session!");
+      return res.status(401).send('Bạn chưa đăng nhập hoặc phiên làm việc đã hết hạn.');
+    }
 
     await Room.create({
       roomName,
@@ -35,12 +42,14 @@ exports.createRoom = async (req, res) => {
       postedAt: new Date()
     });
 
+    console.log(`✅ Phòng mới được thêm bởi providerId = ${providerId}`);
     res.redirect('/provider/dashboard');
   } catch (err) {
-    console.error(err);
+    console.error('❌ Lỗi khi thêm phòng:', err);
     res.status(500).send('Lỗi khi thêm phòng');
   }
 };
+
 
 exports.getRoomDetail = async (req, res) => {
   const roomId = req.params.id;
