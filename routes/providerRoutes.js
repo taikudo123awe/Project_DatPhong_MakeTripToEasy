@@ -70,5 +70,24 @@ router.post(
   upload.single("qrCodeImage"),
   providerController.updateProfile
 );
+// Sửa phòng
+router.get(
+  "/edit-room/:roomId",
+  ensureProviderLoggedIn,
+  roomController.showEditRoomForm
+);
+router.post(
+  "/edit-room/:roomId",
+  ensureProviderLoggedIn,
+  uploadRoom.array("images", 5),
+  roomController.updateRoom
+);
+
+// Xóa phòng
+router.post(
+  "/delete-room/:roomId",
+  ensureProviderLoggedIn,
+  roomController.deleteRoom
+);
 
 module.exports = router;
