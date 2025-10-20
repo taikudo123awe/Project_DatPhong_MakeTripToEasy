@@ -23,7 +23,7 @@ const Feedback = sequelize.define('Feedback', {
     defaultValue: DataTypes.NOW
   }
 }, {
-  tableName: 'feedback',
+  tableName: 'Feedback',
   timestamps: false
 });
 
