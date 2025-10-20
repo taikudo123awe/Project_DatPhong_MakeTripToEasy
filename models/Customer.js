@@ -9,6 +9,10 @@ const Customer = sequelize.define('Customer', {
     autoIncrement: true,
     primaryKey: true
   },
+  fullName: {
+    type: DataTypes.STRING(58),
+    allowNull: false
+  },
   email: {
     type: DataTypes.STRING(255),
     allowNull: false,

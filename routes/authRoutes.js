@@ -20,7 +20,7 @@ router.get('/customer/logout', authController.logoutCustomer);
 // Trang thông tin cá nhân
 router.get('/customer/profile', ensureCustomerLoggedIn, async (req, res) => {
   const customer = await Customer.findByPk(req.session.customer.customerId);
-  res.render('customer-profile', { customer });
+  res.render('customer/profile', { customer });
 });
 
 module.exports = router;
