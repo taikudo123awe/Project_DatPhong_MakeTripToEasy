@@ -132,3 +132,86 @@ exports.createRoom = async (req, res) => {
     res.status(500).send("Lỗi khi thêm phòng: " + err.message);
   }
 };
+// Hiển thị form sửa phòng
+exports.showEditRoomForm = async (req, res) => {
+  try {
+    const roomId = req.params.roomId;
+    const room = await Room.findByPk(roomId);
+    if (!room) return res.status(404).send("Không tìm thấy phòng");
+    res.render("provider/edit-room", { room, error: null });
+  } catch (err) {
+    console.error("❌ Lỗi load form:", err);
+    res.status(500).send("Lỗi khi tải form sửa phòng");
+  }
+};
+
+// sửa phòng
+exports.updateRoom = async (req, res) => {
+  try {
+    const roomId = req.params.roomId;
+    const { roomName, fullAddress, capacity, price, amenities, description } =
+      req.body;
+
+    // Nếu có ảnh mới thì lưu lại
+    let image = null;
+    if (req.files && req.files.length > 0) {
+      image = req.files[0].path.replace("public\\", "").replace("public/", "");
+    }
+
+    // Khi cập nhật, chuyển trạng thái duyệt về "Chờ duyệt"
+    const updateData = {
+      roomName,
+      fullAddress,
+      capacity,
+      price,
+      amenities,
+      description,
+      approvalStatus: "Chờ duyệt", // ✅ cập nhật trạng thái duyệt
+    };
+
+    if (image) updateData.image = image;
+
+    await Room.update(updateData, { where: { roomId } });
+
+    console.log(
+      `✅ Phòng ${roomId} đã được cập nhật, trạng thái chuyển về "Chờ duyệt"`
+    );
+    res.redirect("/provider/dashboard");
+  } catch (err) {
+    console.error("❌ Lỗi cập nhật phòng:", err);
+    res.status(500).send("Lỗi khi cập nhật phòng");
+  }
+};
+// Xóa phòng
+exports.deleteRoom = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+
+    // Kiểm tra phòng tồn tại
+    const room = await Room.findByPk(roomId);
+    if (!room) {
+      req.session.error = "Không tìm thấy phòng cần xóa.";
+      return res.redirect("/provider/dashboard");
+    }
+
+    // Chỉ cho phép xóa nếu là chủ phòng
+    const providerId = req.session.provider?.providerId;
+    if (room.providerId !== providerId) {
+      req.session.error = "Bạn không có quyền xóa phòng này.";
+      return res.redirect("/provider/dashboard");
+    }
+
+    // Thực hiện xóa
+    await Room.destroy({ where: { roomId } });
+
+    // Lưu thông báo vào session
+    req.session.success = `Phòng "${room.roomName}" đã được xóa thành công.`;
+
+    // Quay lại dashboard
+    res.redirect("/provider/dashboard");
+  } catch (err) {
+    console.error("❌ Lỗi khi xóa phòng:", err);
+    req.session.error = "Đã xảy ra lỗi khi xóa phòng. Vui lòng thử lại.";
+    res.redirect("/provider/dashboard");
+  }
+};

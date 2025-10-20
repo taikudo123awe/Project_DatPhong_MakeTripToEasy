@@ -10,13 +10,21 @@ exports.showDashboard = async (req, res) => {
       order: [["postedAt", "DESC"]],
     });
 
+    // lấy flash message từ session
+    const success = req.session.success;
+    const error = req.session.error;
+    delete req.session.success;
+    delete req.session.error;
+
     res.render("provider/dashboard", {
       provider: req.session.provider,
       providerRooms,
+      success,
+      error,
     });
   } catch (err) {
-    console.error("❌ Lỗi khi tải dashboard:", err);
-    res.status(500).send("Lỗi khi tải dashboard");
+    console.error("❌ Lỗi dashboard:", err);
+    res.status(500).send("Không thể tải trang dashboard.");
   }
 };
 
