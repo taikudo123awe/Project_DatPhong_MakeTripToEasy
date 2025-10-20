@@ -7,7 +7,7 @@ const sequelize = require('../config/database');
 // Bước 2: Hiển thị danh sách các phòng đã có đánh giá
 exports.showReviewedRooms = async (req, res) => {
   try {
-    const providerId = req.session.provider.providerId;
+    const providerId = req.session.provider.id;
 
     const roomsWithReviews = await Room.findAll({
       where: { providerId },
@@ -35,7 +35,7 @@ exports.showReviewedRooms = async (req, res) => {
 // Bước 3 & 4: Hiển thị chi tiết đánh giá của một phòng
 exports.showRoomReviews = async (req, res) => {
   try {
-    const providerId = req.session.provider.providerId;
+    const providerId = req.session.provider.id;
     const { roomId } = req.params;
 
     const room = await Room.findOne({
@@ -67,7 +67,7 @@ exports.showRoomReviews = async (req, res) => {
 // Bước 5 & 6: Lưu phản hồi
 exports.addFeedback = async (req, res) => {
   try {
-    const providerId = req.session.provider.providerId;
+    const providerId = req.session.provider.id;
     const { reviewId, message, roomId } = req.body; // roomId dùng để redirect
 
     // Kiểm tra xem đã phản hồi chưa (để tránh spam)

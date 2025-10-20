@@ -36,7 +36,7 @@ exports.showDashboard = async (req, res) => {
 // Hiển thị form với thông tin có sẵn
 exports.showEditProfileForm = async (req, res) => {
   try {
-    const providerId = req.session.provider.providerId;
+    const providerId = req.session.provider.id;
     const provider = await Provider.findByPk(providerId);
 
     // Tìm thông tin thanh toán ĐẦU TIÊN
@@ -61,7 +61,7 @@ exports.showEditProfileForm = async (req, res) => {
 // Xử lý cập nhật thông tin
 exports.updateProfile = async (req, res) => {
     try {
-      const providerId = req.session.provider.providerId;
+      const providerId = req.session.provider.id;
       const { 
         providerName, 
         email, 

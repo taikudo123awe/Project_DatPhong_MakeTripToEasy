@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     // Tạo tên file duy nhất: providerId-qr-timestamp.ext
-    const providerId = req.session.provider.providerId;
+    const providerId = req.session.provider.id;
     const uniqueSuffix = Date.now() + path.extname(file.originalname);
     cb(null, providerId + '-qr-' + uniqueSuffix);
   }
