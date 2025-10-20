@@ -5,7 +5,7 @@ const roomController = require('../controllers/roomController');
 const providerController = require('../controllers/providerController');
 const validateProvider = require('../middlewares/validateProvider');
 const Room = require('../models/Room');
-
+const reviewController = require('../controllers/reviewController');
 // --- THÊM CẤU HÌNH MULTER ---
 const multer = require('multer');
 const path = require('path');
@@ -17,7 +17,7 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     // Tạo tên file duy nhất: providerId-qr-timestamp.ext
-    const providerId = req.session.provider.providerId;
+    const providerId = req.session.provider.id;
     const uniqueSuffix = Date.now() + path.extname(file.originalname);
     cb(null, providerId + '-qr-' + uniqueSuffix);
   }
@@ -43,6 +43,14 @@ router.post('/edit-profile',
   upload.single('qrCodeImage'), // Thêm middleware
   providerController.updateProfile
 );
+// --- KẾT THÚC THÊM ---
+// --- THÊM ROUTE MỚI CHO CHỨC NĂNG ĐÁNH GIÁ ---
+
+router.get('/reviews', ensureProviderLoggedIn, reviewController.showReviewedRooms);
+router.get('/reviews/:roomId', ensureProviderLoggedIn, reviewController.showRoomReviews);
+router.post('/reviews/feedback', ensureProviderLoggedIn, reviewController.addFeedback);
+
+// --- KẾT THÚC THÊM ---
 
 // Hiển thị form đăng ký
 router.get('/register', (req, res) => {
