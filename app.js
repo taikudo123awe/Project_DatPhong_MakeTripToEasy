@@ -15,6 +15,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: false }));
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 app.use(session({
   secret: 'your_secret_key',
   resave: false,
@@ -23,9 +26,9 @@ app.use(session({
 
 
 app.use('/rooms', roomRoutes);
+app.use('/provider', providerRoutes);
 app.use('/', homeRoutes);
 app.use(authRoutes);
-app.use('/provider', providerRoutes);
 sequelize.sync().then(() => {
   app.listen(3000, () => console.log('🚀 Server running on http://localhost:3000'));
 });

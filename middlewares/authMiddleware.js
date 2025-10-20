@@ -1,10 +1,10 @@
-exports.ensureProviderLoggedIn = (req, res, next) => {
-    if (req.session.provider) {
-      next();
-    } else {
-      res.redirect('/login');
-    }
-  };
+// exports.ensureProviderLoggedIn = (req, res, next) => {
+//     if (req.session.provider) {
+//       next();
+//     } else {
+//       res.redirect('/login');
+//     }
+//   };
 
 exports.ensureCustomerLoggedIn = (req, res, next) => {
   if (req.session && req.session.customer) {
@@ -12,4 +12,10 @@ exports.ensureCustomerLoggedIn = (req, res, next) => {
   }
   return res.redirect('/customer/login');
 };
-  
+
+exports.ensureProviderLoggedIn = (req, res, next) => {
+  if (req.session && req.session.provider) {
+    return next();
+  }
+  res.redirect('/provider/login');
+};

@@ -1,33 +1,35 @@
 const express = require("express");
 const router = express.Router();
+
 const { ensureProviderLoggedIn } = require("../middlewares/authMiddleware");
 const roomController = require("../controllers/roomController");
 const providerController = require("../controllers/providerController");
+const validateProvider = require("../middlewares/validateProvider"); // ✅ giữ từ main
 const Room = require("../models/Room");
 
 const multer = require("multer");
 const path = require("path");
 
-// --- Cấu hình upload QR code (cho phần hồ sơ nhà cung cấp) ---
+// =================== UPLOAD QR CODE ===================
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./public/uploads/qrcodes/");
   },
   filename: function (req, file, cb) {
-    const providerId = req.session.provider.providerId;
+    const providerId = req.session.provider?.providerId || "unknown";
     const uniqueSuffix = Date.now() + path.extname(file.originalname);
     cb(null, providerId + "-qr-" + uniqueSuffix);
   },
 });
 const upload = multer({ storage: storage });
 
-// --- Cấu hình upload ảnh phòng ---
+// =================== UPLOAD ẢNH PHÒNG ===================
 const storageRoom = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./public/uploads/imgrooms/");
   },
   filename: (req, file, cb) => {
-    const providerId = req.session.provider.providerId || "unknown";
+    const providerId = req.session.provider?.providerId || "unknown";
     cb(
       null,
       `${providerId}-room-${Date.now()}${path.extname(file.originalname)}`
@@ -36,12 +38,10 @@ const storageRoom = multer.diskStorage({
 });
 const uploadRoom = multer({ storage: storageRoom });
 
-// -------------------- ROUTES --------------------
+// ======================= ROUTES =======================
 
-// Hiển thị form thêm phòng
+// ✅ Thêm phòng
 router.get("/add-room", ensureProviderLoggedIn, roomController.showAddRoomForm);
-
-// Xử lý thêm phòng
 router.post(
   "/add-room",
   ensureProviderLoggedIn,
@@ -49,28 +49,27 @@ router.post(
   roomController.createRoom
 );
 
-// Dashboard của provider
+// ✅ Dashboard
 router.get(
   "/dashboard",
   ensureProviderLoggedIn,
   providerController.showDashboard
 );
 
-// Hiển thị form chỉnh sửa hồ sơ
+// ✅ Chỉnh sửa hồ sơ
 router.get(
   "/edit-profile",
   ensureProviderLoggedIn,
   providerController.showEditProfileForm
 );
-
-// Cập nhật hồ sơ + upload QR
 router.post(
   "/edit-profile",
   ensureProviderLoggedIn,
   upload.single("qrCodeImage"),
   providerController.updateProfile
 );
-// Sửa phòng
+
+// ✅ Sửa phòng
 router.get(
   "/edit-room/:roomId",
   ensureProviderLoggedIn,
@@ -83,11 +82,17 @@ router.post(
   roomController.updateRoom
 );
 
-// Xóa phòng
+// ✅ Xóa phòng
 router.post(
   "/delete-room/:roomId",
   ensureProviderLoggedIn,
   roomController.deleteRoom
 );
+
+// ✅ Đăng ký Provider (từ main)
+router.get("/register", (req, res) => {
+  res.render("provider/register", { error: null, success: null, formData: {} });
+});
+router.post("/register", validateProvider, providerController.registerProvider);
 
 module.exports = router;
