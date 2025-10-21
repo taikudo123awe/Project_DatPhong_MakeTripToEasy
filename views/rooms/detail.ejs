@@ -3,14 +3,52 @@
 <main class="container py-5">
   <div class="card shadow-lg border-0 overflow-hidden">
     <div class="row g-0">
-      <!-- Hình ảnh phòng -->
-      <div class="col-md-6">
-        <img
-          src="/<%= room.image %>"
-          class="img-fluid h-100 w-100 object-fit-cover"
-          alt="<%= room.roomName %>"
-          style="object-fit: cover"
-        />
+      <!-- Hình ảnh phòng (hỗ trợ nhiều ảnh) -->
+      <div class="col-md-6 position-relative">
+        <% if (room.image) { const imgs = room.image.split(";").filter(i =>
+        i.trim() !== ""); %>
+        <div id="roomCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            <% imgs.forEach((img, index) => { %>
+            <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+              <img
+                src="/<%= img %>"
+                class="d-block w-100"
+                alt="Room Image <%= index + 1 %>"
+                style="height: 100%; object-fit: cover"
+              />
+            </div>
+            <% }) %>
+          </div>
+
+          <!-- Nút điều hướng -->
+          <% if (imgs.length > 1) { %>
+          <button
+            class="carousel-control-prev"
+            type="button"
+            data-bs-target="#roomCarousel"
+            data-bs-slide="prev"
+          >
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Trước</span>
+          </button>
+          <button
+            class="carousel-control-next"
+            type="button"
+            data-bs-target="#roomCarousel"
+            data-bs-slide="next"
+          >
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Tiếp</span>
+          </button>
+          <% } %>
+        </div>
+        <% } else { %>
+        <div class="text-center p-5 bg-light text-muted">
+          <i class="fa-solid fa-image fa-3x mb-2"></i>
+          <p>Phòng này chưa có hình ảnh.</p>
+        </div>
+        <% } %>
       </div>
 
       <!-- Thông tin chi tiết -->
