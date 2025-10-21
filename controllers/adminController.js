@@ -1,5 +1,9 @@
 const Provider = require('../models/Provider');
 const Room = require('../models/Room');
+const Review = require('../models/Review');
+const Feedback = require('../models/Feedback');
+const Booking = require('../models/Booking');
+const Invoice = require('../models/Invoice');
 const PaymentInfo = require('../models/PaymentInfo');
 const validator = require('validator');
 const sequelize = require('../config/database');
@@ -107,70 +111,93 @@ exports.getDashboard = async (req, res) => {
 //Phương thức này để xoá phòng của ADMIN
 exports.deleteRoom = async (req, res) => {
     try {
-        const { roomId } = req.params;
+        const roomId = req.params.id;
         const { reason } = req.body;
 
-        // Validate lý do xóa
         if (!reason || reason.trim() === '') {
-            return res.redirect(`/admin/rooms?error=${encodeURIComponent('Vui lòng nhập lý do xóa bài đăng!')}`);
+            return res.redirect(
+                `/admin/rooms?error=${encodeURIComponent('Vui lòng nhập lý do xóa bài đăng!')}`
+            );
         }
 
-        // Tìm phòng cần xóa
-        const room = await Room.findOne({
-            where: { roomId: roomId },
+        const room = await Room.findByPk(roomId, {
             include: [
                 {
                     model: Provider,
-                    attributes: ['providerId', 'providerName', 'email']
-                }
-            ]
+                    attributes: ['providerId', 'providerName', 'email'],
+                },
+            ],
         });
 
-        // Kiểm tra phòng có tồn tại không
         if (!room) {
-            return res.redirect(`/admin/rooms?error=${encodeURIComponent('Phòng không tồn tại hoặc đã bị xóa!')}`);
+            return res.redirect(
+                `/admin/rooms?error=${encodeURIComponent('Phòng không tồn tại hoặc đã bị xóa!')}`
+            );
         }
 
-        // Lưu thông tin phòng trước khi xóa (để gửi thông báo)
         const roomName = room.roomName;
-        const providerEmail = room.Provider ? room.Provider.email : null;
-        const providerName = room.Provider ? room.Provider.providerName : null;
-        const imagePath = room.image; // Lưu đường dẫn ảnh
+        const providerEmail = room.Provider?.email || null;
+        const imagePath = room.image;
 
-        // Xóa ảnh vật lý nếu có
+        // ✅ Xóa ảnh nếu có
         if (imagePath) {
             const fullImagePath = path.join(__dirname, '..', 'public', imagePath);
-
-            // Kiểm tra file có tồn tại không trước khi xóa
-            if (fs.existsSync(fullImagePath)) {
-                try {
+            try {
+                if (fs.existsSync(fullImagePath)) {
                     fs.unlinkSync(fullImagePath);
-                    console.log(`Đã xóa ảnh: ${fullImagePath}`);
-                } catch (err) {
-                    console.error(`Lỗi khi xóa ảnh: ${err.message}`);
+                    console.log(`🗑️ Đã xóa ảnh: ${fullImagePath}`);
                 }
+            } catch (err) {
+                console.error(`⚠️ Lỗi khi xóa ảnh: ${err.message}`);
             }
         }
 
-        // Xóa phòng khỏi database
+        // ✅ 1. Lấy tất cả reviewId của phòng
+        const reviews = await Review.findAll({ where: { roomId } });
+        const reviewIds = reviews.map(r => r.reviewId);
+
+        // ✅ 2. Xóa feedback trước (nếu có)
+        if (reviewIds.length > 0) {
+            await Feedback.destroy({ where: { reviewId: reviewIds } });
+            console.log(`🧹 Đã xóa feedback liên quan đến review.`);
+        }
+
+        // ✅ 3. Xóa review
+        await Review.destroy({ where: { roomId } });
+
+        // ✅ 4. Xóa Invoice & Booking
+        const bookings = await Booking.findAll({ where: { roomId } });
+
+        if (bookings.length > 0) {
+            const bookingIds = bookings.map(b => b.bookingId);
+
+            // ❗ Xóa Invoice trước để tránh lỗi khóa ngoại
+            await Invoice.destroy({ where: { bookingId: bookingIds } });
+            console.log(`🧾 Đã xóa hóa đơn liên quan đến phòng ${roomId}`);
+
+            // Sau đó mới xóa Booking
+            await Booking.destroy({ where: { roomId } });
+            console.log(`📆 Đã xóa tất cả booking của phòng ${roomId}`);
+        }
+
+        // ✅ 5. Cuối cùng xóa phòng
         await room.destroy();
 
-        console.log(`Admin đã xóa phòng ID: ${roomId}, Tên: ${roomName}, Lý do: ${reason}`);
+        console.log(`✅ Admin đã xóa phòng ID: ${roomId} | Tên: ${roomName} | Lý do: ${reason}`);
 
-        // TODO: Gửi email thông báo cho Provider (nếu cần)
         if (providerEmail) {
-            // Ví dụ: Gọi hàm gửi email
-            // await sendEmailToProvider(providerEmail, providerName, roomName, reason);
-
-            console.log(`Cần gửi email thông báo đến: ${providerEmail}`);
+            console.log(`📧 Gửi thông báo tới ${providerEmail}`);
             console.log(`Nội dung: Phòng "${roomName}" đã bị xóa. Lý do: ${reason}`);
         }
 
-        // Chuyển hướng về danh sách phòng với thông báo thành công
-        res.redirect(`/admin/rooms?success=${encodeURIComponent(`Đã xóa bài đăng "${roomName}" thành công!`)}`);
-
+        res.redirect(
+            `/admin/rooms?success=${encodeURIComponent(`Đã xóa bài đăng "${roomName}" thành công!`)}`
+        );
     } catch (error) {
-        console.error('Lỗi khi xóa phòng:', error);
-        res.redirect(`/admin/rooms?error=${encodeURIComponent('Đã xảy ra lỗi khi xóa bài đăng. Vui lòng thử lại!')}`);
+        console.error('❌ Lỗi khi xóa phòng:', error);
+        res.redirect(
+            `/admin/rooms?error=${encodeURIComponent('Đã xảy ra lỗi khi xóa bài đăng. Vui lòng thử lại!')}`
+        );
     }
 };
+

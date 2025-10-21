@@ -34,6 +34,11 @@ app.use(session({
   saveUninitialized: true
 }));
 
+app.get('/test', (req, res) => {
+  res.render('test');
+});
+
+
 app.use('/admin', require('./routes/adminRoutes'));
 app.use('/rooms', roomRoutes);
 app.use('/provider', providerRoutes);
