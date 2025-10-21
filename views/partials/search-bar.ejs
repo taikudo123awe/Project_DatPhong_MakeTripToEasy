@@ -1,0 +1,58 @@
+<div class="container mt-4 mb-4 p-4 shadow-sm rounded-3" 
+     style="background: #fffbea; border: 2px solid #ffcc00;">
+  <form action="/rooms/search" method="get" class="row g-2 align-items-center">
+
+    <!-- Cột 1: Địa điểm -->
+    <div class="col-md-4 position-relative">
+      <label class="form-label fw-semibold">Địa điểm</label>
+      <input type="text" name="city" id="searchCity" 
+             class="form-control" placeholder="Nhập thành phố bạn muốn đến..." 
+             autocomplete="off" required>
+      <div id="suggestions" class="list-group position-absolute w-100 shadow" 
+           style="z-index: 1000; display:none;">
+        <!-- Gợi ý sẽ hiển thị bằng JS -->
+      </div>
+    </div>
+
+    <!-- Cột 2: Ngày -->
+    <div class="col-md-4">
+      <label class="form-label fw-semibold">Ngày nhận - trả phòng</label>
+      <input type="text" id="dateRange" name="dateRange" class="form-control" readonly>
+    </div>
+
+    <!-- Cột 3: Số người lớn và phòng -->
+    <div class="col-md-3 position-relative">
+      <label class="form-label fw-semibold">Khách & phòng</label>
+      <input type="text" id="guestSummary" name="guests" 
+             class="form-control" readonly value="2 người lớn · 1 phòng">
+
+      <!-- Bảng chọn số lượng -->
+      <div id="guestOptions" class="card p-3 shadow position-absolute" 
+           style="z-index:1000; display:none; width: 220px;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span>Người lớn</span>
+          <div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="changeGuests('adults', -1)">-</button>
+            <span id="adultsCount" class="mx-2">2</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="changeGuests('adults', 1)">+</button>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span>Phòng</span>
+          <div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="changeGuests('rooms', -1)">-</button>
+            <span id="roomsCount" class="mx-2">1</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="changeGuests('rooms', 1)">+</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm mt-3 w-100" onclick="closeGuests()">Xong</button>
+      </div>
+    </div>
+
+    <!-- Cột 4: Nút tìm kiếm -->
+    <div class="col-md-1 d-grid">
+      <button class="btn btn-primary h-100 mt-3 mt-md-4" type="submit">Tìm</button>
+    </div>
+
+  </form>
+</div>
