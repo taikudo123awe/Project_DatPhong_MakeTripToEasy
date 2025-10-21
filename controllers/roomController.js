@@ -146,7 +146,7 @@ exports.createRoom = async (req, res) => {
       description,
       image: imageString,
       providerId,
-      status: "Phòng trống",
+      status: "Hoạt động",
       approvalStatus: "Chờ duyệt",
       postedAt: new Date(),
     });
@@ -254,11 +254,14 @@ exports.updateRoom = async (req, res) => {
 };
 
 // ===========================
-// Xóa phòng
+// Xóa (ẩn) phòng — soft delete
 // ===========================
 exports.deleteRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
+    const providerId = req.session.provider?.id;
+
+    // 1️⃣ Lấy phòng cần xóa
     const room = await Room.findByPk(roomId);
 
     if (!room) {
@@ -266,18 +269,20 @@ exports.deleteRoom = async (req, res) => {
       return res.redirect("/provider/dashboard");
     }
 
-    const providerId = req.session.provider?.id;
+    // 2️⃣ Kiểm tra quyền sở hữu
     if (room.providerId !== providerId) {
       req.session.error = "Bạn không có quyền xóa phòng này.";
       return res.redirect("/provider/dashboard");
     }
 
-    await Room.destroy({ where: { roomId } });
-    req.session.success = `Phòng "${room.roomName}" đã được xóa thành công.`;
+    // 3️⃣ Chỉ đổi trạng thái, không xóa dữ liệu
+    await Room.update({ status: "Ngưng hoạt động" }, { where: { roomId } });
+
+    req.session.success = `🗑️ Phòng "${room.roomName}" đã được ẩn khỏi hệ thống (ngưng hoạt động).`;
     res.redirect("/provider/dashboard");
   } catch (err) {
-    console.error("❌ Lỗi khi xóa phòng:", err);
-    req.session.error = "Đã xảy ra lỗi khi xóa phòng. Vui lòng thử lại.";
+    console.error("❌ Lỗi khi ẩn phòng:", err);
+    req.session.error = "Đã xảy ra lỗi khi ẩn phòng. Vui lòng thử lại.";
     res.redirect("/provider/dashboard");
   }
 };
