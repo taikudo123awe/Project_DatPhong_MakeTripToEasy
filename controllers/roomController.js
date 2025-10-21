@@ -52,7 +52,7 @@ exports.showAddRoomForm = async (req, res) => {
     res.render("provider/add-room", {
       error: null,
       success: null,
-      addresses,
+      addresses, // ✅ phải có dòng này
     });
   } catch (err) {
     console.error("❌ Lỗi khi tải form thêm phòng:", err);
@@ -66,14 +66,15 @@ exports.showAddRoomForm = async (req, res) => {
 exports.createRoom = async (req, res) => {
   try {
     const providerId = req.session.provider?.id;
-    if (!providerId) {
+    if (!providerId)
       throw new Error("Provider chưa đăng nhập hoặc session đã hết hạn.");
-    }
 
     const {
       roomName,
-      customAddress,
-      addressId,
+      customAddress, // tên đường / số nhà
+      city,
+      district,
+      ward,
       capacity,
       price,
       amenities,
@@ -85,7 +86,9 @@ exports.createRoom = async (req, res) => {
 
     // --- Validate dữ liệu cơ bản ---
     if (!roomName?.trim()) errors.push("Tên phòng không được để trống.");
-    if (!addressId) errors.push("Vui lòng chọn địa chỉ khu vực.");
+    if (!city) errors.push("Vui lòng chọn thành phố.");
+    if (!district) errors.push("Vui lòng chọn quận/huyện.");
+    if (!ward) errors.push("Vui lòng chọn phường/xã.");
     if (!customAddress?.trim()) errors.push("Vui lòng nhập tên đường/số nhà.");
     if (!capacity || isNaN(capacity) || capacity < 1)
       errors.push("Sức chứa phải ≥ 1.");
@@ -109,27 +112,27 @@ exports.createRoom = async (req, res) => {
 
     // --- Nếu có lỗi thì render lại form ---
     if (errors.length > 0) {
-      const addresses = await Address.findAll({
-        order: [
-          ["city", "ASC"],
-          ["district", "ASC"],
-          ["ward", "ASC"],
-        ],
-      });
       return res.render("provider/add-room", {
         error: errors.join("<br>"),
         success: null,
-        addresses,
+        addresses: [], // bỏ dùng addresses tĩnh
       });
     }
 
-    // --- Lấy thông tin Address để tạo fullAddress ---
-    const addr = await Address.findByPk(addressId);
-    if (!addr) throw new Error("Không tìm thấy địa chỉ đã chọn.");
+    // --- Tạo hoặc lấy Address tương ứng ---
+    let address = await Address.findOne({
+      where: { city, district, ward },
+    });
 
-    const fullAddress = `${customAddress}, ${addr.ward}, ${addr.district}, ${addr.city}`;
+    if (!address) {
+      address = await Address.create({ city, district, ward });
+      console.log("🆕 Tạo Address mới:", address.addressId);
+    } else {
+      console.log("✅ Dùng Address có sẵn:", address.addressId);
+    }
 
-    // --- Ghép ảnh thành 1 chuỗi lưu vào DB ---
+    const addressId = address.addressId;
+    const fullAddress = `${customAddress}, ${ward}, ${district}, ${city}`;
     const imageString = imagePaths.join(";");
 
     // --- Tạo phòng mới ---
@@ -141,7 +144,7 @@ exports.createRoom = async (req, res) => {
       price,
       amenities,
       description,
-      image: imageString, // ✅ lưu nhiều ảnh trong 1 cột
+      image: imageString,
       providerId,
       status: "Phòng trống",
       approvalStatus: "Chờ duyệt",
@@ -155,7 +158,6 @@ exports.createRoom = async (req, res) => {
     res.status(500).send("Lỗi khi thêm phòng: " + err.message);
   }
 };
-
 // ===========================
 // Chi tiết phòng
 // ===========================
