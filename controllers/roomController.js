@@ -205,7 +205,25 @@ exports.updateRoom = async (req, res) => {
 
     let image = null;
     if (req.files?.length > 0) {
-      image = req.files[0].path.replace(/^public[\\/]/, "");
+      // Nếu upload nhiều ảnh thì nối chuỗi
+      const allowed = ["image/jpeg", "image/png", "image/jpg"];
+      const validImages = req.files
+        .filter((f) => allowed.includes(f.mimetype))
+        .map((f) => f.path.replace(/^public[\\/]/, ""));
+      image = validImages.join(";");
+    }
+
+    // Lấy phòng hiện tại từ DB
+    const room = await Room.findByPk(roomId);
+    if (!room) {
+      req.session.error = "Không tìm thấy phòng cần chỉnh sửa.";
+      return res.redirect("/provider/dashboard");
+    }
+
+    // ✅ Logic xử lý trạng thái duyệt
+    let approvalStatus = room.approvalStatus;
+    if (room.approvalStatus === "Đã duyệt") {
+      approvalStatus = "Chờ duyệt"; // nếu đã duyệt → chuyển lại chờ duyệt
     }
 
     const updateData = {
@@ -215,12 +233,18 @@ exports.updateRoom = async (req, res) => {
       price,
       amenities,
       description,
-      approvalStatus: "Chờ duyệt",
+      approvalStatus,
     };
+
     if (image) updateData.image = image;
 
     await Room.update(updateData, { where: { roomId } });
-    req.session.success = "Cập nhật phòng thành công!";
+
+    req.session.success =
+      approvalStatus === "Chờ duyệt"
+        ? "✅ Phòng đã được cập nhật. Trạng thái chuyển lại 'Chờ duyệt' để xem xét."
+        : "✅ Phòng đã được cập nhật (vẫn đang chờ duyệt).";
+
     res.redirect("/provider/dashboard");
   } catch (err) {
     console.error("❌ Lỗi khi cập nhật phòng:", err);

@@ -104,17 +104,16 @@
             this.options[this.selectedIndex].text;
         });
       </script>
-      <!-- Thông tin khác -->
+
+      <!-- Sức chứa (Dropdown - chỉ số chẵn) -->
       <div class="mb-3">
         <label for="capacity" class="form-label">Sức chứa (người)</label>
-        <input
-          type="number"
-          id="capacity"
-          name="capacity"
-          min="1"
-          class="form-control"
-          required
-        />
+        <select id="capacity" name="capacity" class="form-select" required>
+          <option value="">-- Chọn sức chứa --</option>
+          <% for (let i = 2; i <= 20; i += 2) { %>
+          <option value="<%= i %>"><%= i %> người</option>
+          <% } %>
+        </select>
       </div>
 
       <div class="mb-3">
@@ -136,6 +135,7 @@
           id="amenities"
           name="amenities"
           class="form-control"
+          placeholder="VD: Máy lạnh, WiFi, Tủ lạnh..."
           required
         />
       </div>
@@ -148,6 +148,7 @@
           rows="4"
           class="form-control"
           required
+          placeholder="Mô tả về phòng, tiện nghi, không gian..."
         ></textarea>
       </div>
 
