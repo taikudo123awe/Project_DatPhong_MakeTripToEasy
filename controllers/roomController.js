@@ -80,11 +80,10 @@ exports.createRoom = async (req, res) => {
       description,
     } = req.body;
 
-    console.log("📦 Dữ liệu nhận từ form:", req.body); // <== debug
-
+    console.log("📦 Dữ liệu nhận từ form:", req.body);
     const errors = [];
 
-    // Validate
+    // --- Validate dữ liệu cơ bản ---
     if (!roomName?.trim()) errors.push("Tên phòng không được để trống.");
     if (!addressId) errors.push("Vui lòng chọn địa chỉ khu vực.");
     if (!customAddress?.trim()) errors.push("Vui lòng nhập tên đường/số nhà.");
@@ -92,23 +91,31 @@ exports.createRoom = async (req, res) => {
       errors.push("Sức chứa phải ≥ 1.");
     if (!price || isNaN(price) || price <= 0)
       errors.push("Giá phòng phải là số > 0.");
-    if (!amenities?.trim()) errors.push("Nhập tiện ích phòng.");
-    if (!description?.trim()) errors.push("Nhập mô tả phòng.");
+    if (!amenities?.trim()) errors.push("Vui lòng nhập tiện ích của phòng.");
+    if (!description?.trim()) errors.push("Vui lòng nhập mô tả phòng.");
 
-    let imagePath = null;
-    if (!req.file) {
-      errors.push("Vui lòng tải lên ảnh phòng.");
+    // --- Xử lý ảnh upload ---
+    let imagePaths = [];
+    if (!req.files || req.files.length === 0) {
+      errors.push("Vui lòng tải lên ít nhất 1 ảnh phòng.");
     } else {
       const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-      if (!allowedTypes.includes(req.file.mimetype)) {
-        errors.push("Ảnh không đúng định dạng (.jpg, .jpeg, .png).");
-      } else {
-        imagePath = req.file.path.replace(/^public[\\/]/, "");
-      }
+      req.files.forEach((file) => {
+        if (allowedTypes.includes(file.mimetype)) {
+          imagePaths.push(file.path.replace(/^public[\\/]/, ""));
+        }
+      });
     }
 
+    // --- Nếu có lỗi thì render lại form ---
     if (errors.length > 0) {
-      const addresses = await Address.findAll();
+      const addresses = await Address.findAll({
+        order: [
+          ["city", "ASC"],
+          ["district", "ASC"],
+          ["ward", "ASC"],
+        ],
+      });
       return res.render("provider/add-room", {
         error: errors.join("<br>"),
         success: null,
@@ -116,12 +123,16 @@ exports.createRoom = async (req, res) => {
       });
     }
 
-    // Lấy địa chỉ đầy đủ từ DB
+    // --- Lấy thông tin Address để tạo fullAddress ---
     const addr = await Address.findByPk(addressId);
-    if (!addr) throw new Error("Không tìm thấy địa chỉ trong hệ thống.");
+    if (!addr) throw new Error("Không tìm thấy địa chỉ đã chọn.");
 
     const fullAddress = `${customAddress}, ${addr.ward}, ${addr.district}, ${addr.city}`;
 
+    // --- Ghép ảnh thành 1 chuỗi lưu vào DB ---
+    const imageString = imagePaths.join(";");
+
+    // --- Tạo phòng mới ---
     await Room.create({
       roomName,
       fullAddress,
@@ -130,7 +141,7 @@ exports.createRoom = async (req, res) => {
       price,
       amenities,
       description,
-      image: imagePath,
+      image: imageString, // ✅ lưu nhiều ảnh trong 1 cột
       providerId,
       status: "Phòng trống",
       approvalStatus: "Chờ duyệt",
@@ -141,7 +152,7 @@ exports.createRoom = async (req, res) => {
     res.redirect("/provider/dashboard");
   } catch (err) {
     console.error("❌ Lỗi khi thêm phòng:", err);
-    res.status(500).send("Lỗi khi thêm phòng");
+    res.status(500).send("Lỗi khi thêm phòng: " + err.message);
   }
 };
 
