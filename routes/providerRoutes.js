@@ -4,9 +4,9 @@ const router = express.Router();
 const { ensureProviderLoggedIn } = require("../middlewares/authMiddleware");
 const roomController = require("../controllers/roomController");
 const providerController = require("../controllers/providerController");
-const validateProvider = require("../middlewares/validateProvider"); // ✅ giữ từ main
+const validateProvider = require("../middlewares/validateProvider");
+const reviewController = require("../controllers/reviewController"); // ✅ giữ từ main
 const Room = require("../models/Room");
-
 const multer = require("multer");
 const path = require("path");
 
@@ -16,12 +16,12 @@ const storage = multer.diskStorage({
     cb(null, "./public/uploads/qrcodes/");
   },
   filename: function (req, file, cb) {
-    const providerId = req.session.provider?.providerId || "unknown";
+    const providerId = req.session.provider?.id || "unknown";
     const uniqueSuffix = Date.now() + path.extname(file.originalname);
-    cb(null, providerId + "-qr-" + uniqueSuffix);
+    cb(null, `${providerId}-qr-${uniqueSuffix}`);
   },
 });
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
 // =================== UPLOAD ẢNH PHÒNG ===================
 const storageRoom = multer.diskStorage({
@@ -29,11 +29,9 @@ const storageRoom = multer.diskStorage({
     cb(null, "./public/uploads/imgrooms/");
   },
   filename: (req, file, cb) => {
-    const providerId = req.session.provider?.providerId || "unknown";
-    cb(
-      null,
-      `${providerId}-room-${Date.now()}${path.extname(file.originalname)}`
-    );
+    const providerId = req.session.provider?.id || "unknown";
+    const uniqueSuffix = Date.now() + path.extname(file.originalname);
+    cb(null, `${providerId}-room-${uniqueSuffix}`);
   },
 });
 const uploadRoom = multer({ storage: storageRoom });
@@ -89,7 +87,24 @@ router.post(
   roomController.deleteRoom
 );
 
-// ✅ Đăng ký Provider (từ main)
+// ✅ Trang đánh giá (Review)
+router.get(
+  "/reviews",
+  ensureProviderLoggedIn,
+  reviewController.showReviewedRooms
+);
+router.get(
+  "/reviews/:roomId",
+  ensureProviderLoggedIn,
+  reviewController.showRoomReviews
+);
+router.post(
+  "/reviews/feedback",
+  ensureProviderLoggedIn,
+  reviewController.addFeedback
+);
+
+// ✅ Đăng ký Provider
 router.get("/register", (req, res) => {
   res.render("provider/register", { error: null, success: null, formData: {} });
 });

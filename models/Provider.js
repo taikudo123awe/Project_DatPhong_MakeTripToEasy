@@ -15,13 +15,12 @@ const Provider = sequelize.define(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    identityNumber: {
-      // ✅ Giữ lại từ main
-      type: DataTypes.STRING(50),
-      allowNull: false,
-    },
     email: {
       type: DataTypes.STRING(255),
+      allowNull: false,
+    },
+    identityNumber: {
+      type: DataTypes.STRING(12), // khớp với cột trong db_datphong.sql
       allowNull: false,
     },
     phoneNumber: {
@@ -30,6 +29,7 @@ const Provider = sequelize.define(
     },
     taxCode: {
       type: DataTypes.STRING(20),
+      allowNull: true,
     },
     accountId: {
       type: DataTypes.INTEGER,
