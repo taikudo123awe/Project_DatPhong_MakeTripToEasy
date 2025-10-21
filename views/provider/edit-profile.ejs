@@ -1,155 +1,101 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Chỉnh sửa thông tin</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
-  <body class="container mt-4">
-    <h2>Chỉnh sửa thông tin nhà cung cấp</h2>
 
-    <% const formData = (typeof userInput !== 'undefined') ? userInput : {} %>
-    <% if (Array.isArray(errors) && errors.length > 0) { %>
+<head>
+  <title>Chỉnh sửa thông tin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
 
-    <div class="alert alert-danger">
-      <strong>Vui lòng sửa các lỗi sau:</strong>
-      <ul>
-        <% errors.forEach(err => { %>
-        <li><%= err %></li>
-        <% }) %>
-      </ul>
-    </div>
-    <% } %>
+<body class="container mt-4">
+  <h2>Chỉnh sửa thông tin nhà cung cấp</h2>
 
-    <form
-      method="POST"
-      action="/provider/edit-profile"
-      enctype="multipart/form-data"
-      id="profileForm"
-    >
-      <h4>Thông tin cơ bản</h4>
-      <div class="mb-3">
-        <label for="providerName" class="form-label">Tên nhà cung cấp</label>
-        <input
-          type="text"
-          class="form-control"
-          id="providerName"
-          name="providerName"
-          value="<%= formData.providerName || provider.providerName %>"
-          required
-        />
-        <div class="invalid-feedback" id="providerNameError"></div>
-      </div>
-      <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input
-          type="email"
-          class="form-control"
-          id="email"
-          name="email"
-          value="<%= formData.email || provider.email %>"
-          required
-        />
-        <div class="invalid-feedback" id="emailError"></div>
-      </div>
+  <% const formData=(typeof userInput !=='undefined' ) ? userInput : {} %>
+    <% if (Array.isArray(errors) && errors.length> 0) { %>
 
-      <div class="mb-3">
-        <label for="phoneNumber" class="form-label">Số điện thoại</label>
-        <input
-          type="text"
-          class="form-control"
-          id="phoneNumber"
-          name="phoneNumber"
-          value="<%= formData.phoneNumber || provider.phoneNumber %>"
-          required
-        />
-        <div class="invalid-feedback" id="phoneError"></div>
+      <div class="alert alert-danger">
+        <strong>Vui lòng sửa các lỗi sau:</strong>
+        <ul>
+          <% errors.forEach(err=> { %>
+            <li>
+              <%= err %>
+            </li>
+            <% }) %>
+        </ul>
       </div>
-      <div class="mb-3">
-        <label for="taxCode" class="form-label">Mã số thuế</label>
-        <input
-          type="text"
-          class="form-control"
-          name="taxCode"
-          value="<%= formData.taxCode || provider.taxCode ||
-'' %>"
-        />
-      </div>
+      <% } %>
 
-      <hr />
+        <form method="POST" action="/provider/edit-profile" enctype="multipart/form-data" id="profileForm">
+          <h4>Thông tin cơ bản</h4>
+          <div class="mb-3">
+            <label for="providerName" class="form-label">Tên nhà cung cấp</label>
+            <input type="text" class="form-control" id="providerName" name="providerName"
+              value="<%= formData.providerName || provider.providerName %>" required />
+            <div class="invalid-feedback" id="providerNameError"></div>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email"
+              value="<%= formData.email || provider.email %>" required />
+            <div class="invalid-feedback" id="emailError"></div>
+          </div>
 
-      <h4>Thông tin thanh toán</h4>
-      <div class="mb-3">
-        <label for="bankName" class="form-label">Tên ngân hàng</label>
-        <input
-          type="text"
-          class="form-control"
-          id="bankName"
-          name="bankName"
-          value="<%= formData.bankName || (paymentInfo && paymentInfo.bankName) ||
-'' %>"
-        />
-        <div class="invalid-feedback" id="bankNameError"></div>
-      </div>
-      <div class="mb-3">
-        <label for="accountHolder" class="form-label">Tên chủ tài khoản</label>
-        <input
-          type="text"
-          class="form-control"
-          id="accountHolder"
-          name="accountHolder"
-          value="<%= formData.accountHolder || (paymentInfo && paymentInfo.accountHolder) ||
-'' %>"
-        />
-        <div class="invalid-feedback" id="holderNameError"></div>
-      </div>
-      <div class="mb-3">
-        <label for="accountNumber" class="form-label">Số tài khoản</label>
-        <input
-          type="text"
-          class="form-control"
-          id="accountNumber"
-          name="accountNumber"
-          value="<%= formData.accountNumber || (paymentInfo && paymentInfo.accountNumber) ||
-'' %>"
-        />
-        <div class="invalid-feedback" id="accountError"></div>
-      </div>
+          <div class="mb-3">
+            <label for="phoneNumber" class="form-label">Số điện thoại</label>
+            <input type="text" class="form-control" id="phoneNumber" name="phoneNumber"
+              value="<%= formData.phoneNumber || provider.phoneNumber %>" required />
+            <div class="invalid-feedback" id="phoneError"></div>
+          </div>
+          <div class="mb-3">
+            <label for="taxCode" class="form-label">Mã số thuế</label>
+            <input type="text" class="form-control" name="taxCode" value="<%= formData.taxCode || provider.taxCode ||
+'' %>" />
+          </div>
 
-      <div class="mb-3">
-        <label for="qrCodeImage" class="form-label">Tải lên ảnh mã QR</label>
-        <input
-          type="file"
-          class="form-control"
-          name="qrCodeImage"
-          id="qrCodeImage"
-          accept="image/*"
-        />
-        <% if (paymentInfo && paymentInfo.qrCode) { %>
-        <div class="mt-2">
-          <small>Ảnh QR hiện tại:</small><br />
-          <img
-            src="/<%= paymentInfo.qrCode %>"
-            alt="Mã QR"
-            style="
+          <hr />
+
+          <h4>Thông tin thanh toán</h4>
+          <div class="mb-3">
+            <label for="bankName" class="form-label">Tên ngân hàng</label>
+            <input type="text" class="form-control" id="bankName" name="bankName" value="<%= formData.bankName || (paymentInfo && paymentInfo.bankName) ||
+'' %>" />
+            <div class="invalid-feedback" id="bankNameError"></div>
+          </div>
+          <div class="mb-3">
+            <label for="accountHolder" class="form-label">Tên chủ tài khoản</label>
+            <input type="text" class="form-control" id="accountHolder" name="accountHolder" value="<%= formData.accountHolder || (paymentInfo && paymentInfo.accountHolder) ||
+'' %>" />
+            <div class="invalid-feedback" id="holderNameError"></div>
+          </div>
+          <div class="mb-3">
+            <label for="accountNumber" class="form-label">Số tài khoản</label>
+            <input type="text" class="form-control" id="accountNumber" name="accountNumber" value="<%= formData.accountNumber || (paymentInfo && paymentInfo.accountNumber) ||
+'' %>" />
+            <div class="invalid-feedback" id="accountError"></div>
+          </div>
+
+          <div class="mb-3">
+            <label for="qrCodeImage" class="form-label">Tải lên ảnh mã QR</label>
+            <input type="file" class="form-control" name="qrCodeImage" id="qrCodeImage" accept="image/*" />
+            <% if (paymentInfo && paymentInfo.qrCode) { %>
+              <div class="mt-2">
+                <small>Ảnh QR hiện tại:</small><br />
+                <img src="/<%= paymentInfo.qrCode %>" alt="Mã QR" style="
               width: 150px;
               height: 150px;
               object-fit: contain;
               border: 1px solid #ddd;
-            "
-          />
-        </div>
-        <% } %>
-      </div>
+            " />
+              </div>
+              <% } %>
+          </div>
 
-      <button type="submit" id="updateButton" class="btn btn-success">
-        Cập nhật
-      </button>
-      <a href="/provider/dashboard" class="btn btn-secondary ms-2">Hủy</a>
-    </form>
+          <button type="submit" id="updateButton" class="btn btn-success">
+            Cập nhật
+          </button>
+          <a href="/provider/dashboard" class="btn btn-secondary ms-2">Hủy</a>
+        </form>
 
-    <script src="/javascript/validateUpdateProvider.js"></script>
-  </body>
+        <script src="/javascript/validateUpdateProvider.js"></script>
+</body>
+
 </html>

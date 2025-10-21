@@ -8,7 +8,7 @@ exports.getAllRooms = async (req, res) => {
   try {
     const rooms = await Room.findAll({
       where: { approvalStatus: "Đã duyệt" },
-      include: { model: Provider, as: "provider" },
+      include: { model: Provider, as: "Provider" },
       order: [["postedAt", "DESC"]],
     });
     res.render("rooms/list", { rooms });
@@ -25,7 +25,7 @@ exports.getRoomsForHome = async (req, res) => {
   try {
     const rooms = await Room.findAll({
       where: { approvalStatus: "Đã duyệt" },
-      include: { model: Provider, as: "provider" },
+      include: { model: Provider, as: "Provider" },
       order: [["postedAt", "DESC"]],
       limit: 8,
     });
@@ -167,7 +167,7 @@ exports.getRoomDetail = async (req, res) => {
   try {
     const room = await Room.findOne({
       where: { roomId, approvalStatus: "Đã duyệt" },
-      include: { model: Provider, as: "provider" }, // ✅ alias đồng bộ
+      include: { model: Provider, as: "Provider" }, // ✅ alias đồng bộ
     });
 
     if (!room) return res.status(404).send("Không tìm thấy phòng.");
