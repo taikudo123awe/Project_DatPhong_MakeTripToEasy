@@ -13,7 +13,7 @@ exports.showDashboard = async (req, res) => {
     console.log(">> providerId:", providerId);
 
     const providerRooms = await Room.findAll({
-      where: { providerId },
+      where: { providerId, status: "Hoạt động" },
       order: [["postedAt", "DESC"]],
     });
 
