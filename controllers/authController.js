@@ -160,3 +160,63 @@ exports.logoutCustomer = (req, res) => {
     return res.redirect('/');
   });
 };
+
+// Hiển thị form đăng nhập Provider
+exports.showProviderLoginForm = (req, res) => {
+  res.render('provider/login', { error: null, success: null });
+};
+
+// Xử lý đăng nhập Provider
+exports.loginProvider = async (req, res) => {
+  const { phoneNumber, password } = req.body;
+
+  try {
+    const account = await Account.findOne({ where: { username: phoneNumber } });
+
+    if (!account) {
+      return res.render('provider/login', {
+        error: 'Số điện thoại chưa được đăng ký!',
+        success: null
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, account.password);
+    if (!isMatch) {
+      return res.render('provider/login', {
+        error: 'Mật khẩu không chính xác!',
+        success: null
+      });
+    }
+
+    if (account.role !== 1) {
+      return res.render('provider/login', {
+        error: 'Tài khoản không hợp lệ để đăng nhập với tư cách nhà cung cấp!',
+        success: null
+      });
+    }
+
+    const provider = await Provider.findOne({ where: { accountId: account.accountId } });
+
+    req.session.provider = {
+      id: provider.providerId,
+      name: provider.providerName,
+      email: provider.email,
+    };
+
+    //Nếu đăng nhập thành công → chuyển hướng
+    return res.redirect('/provider/dashboard');
+
+  } catch (error) {
+    console.error('❌ Lỗi đăng nhập Provider:', error);
+    return res.render('provider/login', {
+      error: 'Đăng nhập thất bại. Vui lòng thử lại!',
+      success: null
+    });
+  }
+};
+
+// Đăng xuất Provider
+exports.logoutProvider = (req, res) => {
+  req.session.provider = null;
+  res.redirect('/provider/login');
+};
