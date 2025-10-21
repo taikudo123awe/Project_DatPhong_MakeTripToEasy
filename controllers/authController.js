@@ -74,7 +74,7 @@ exports.registerCustomer = async (req, res) => {
     }, { transaction: t });
 
     await t.commit();
-    return res.render('auth/customer-login', {
+    return res.render('customer/login', {
       success: 'Đăng ký thành công! Mời bạn đăng nhập.'
     });
   } catch (error) {
@@ -101,10 +101,18 @@ exports.loginCustomer = async (req, res) => {
   try {
     // Account.role = 2 là customer (0: admin, 1: provider, 2: customer)
     const account = await Account.findOne({
-      where: { username: email, password, role: 2 }
+      where: { username: email, role: 2 }
     });
 
     if (!account) {
+      return res.render('customer/login', {
+        error: 'Sai email hoặc mật khẩu!'
+      });
+    }
+
+    // 🔹 So sánh mật khẩu nhập vào với mật khẩu mã hoá trong DB
+    const isMatch = await bcrypt.compare(password, account.password);
+    if (!isMatch) {
       return res.render('customer/login', {
         error: 'Sai email hoặc mật khẩu!'
       });
