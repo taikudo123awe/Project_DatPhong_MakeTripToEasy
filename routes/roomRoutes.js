@@ -7,29 +7,28 @@ const providerController = require("../controllers/providerController");
 const multer = require("multer");
 const path = require("path");
 
-// --- Cấu hình upload ảnh phòng ---
-const storage = multer.diskStorage({
+// --- Storage cho ảnh phòng ---
+const storageRoom = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "./public/uploads/rooms/");
   },
   filename: (req, file, cb) => {
-    const providerId = req.session.provider.providerId;
+    const providerId = req.session.provider?.id || "unknown";
     const uniqueName = `${providerId}-room-${Date.now()}${path.extname(
       file.originalname
     )}`;
     cb(null, uniqueName);
   },
 });
-const upload = multer({ storage: storage });
-// ---------------------------------
 
-router.get("/add-room", ensureProviderLoggedIn, roomController.showAddRoomForm);
-router.post(
-  "/add-room",
-  ensureProviderLoggedIn,
-  upload.single("image"),
-  roomController.createRoom
-);
+const uploadRoom = multer({
+  storage: storageRoom,
+  // (tuỳ chọn) chặn file sai loại ngay từ đây
+  fileFilter: (req, file, cb) => {
+    const ok = ["image/jpeg", "image/png", "image/jpg"].includes(file.mimetype);
+    cb(ok ? null : new Error("Định dạng ảnh không hợp lệ"), ok);
+  },
+});
 
 router.get(
   "/dashboard",
