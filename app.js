@@ -8,6 +8,7 @@ const homeRoutes = require('./routes/homeRoutes');
 const authRoutes = require('./routes/authRoutes');
 const roomRoutes = require('./routes/roomRoutes');
 const providerRoutes = require('./routes/providerRoutes');
+
 require('./models/associations');
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, 'views'));
@@ -32,7 +33,6 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
-
 
 app.use('/rooms', roomRoutes);
 app.use('/provider', providerRoutes);

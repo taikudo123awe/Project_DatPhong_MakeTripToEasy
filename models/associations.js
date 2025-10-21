@@ -5,6 +5,7 @@ const Room = require('./Room');
 const Customer = require('./Customer');
 const Review = require('./Review');
 const Feedback = require('./Feedback');
+const Admin = require('./Admin');
 
 // --- Định nghĩa các mối quan hệ mới ---
 
@@ -27,5 +28,9 @@ Provider.hasMany(Feedback, { foreignKey: 'providerId' });
 // Feedback <-> Review (1-1)
 Feedback.belongsTo(Review, { foreignKey: 'reviewId' });
 Review.hasOne(Feedback, { foreignKey: 'reviewId' });
+
+// Admin <-> Account (1-1)
+Admin.belongsTo(Account, { foreignKey: 'accountId' });
+Account.hasOne(Admin, { foreignKey: 'accountId' });
 
 console.log('--- Các liên kết model (Associations) đã được định nghĩa ---');

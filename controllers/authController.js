@@ -2,6 +2,7 @@ const sequelize = require('../config/database');
 const Account = require('../models/Account');
 const Provider = require('../models/Provider');
 const Customer = require('../models/Customer');
+const Admin = require('../models/Admin');
 const bcrypt = require('bcrypt');
 
 exports.showLoginForm = (req, res) => {
@@ -213,4 +214,79 @@ exports.loginProvider = async (req, res) => {
 exports.logoutProvider = (req, res) => {
   req.session.provider = null;
   res.redirect('/provider/login');
+};
+
+//ADMIN========================================================================================================
+
+// ADMIN: Hiển thị form đăng nhập
+exports.showAdminLoginForm = (req, res) => {
+  res.render('admin/login', { error: null, success: null });
+};
+
+// ADMIN: Xử lý đăng nhập
+exports.loginAdmin = async (req, res) => {
+  const { username, password } = req.body; // username ở đây là số điện thoại
+
+  console.log(">>> req.body:", req.body); // Debug
+
+  try {
+    // Tìm admin theo số điện thoại
+    const admin = await Admin.findOne({ where: { phoneNumber: username } });
+
+    if (!admin) {
+      return res.render('admin/login', {
+        // error: 'Số điện thoại không tồn tại!',
+        error: 'Sai tài khoản hoặc mật khẩu!',
+        success: null
+      });
+    }
+
+    // Lấy thông tin tài khoản
+    const account = await Account.findOne({
+      where: {
+        accountId: admin.accountId,
+        role: 0 // Admin
+      }
+    });
+
+    if (!account) {
+      return res.render('admin/login', {
+        error: 'Tài khoản không tồn tại hoặc không đúng vai trò!',
+        success: null
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, account.password);
+
+    if (!isMatch) {
+      return res.render('admin/login', {
+        // error: 'Mật khẩu không chính xác!',
+        error: 'Sai tài khoản hoặc mật khẩu!',
+        success: null
+      });
+    }
+
+    // Lưu thông tin admin vào session
+    req.session.admin = {
+      adminId: admin.adminId,
+      email: admin.email,
+      phoneNumber: admin.phoneNumber,
+      username: account.username
+    };
+
+    return res.redirect('/admin/dashboard');
+  } catch (error) {
+    console.error('❌ Lỗi đăng nhập Admin:', error);
+    return res.render('admin/login', {
+      error: 'Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.',
+      success: null
+    });
+  }
+};
+
+
+// ADMIN: Đăng xuất
+exports.logoutAdmin = (req, res) => {
+  req.session.admin = null;
+  res.redirect('/admin/login');
 };

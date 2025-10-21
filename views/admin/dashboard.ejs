@@ -1,0 +1,28 @@
+<%- include('../partials/header_admin') %>
+
+<h1>Chào mừng đến với trang quản trị</h1>
+<p>Xin chào, <strong><%= admin.email %></strong></p>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card border-primary mb-3">
+            <div class="card-header">Quản lý người dùng</div>
+            <div class="card-body text-primary">
+                <p class="card-text">Xem và quản lý danh sách Customer, Provider,...</p>
+                <a href="#" class="btn btn-primary">Xem chi tiết</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-success mb-3">
+            <div class="card-header">Thống kê</div>
+            <div class="card-body text-success">
+                <p class="card-text">Xem các thống kê đặt phòng, doanh thu,...</p>
+                <a href="#" class="btn btn-success">Xem thống kê</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer_admin') %>
