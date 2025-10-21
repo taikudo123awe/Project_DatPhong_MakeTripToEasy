@@ -1,6 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Account = require('./Account');
+const Feedback = require('./Feedback');
+
 const Provider = sequelize.define('Provider', {
   providerId: {
     type: DataTypes.INTEGER,

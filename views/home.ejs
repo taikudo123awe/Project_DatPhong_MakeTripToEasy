@@ -1,4 +1,4 @@
-<%- include('partials/header_cus') %>
+<%- include('partials/header') %>
 
   <main class="container mt-4">
     <h1 class="mb-4 text-center">Welcome to Make Trip To Easy!</h1>
@@ -14,7 +14,6 @@
               class="card-img-top" 
               alt="<%= room.roomName %>" 
               style="height: 180px; object-fit: cover;">
-              style="height: 180px; object-fit: cover;">
             <div class="card-body">
               <h5 class="card-title text-primary">
                 <%= room.roomName %>
@@ -28,8 +27,10 @@
               <p><strong>Giá:</strong>
                 <%= room.price.toLocaleString() %> VND / đêm
               </p>
+              <p><strong>Nhà cung cấp:</strong> <%= room.Provider.providerName %></p>
             </div>
             <div class="card-footer text-end bg-white border-0">
+              <a href="/booking/<%= room.roomId %>" class="btn btn-primary">Đặt phòng</a>
               <a href="/rooms/<%= room.roomId %>" class="btn btn-outline-primary btn-sm">Chi tiết</a>
             </div>
           </div>

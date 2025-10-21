@@ -152,7 +152,7 @@ exports.logoutCustomer = (req, res) => {
   if (req.session && req.session.customer) {
     delete req.session.customer;
   }
-  res.redirect('/customer/login');
+  res.redirect('/');
 };
 
 // Hiển thị form đăng nhập Provider

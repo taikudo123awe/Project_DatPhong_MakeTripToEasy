@@ -37,7 +37,7 @@
         .nav-link {
             color: #8b7d6b !important;
             font-weight: 500;
-            padding: 10px 20px;
+            padding: 10px 10px;
             transition: all 0.3s ease;
             position: relative;
             border-radius: 8px;
@@ -79,7 +79,7 @@
             }
 
             .nav-link {
-                padding: 12px;
+                padding: 5px;
                 text-align: center;
             }
 
@@ -96,7 +96,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-3">
                     <img src="/images/logo.svg" alt="Make Trip To Easy Logo" style="height: 50px;">
-                    <h1 class="brand-name m-0">Make Trip To Easy</h1>
+                    <h2 class="brand-name m-0">Make Trip To Easy</h2>
                 </div>
                 <nav class="navbar navbar-expand-md">
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -104,11 +104,22 @@
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="nav ms-auto gap-2">
+                        <ul class="nav ms-auto gap-1">
                             <li class="nav-item"><a href="/" class="nav-link">Trang chủ</a></li>
-                            <li class="nav-item"><a href="/rooms" class="nav-link">Phòng</a></li>
-                            <li class="nav-item"><a href="/provider/dashboard" class="nav-link">Quản lý</a></li>
+                            <li class="nav-item"><a href="/customer/history" class="nav-link">Xem lịch sử đặt phòng</a></li>
+                            <% if (customer) { %>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="customerMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Xin chào, <%= customer.fullName %>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="customerMenu">
+                                <li><a class="dropdown-item" href="/customer/update">Thông tin cá nhân</a></li>
+                                <li><a class="dropdown-item" href="/customer/logout">Đăng xuất</a></li>
+                                </ul>
+                            </li>
+                            <% } else { %>
                             <li class="nav-item"><a href="/customer/login" class="nav-link">Đăng nhập</a></li>
+                            <% } %>
                         </ul>
                     </div>
                 </nav>

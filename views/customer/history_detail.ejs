@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chi tiết đặt phòng</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .history{
+        margin-top:20px;
+    }
+    .room-image {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body class="container py-4">
+<%- include('../partials/header') %>
+  <div class="history">
+    <div class="row">
+        <div class="col-10"> <h3 class="mb-3">Chi tiết phiếu đặt phòng</h3></div>
+        <div class="col-2" style="float: left;">  <a href="/" class="btn btn-outline-primary">Trang Chủ</a></div>
+    </div>
+  </div>
+  <div class="card shadow-sm border-0">
+    <div class="row g-0">
+      <div class="col-md-5">
+        <img 
+          src="/uploads/rooms/<%= Array.isArray(booking.Room.image) 
+            ? booking.Room.image[0] 
+            : (JSON.parse(booking.Room.image || '["default.jpg"]')[0]) %>" 
+          class="room-image" 
+          alt="<%= booking.Room.roomName %>">
+      </div>
+      <div class="col-md-7">
+        <div class="card-body">
+          <h4 class="card-title text-primary"><%= booking.Room.roomName %></h4>
+          <p><strong>Nhà cung cấp:</strong> <%= booking.Room.Provider.providerName %></p>
+          <p><strong>Ngày đặt:</strong> <%= booking.bookingDate %></p>
+          <p><strong>Ngày nhận phòng:</strong> <%= booking.checkInDate %></p>
+          <p><strong>Ngày trả phòng:</strong> <%= booking.checkOutDate %></p>
+          <p><strong>Trạng thái:</strong> <%= booking.status %></p>
+          <p><strong>Tổng tiền:</strong> <%= (booking.Invoice?.amount || booking.totalAmount).toLocaleString('vi-VN') %> ₫</p>
+        <div class="mt-3">
+
+            <a href="/" class="btn btn-outline-primary">Thanh Toán</a>
+        </div>
+        </div>
+      </div>
+    </div>
+      <a href="/customer/history" class="btn btn-secondary mb-3">&larr; Quay lại danh sách phòng đã đặt</a>
+  </div>
+    <%- include('../partials/footer') %>
+</body>
+
+</html>

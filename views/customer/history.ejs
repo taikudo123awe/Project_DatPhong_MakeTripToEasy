@@ -6,27 +6,28 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="container py-4">
+  <%- include('../partials/header') %>
 
-  <h3 class="mb-4">📖 Lịch sử đặt phòng</h3>
+  <h3 class="mb-4 text-center">📖 Lịch sử đặt phòng</h3>
 
   <% if (!bookings || bookings.length === 0) { %>
-    <div class="alert alert-info">
-      Bạn chưa có đơn đặt phòng nào.
+    <div class="alert alert-info text-center">
+      Bạn chưa có phiếu đặt phòng nào.
     </div>
   <% } else { %>
-    <table class="table table-hover align-middle shadow-sm">
+    <table class="table table-hover align-middle shadow-sm text-center">
       <thead class="table-light">
-        <tr class="text-center">
-          <th>Trạng thái phiếu</th>
+        <tr>
+          <th>Trạng thái</th>
           <th>Tên phòng</th>
           <th>Ngày đặt</th>
           <th>Tổng tiền</th>
-          <th>Thao tác</th>
+          <th>Chi tiết</th>
         </tr>
       </thead>
       <tbody>
         <% bookings.forEach(b => { %>
-          <tr class="text-center">
+          <tr>
             <td>
               <% if (b.status === 'Đã đặt') { %>
                 <span class="badge bg-primary">Đã đặt</span>
@@ -40,9 +41,7 @@
             <td><%= b.bookingDate %></td>
             <td><%= (b.Invoice?.amount || b.totalAmount).toLocaleString('vi-VN') %> ₫</td>
             <td>
-              <a href="/customer/history/<%= b.bookingId %>" class="btn btn-sm btn-outline-primary">
-                Xem chi tiết
-              </a>
+              <a href="/customer/history/<%= b.bookingId %>" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
             </td>
           </tr>
         <% }) %>
@@ -51,6 +50,7 @@
   <% } %>
 
   <a href="/" class="btn btn-secondary mt-3">&larr; Quay lại danh sách phòng</a>
-
+  <%- include('../partials/footer') %>
 </body>
+
 </html>

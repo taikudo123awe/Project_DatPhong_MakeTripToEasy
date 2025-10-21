@@ -56,7 +56,7 @@ exports.viewBookingHistory = async (req, res) => {
       where: { customerId },
       include: [
         { model: Room, include: [Provider] },
-        { model: Invoice }
+        { model: Invoice, as: 'invoice' }
       ],
       order: [['bookingDate', 'DESC']]
     });
@@ -64,7 +64,7 @@ exports.viewBookingHistory = async (req, res) => {
     res.render('customer/history', { bookings });
   } catch (err) {
     console.error('viewBookingHistory error:', err);
-    res.status(500).send('Server error');
+    res.status(500).send('Server error', err);
   }
 };
 
@@ -81,13 +81,13 @@ exports.viewBookingDetail = async (req, res) => {
       where: { bookingId, customerId },
       include: [
         { model: Room, include: [Provider] },
-        { model: Invoice }
+        { model: Invoice, as: 'invoice' }
       ]
     });
 
     if (!booking) return res.status(404).send('Booking not found');
 
-    res.render('customer/booking_detail', { booking });
+    res.render('customer/history_detail', { booking });
   } catch (err) {
     console.error('viewBookingDetail error:', err);
     res.status(500).send('Server error');

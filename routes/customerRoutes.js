@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { ensureCustomerLoggedIn } = require('../middlewares/authMiddleware');
+const {ensureCustomerLoggedIn } = require('../middlewares/authMiddleware');
 const customerController = require('../controllers/customerController');
 
 // Hiển thị form chỉnh sửa
