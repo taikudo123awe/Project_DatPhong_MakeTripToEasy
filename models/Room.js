@@ -37,7 +37,7 @@ const Room = sequelize.define(
       allowNull: true,
     },
     image: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.TEXT, // ✅ cho phép lưu chuỗi dài hơn 255 ký tự
       allowNull: true,
     },
     status: {
