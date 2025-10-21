@@ -34,6 +34,7 @@ app.use(session({
   saveUninitialized: true
 }));
 
+app.use('/admin', require('./routes/adminRoutes'));
 app.use('/rooms', roomRoutes);
 app.use('/provider', providerRoutes);
 app.use('/', homeRoutes);
