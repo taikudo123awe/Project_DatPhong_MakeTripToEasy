@@ -6,6 +6,7 @@ const providerController = require('../controllers/providerController');
 const validateProvider = require('../middlewares/validateProvider');
 const Room = require('../models/Room');
 const reviewController = require('../controllers/reviewController');
+const bookingController = require('../controllers/bookingController'); //Quan ly dat phong
 // --- THÊM CẤU HÌNH MULTER ---
 const multer = require('multer');
 const path = require('path');
@@ -50,6 +51,13 @@ router.get('/reviews', ensureProviderLoggedIn, reviewController.showReviewedRoom
 router.get('/reviews/:roomId', ensureProviderLoggedIn, reviewController.showRoomReviews);
 router.post('/reviews/feedback', ensureProviderLoggedIn, reviewController.addFeedback);
 
+// --- KẾT THÚC THÊM ---
+
+// --- THÊM ROUTE MỚI CHO QUẢN LÝ ĐẶT PHÒNG ---
+router.get('/bookings', ensureProviderLoggedIn, bookingController.listAllBookings);
+router.get('/bookings/:bookingId', ensureProviderLoggedIn, bookingController.showBookingDetails);
+router.post('/bookings/confirm', ensureProviderLoggedIn, bookingController.confirmCheckIn);
+router.post('/bookings/cancel', ensureProviderLoggedIn, bookingController.cancelBooking);
 // --- KẾT THÚC THÊM ---
 
 // Hiển thị form đăng ký
