@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Provider = require('./Provider');
+const Address = require("./Address");
 
 const Room = sequelize.define('Room', {
   roomId: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
@@ -21,5 +22,8 @@ const Room = sequelize.define('Room', {
 // Liên kết
 Room.belongsTo(Provider, { foreignKey: 'providerId' });
 Provider.hasMany(Room, { foreignKey: 'providerId' });
+
+Room.belongsTo(Address, { foreignKey: "addressId", as: "address" });
+Address.hasMany(Room, { foreignKey: "addressId", as: "rooms" });
 
 module.exports = Room;
