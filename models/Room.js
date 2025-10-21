@@ -8,7 +8,7 @@ const Room = sequelize.define('Room', {
   capacity: DataTypes.INTEGER,
   price: DataTypes.FLOAT,
   description: DataTypes.TEXT,
-  image: DataTypes.STRING,
+  image: DataTypes.TEXT,
   status: { type: DataTypes.STRING, defaultValue: 'Hoạt động' }, // hoặc 'Bảo trì'
   approvalStatus: { type: DataTypes.STRING, defaultValue: 'Chờ duyệt' },
   postedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },

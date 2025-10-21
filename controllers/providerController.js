@@ -222,3 +222,67 @@ exports.registerProvider = async (req, res) => {
     });
   }
 };
+
+// -----------------Xem báo cáo -------------------
+
+// Hiển thị trang báo cáo của Provider
+exports.showReport = async (req, res) => {
+  try {
+    const provider = req.session.provider; // Lấy thông tin provider từ session
+    res.render('provider/report', { provider }); // Render giao diện report.ejs
+  } catch (err) {
+    console.error('showReport error:', err);
+    res.status(500).send('Server error');
+  }
+};
+
+// ============================
+// XEM LỊCH SỬ ĐẶT PHÒNG
+// ============================
+exports.viewBookingHistory = async (req, res) => {
+  try {
+    const customerId = req.session.customer?.customerId;
+    if (!customerId) return res.redirect('/customer/login');
+
+    // Lấy danh sách booking của customer này
+    const bookings = await Booking.findAll({
+      where: { customerId },
+      include: [
+        { model: Room, include: [Provider] },
+        { model: Invoice }
+      ],
+      order: [['bookingDate', 'DESC']]
+    });
+
+    res.render('customer/history', { bookings });
+  } catch (err) {
+    console.error('viewBookingHistory error:', err);
+    res.status(500).send('Server error');
+  }
+};
+
+// ============================
+// XEM CHI TIẾT 1 PHÒNG ĐÃ ĐẶT
+// ============================
+exports.viewBookingDetail = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    const customerId = req.session.customer?.customerId;
+    if (!customerId) return res.redirect('/customer/login');
+
+    const booking = await Booking.findOne({
+      where: { bookingId, customerId },
+      include: [
+        { model: Room, include: [Provider] },
+        { model: Invoice }
+      ]
+    });
+
+    if (!booking) return res.status(404).send('Không tìm thấy phiếu đặt phòng.');
+
+    res.render('customer/booking_detail', { booking });
+  } catch (err) {
+    console.error('viewBookingDetail error:', err);
+    res.status(500).send('Server error');
+  }
+};

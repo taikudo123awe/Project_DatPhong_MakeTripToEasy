@@ -9,7 +9,10 @@
       <% rooms.forEach(room=> { %>
         <div class="col">
           <div class="card h-100 shadow-sm">
-            <img src="/uploads/<%= room.image %>" class="card-img-top" alt="<%= room.roomName %>"
+            <img 
+              src="/uploads/rooms/<%= Array.isArray(room.image) ? room.image[0] : (JSON.parse(room.image)[0] || 'default.jpg') %>" 
+              class="card-img-top" 
+              alt="<%= room.roomName %>" 
               style="height: 180px; object-fit: cover;">
             <div class="card-body">
               <h5 class="card-title text-primary">
@@ -24,8 +27,10 @@
               <p><strong>Giá:</strong>
                 <%= room.price.toLocaleString() %> VND / đêm
               </p>
+              <p><strong>Nhà cung cấp:</strong> <%= room.Provider.providerName %></p>
             </div>
             <div class="card-footer text-end bg-white border-0">
+              <a href="/booking/<%= room.roomId %>" class="btn btn-primary">Đặt phòng</a>
               <a href="/rooms/<%= room.roomId %>" class="btn btn-outline-primary btn-sm">Chi tiết</a>
             </div>
           </div>

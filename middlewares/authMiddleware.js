@@ -1,11 +1,4 @@
-// exports.ensureProviderLoggedIn = (req, res, next) => {
-//     if (req.session.provider) {
-//       next();
-//     } else {
-//       res.redirect('/login');
-//     }
-//   };
-
+// middlewares/authMiddleware.js
 exports.ensureCustomerLoggedIn = (req, res, next) => {
   if (req.session && req.session.customer) {
     return next();
@@ -17,5 +10,5 @@ exports.ensureProviderLoggedIn = (req, res, next) => {
   if (req.session && req.session.provider) {
     return next();
   }
-  res.redirect('/provider/login');
+  return res.redirect('/provider/login');
 };
