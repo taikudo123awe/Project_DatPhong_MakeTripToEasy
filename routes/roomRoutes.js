@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const roomController = require('../controllers/roomController');
+const validateSearch = require('../middlewares/validateSearch');
+
+
+// Tìm kiếm phòng
+router.get('/search', validateSearch, roomController.searchRooms);
 
 //Lấy danh sách phòng
 router.get('/', roomController.getAllRooms);
