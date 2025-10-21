@@ -13,12 +13,16 @@
         <div class="stats-overview">
             <div class="stat-card">
                 <div class="stat-icon">🏠</div>
-                <div class="stat-value">125</div>
+                <div class="stat-value">
+                    <%= typeof totalRooms !=='undefined' ? totalRooms : 0 %>
+                </div>
                 <div class="stat-label">Tổng phòng</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">⏳</div>
-                <div class="stat-value">12</div>
+                <div class="stat-value">
+                    <%= typeof pendingRooms !=='undefined' ? pendingRooms : 0 %>
+                </div>
                 <div class="stat-label">Chờ duyệt</div>
             </div>
             <div class="stat-card">
@@ -49,11 +53,11 @@
                     </p>
                     <div class="feature-stats">
                         <div class="feature-stat-item">
-                            <span class="feature-stat-value">125</span>
+                            <span class="feature-stat-value"><%= typeof totalRooms !=='undefined' ? totalRooms : 0 %></span>
                             <span class="feature-stat-label">Tổng phòng</span>
                         </div>
                         <div class="feature-stat-item">
-                            <span class="feature-stat-value">12</span>
+                            <span class="feature-stat-value"><%= typeof pendingRooms !=='undefined' ? pendingRooms : 0 %></span>
                             <span class="feature-stat-label">Chờ duyệt</span>
                         </div>
                     </div>

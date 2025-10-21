@@ -61,6 +61,10 @@
                                         </td>
                                         <td>
                                             <a href="/admin/rooms/<%= room.roomId %>" class="btn-view">Xem chi tiết</a>
+                                            <button type="button" class="btn-delete"
+                                                onclick='openDeleteModal(<%= room.roomId %>, "<%- room.roomName.replace(/"/g, "&quot;") %>")'>
+                                                Xoá bài đăng
+                                            </button>
                                         </td>
                                     </tr>
                                     <% }) %>
@@ -71,4 +75,6 @@
         </div>
     </div>
 
+    <!-- Include Delete Modal from admin folder -->
+    <%- include('./delete_room_modal') %>
     <%- include('../partials/footer_admin') %>

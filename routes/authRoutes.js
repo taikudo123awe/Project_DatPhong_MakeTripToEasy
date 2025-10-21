@@ -26,11 +26,11 @@ router.get('/provider/logout', authController.logoutProvider);
 router.get('/admin/login', authController.showAdminLoginForm);
 router.post('/admin/login', authController.loginAdmin);
 router.get('/admin/logout', authController.logoutAdmin);
-// Dashboard chỉ dành cho admin đã đăng nhập
-router.get('/admin/dashboard', adminAuth, (req, res) => {
-  res.render('admin/dashboard', {
-    admin: req.session.admin
-  });
-});
+// // Dashboard chỉ dành cho admin đã đăng nhập
+// router.get('/admin/dashboard', adminAuth, (req, res) => {
+//   res.render('admin/dashboard', {
+//     admin: req.session.admin
+//   });
+// });
 
 module.exports = router;

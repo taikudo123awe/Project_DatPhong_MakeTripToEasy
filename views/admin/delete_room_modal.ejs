@@ -1,0 +1,32 @@
+
+<!-- Delete Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeDeleteModal()"></div>
+<div class="delete-modal" id="deleteModal">
+    <div class="modal-icon">⚠️</div>
+    <h3 class="modal-title">Xác nhận xóa bài đăng</h3>
+    <p class="modal-message">Bạn có chắc chắn muốn xóa bài đăng này? Hành động này không thể hoàn tác!</p>
+    <div class="modal-room-name" id="modalRoomName"></div>
+    
+    <form id="deleteForm" method="POST" action="">
+        <div class="modal-reason-group">
+            <label class="modal-reason-label">Lý do xóa bài đăng *</label>
+            <textarea 
+                name="reason" 
+                class="modal-reason-input" 
+                placeholder="Vui lòng nhập lý do xóa bài đăng (bắt buộc)..."
+                required
+            ></textarea>
+        </div>
+        
+        <div class="modal-buttons">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">
+                Hủy
+            </button>
+            <button type="submit" class="modal-btn modal-btn-confirm">
+                Xóa bài đăng
+            </button>
+        </div>
+    </form>
+</div>
+
+<script src="/javascript/admin-delete-room.js"></script>
