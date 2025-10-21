@@ -4,6 +4,7 @@ const { ensureProviderLoggedIn } = require('../middlewares/authMiddleware');
 const roomController = require('../controllers/roomController');
 const providerController = require('../controllers/providerController');
 const validateProvider = require('../middlewares/validateProvider');
+const reportController = require('../controllers/reportController'); // Xem báo cáo
 const Room = require('../models/Room');
 
 // --- THÊM CẤU HÌNH MULTER ---
@@ -51,5 +52,18 @@ router.get('/register', (req, res) => {
 
 // Xử lý đăng ký (kèm middleware kiểm tra)
 router.post('/register', validateProvider, providerController.registerProvider);
+
+
+// --- XEM BÁO CÁO (REPORT) ---
+
+// Trang giao diện xem báo cáo
+router.get('/report', ensureProviderLoggedIn, providerController.showReport);
+
+// API dữ liệu thống kê
+router.get('/report/today',       ensureProviderLoggedIn, reportController.getTodayOverview);
+router.get('/report/revenue',     ensureProviderLoggedIn, reportController.getRevenue);
+router.get('/report/room-status', ensureProviderLoggedIn, reportController.getRoomStatus);
+
+
 
 module.exports = router;

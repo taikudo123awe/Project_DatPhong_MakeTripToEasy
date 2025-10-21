@@ -14,11 +14,15 @@ const Customer = sequelize.define('Customer', {
     allowNull: false,
     unique: true
   },
+  fullName: {                           // 👈 thêm cột fullName
+    type: DataTypes.STRING(100),
+    allowNull: false
+  },
   phoneNumber: {
     type: DataTypes.STRING(15),
     allowNull: false 
   },
-  idCard: {
+  identityNumber: {
     type: DataTypes.STRING(20),
     allowNull: false
   },

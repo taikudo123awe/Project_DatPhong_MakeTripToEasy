@@ -172,3 +172,16 @@ exports.registerProvider = async (req, res) => {
     });
   }
 };
+
+// -----------------Xem báo cáo -------------------
+
+// Hiển thị trang báo cáo của Provider
+exports.showReport = async (req, res) => {
+  try {
+    const provider = req.session.provider; // Lấy thông tin provider từ session
+    res.render('provider/report', { provider }); // Render giao diện report.ejs
+  } catch (err) {
+    console.error('showReport error:', err);
+    res.status(500).send('Server error');
+  }
+};

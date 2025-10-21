@@ -8,6 +8,7 @@ const homeRoutes = require('./routes/homeRoutes');
 const authRoutes = require('./routes/authRoutes');
 const roomRoutes = require('./routes/roomRoutes');
 const providerRoutes = require('./routes/providerRoutes');
+const customerRoutes = require('./routes/customerRoutes');//Thêm
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -24,11 +25,17 @@ app.use(session({
   saveUninitialized: true
 }));
 
+app.use((req, res, next) => {
+   res.locals.customer = req.session.customer || null;
+   next();
+});
 
 app.use('/rooms', roomRoutes);
 app.use('/provider', providerRoutes);
 app.use('/', homeRoutes);
 app.use(authRoutes);
+app.use('/customer', customerRoutes);//Thêm
 sequelize.sync().then(() => {
-  app.listen(3000, () => console.log('🚀 Server running on http://localhost:3000'));
+app.listen(3000, () => console.log('🚀 Server running on http://localhost:3000'));
 });
+

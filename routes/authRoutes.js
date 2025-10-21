@@ -10,7 +10,7 @@ router.get('/logout', authController.logout);
 router.get('/register', authController.showCustomerRegisterForm);
 router.post('/register', authController.registerCustomer);
 
-// Đăng nhập, đăng xuất customer
+// Đăng nhập
 router.get('/customer/login', authController.showCustomerLoginForm);
 router.post('/customer/login', authController.loginCustomer);
 router.get('/customer/logout', authController.logoutCustomer);

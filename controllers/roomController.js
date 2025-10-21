@@ -74,11 +74,27 @@ exports.getRoomDetail = async (req, res) => {
 
 exports.getRoomsForHome = async (req, res) => {
   try {
-    const rooms = await Room.findAll({
+    const roomsRaw = await Room.findAll({
       where: { approvalStatus: 'Đã duyệt', status: 'Hoạt động' },
       include: { model: Provider },
       order: [['postedAt', 'DESC']],
       limit: 8
+    });
+
+    // Parse danh sách ảnh trong cột image
+    const rooms = roomsRaw.map(room => {
+      let images = [];
+      try {
+        images = JSON.parse(room.image); // chuyển JSON string thành mảng
+      } catch (err) {
+        images = [room.image]; // fallback nếu chỉ có 1 ảnh
+      }
+
+      return {
+        ...room.toJSON(),
+        images,             // thêm mảng ảnh riêng
+        firstImage: images[0] || 'default.jpg' // ảnh đại diện
+      };
     });
 
     const { error, address = '', checkIn = '', checkOut = '', guests = '1', rooms: roomNum = '1' } = req.query;
@@ -86,14 +102,9 @@ exports.getRoomsForHome = async (req, res) => {
     res.render('home', {
       rooms,
       error,
-      form: {
-        address,
-        checkIn,
-        checkOut,
-        guests,
-        rooms: roomNum
-      }
+      form: { address, checkIn, checkOut, guests, rooms: roomNum }
     });
+
   } catch (err) {
     console.error(err);
     res.status(500).send('Lỗi khi tải phòng trang chủ');

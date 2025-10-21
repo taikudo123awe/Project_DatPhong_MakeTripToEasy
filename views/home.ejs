@@ -1,4 +1,4 @@
-<%- include('partials/header') %>
+<%- include('partials/header_cus') %>
 
   <main class="container mt-4">
     <h1 class="mb-4 text-center">Welcome to Make Trip To Easy!</h1>
@@ -9,7 +9,11 @@
       <% rooms.forEach(room=> { %>
         <div class="col">
           <div class="card h-100 shadow-sm">
-            <img src="/uploads/<%= room.image %>" class="card-img-top" alt="<%= room.roomName %>"
+            <img 
+              src="/uploads/rooms/<%= Array.isArray(room.image) ? room.image[0] : (JSON.parse(room.image)[0] || 'default.jpg') %>" 
+              class="card-img-top" 
+              alt="<%= room.roomName %>" 
+              style="height: 180px; object-fit: cover;">
               style="height: 180px; object-fit: cover;">
             <div class="card-body">
               <h5 class="card-title text-primary">
