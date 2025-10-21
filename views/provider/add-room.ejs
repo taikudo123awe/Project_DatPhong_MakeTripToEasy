@@ -165,21 +165,18 @@
 
         <!-- Ảnh phòng -->
         <div class="mb-3">
-          <label for="image" class="form-label">Ảnh phòng</label>
+          <label for="images" class="form-label">Ảnh phòng</label>
           <input
             type="file"
             class="form-control"
-            name="image"
-            id="image"
-            accept=".jpg, .jpeg, .png"
+            id="images"
+            name="images"
+            multiple
+            accept=".jpg,.jpeg,.png"
             required
           />
-          <div class="form-text">
-            Chỉ chấp nhận ảnh định dạng JPG, JPEG, PNG.
-          </div>
         </div>
 
-        <!-- Nút hành động -->
         <div class="text-center mt-4">
           <button type="submit" class="btn btn-success px-4">Đăng phòng</button>
           <a href="/provider/dashboard" class="btn btn-secondary ms-3 px-4"
