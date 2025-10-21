@@ -1,5 +1,7 @@
-const sequelize = require('./config/database');
-const express = require('express');
+const express = require("express");
+const dotenv = require("dotenv");
+const sequelize = require("./config/database");
+dotenv.config();
 const app = express();
 const path = require('path');
 require('dotenv').config();
@@ -22,18 +24,24 @@ require('./models/associations');
     saveUninitialized: true
   }));
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.urlencoded({ extended: false }));
+// ====== View Engine ======
+app.set("view engine", "ejs");
+app.set("views", path.resolve(__dirname, "views"));
 
+// ====== Middleware ======
+app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(session({
-  secret: 'your_secret_key',
-  resave: false,
-  saveUninitialized: true
-}));
-
+// ====== Session ======
+app.use(
+  session({
+    secret: "your_secret_key",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+//test
 app.get('/test', (req, res) => {
   res.render('test');
 });
@@ -44,6 +52,7 @@ app.use('/rooms', roomRoutes);
 app.use('/provider', providerRoutes);
 app.use('/', homeRoutes);
 app.use(authRoutes);
+
 sequelize.sync().then(() => {
   app.listen(3000, () => console.log('🚀 Server running on http://localhost:3000'));
 });

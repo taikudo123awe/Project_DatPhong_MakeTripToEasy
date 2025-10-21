@@ -1,48 +1,104 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Trang quản lý nhà cung cấp</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="container mt-4">
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Trang quản lý nhà cung cấp</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
 
-  <h2>Xin chào <%= provider.username %>!</h2>
+  <body class="container mt-4">
+    <h2>Xin chào <%= provider.username %>!</h2>
 
-  <div class="mb-4">
-    <a href="/provider/add-room" class="btn btn-success">+ Thêm phòng mới</a>
-    <a href="/provider/edit-profile" class="btn btn-primary ms-2">Chỉnh sửa thông tin</a>
-    <a href="/provider/reviews" class="btn btn-info ms-2">Xem đánh giá</a>
-    <a href="/logout" class="btn btn-outline-danger ms-2">Đăng xuất</a>
-  </div>
+    <div class="mb-4">
+      <a href="/provider/add-room" class="btn btn-success">+ Thêm phòng mới</a>
+      <a href="/provider/edit-profile" class="btn btn-primary ms-2">
+        Chỉnh sửa thông tin
+      </a>
+      <a href="/provider/reviews" class="btn btn-info ms-2">Xem đánh giá</a>
+      <a href="/logout" class="btn btn-outline-danger ms-2">Đăng xuất</a>
+    </div>
 
-  <h4>📋 Danh sách phòng đã đăng:</h4>
+    <!-- 🔔 Thông báo sau khi xóa hoặc sửa -->
+    <% if (typeof success !== "undefined" && success) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      ✅ <%= success %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% } %> <% if (typeof error !== "undefined" && error) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      ⚠️ <%= error %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <% } %>
 
-  <% if (providerRooms.length > 0) { %>
-    <table class="table table-bordered mt-3">
-      <thead>
+    <h4>📋 Danh sách phòng đã đăng:</h4>
+
+    <% if (providerRooms && providerRooms.length > 0) { %>
+    <table class="table table-bordered mt-3 align-middle text-center">
+      <thead class="table-light">
         <tr>
           <th>#</th>
           <th>Tên phòng</th>
           <th>Giá (VND)</th>
           <th>Trạng thái duyệt</th>
           <th>Ngày đăng</th>
+          <th>Thao tác</th>
         </tr>
       </thead>
       <tbody>
         <% providerRooms.forEach((room, index) => { %>
-          <tr>
-            <td><%= index + 1 %></td>
-            <td><%= room.roomName %></td>
-            <td><%= room.price.toLocaleString() %></td>
-            <td><%= room.approvalStatus %></td>
-            <td><%= new Date(room.postedAt).toLocaleDateString('vi-VN') %></td>
-          </tr>
+        <tr>
+          <td><%= index + 1 %></td>
+          <td><%= room.roomName %></td>
+          <td><%= room.price.toLocaleString() %></td>
+          <td><%= room.approvalStatus %></td>
+          <td><%= new Date(room.postedAt).toLocaleDateString('vi-VN') %></td>
+
+          <!-- 🧩 Cột hành động -->
+          <td>
+            <a
+              href="/provider/edit-room/<%= room.roomId %>"
+              class="btn btn-warning btn-sm me-2"
+            >
+              🖋️ Sửa
+            </a>
+
+            <form
+              action="/provider/delete-room/<%= room.roomId %>"
+              method="POST"
+              class="delete-room-form"
+              data-room-name="<%= room.roomName %>"
+              style="display: inline"
+            >
+              <button type="submit" class="btn btn-danger btn-sm">
+                ❌ Xóa
+              </button>
+            </form>
+          </td>
+        </tr>
         <% }) %>
       </tbody>
     </table>
-  <% } else { %>
+    <% } else { %>
     <p class="text-muted mt-3">Bạn chưa đăng phòng nào.</p>
-  <% } %>
+    <% } %>
 
-</body>
+    <script>
+      // ✅ Xác nhận khi xóa phòng
+      document.querySelectorAll(".delete-room-form").forEach((form) => {
+        form.addEventListener("submit", function (e) {
+          const roomName = this.getAttribute("data-room-name") || "phòng";
+          const confirmDelete = confirm(
+            `⚠️ Bạn có chắc chắn muốn xóa "${roomName}" không?\nHành động này không thể hoàn tác!`
+          );
+          if (!confirmDelete) e.preventDefault();
+        });
+      });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>

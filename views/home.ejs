@@ -1,37 +1,46 @@
 <%- include('partials/header') %>
 
-  <main class="container mt-4">
-    <h1 class="mb-4 text-center">Welcome to Make Trip To Easy!</h1>
-    <!-- <a href="/rooms" class="btn btn-primary mt-3">Xem danh sách phòng</a> -->
-    <a href="/provider/login" class="btn btn-success me-2">Đăng nhập</a>
-    <a href="/provider/register" class="btn btn-warning">Đăng ký nhà cung cấp</a>
-    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
-      <% rooms.forEach(room=> { %>
-        <div class="col">
-          <div class="card h-100 shadow-sm">
-            <img src="/uploads/<%= room.image %>" class="card-img-top" alt="<%= room.roomName %>"
-              style="height: 180px; object-fit: cover;">
-            <div class="card-body">
-              <h5 class="card-title text-primary">
-                <%= room.roomName %>
-              </h5>
-              <p class="text-muted mb-1">
-                <%= room.description.length> 60 ? room.description.slice(0, 60) + '...' : room.description %>
-              </p>
-              <p class="mb-1"><strong>Sức chứa:</strong>
-                <%= room.capacity %> người
-              </p>
-              <p><strong>Giá:</strong>
-                <%= room.price.toLocaleString() %> VND / đêm
-              </p>
-            </div>
-            <div class="card-footer text-end bg-white border-0">
-              <a href="/rooms/<%= room.roomId %>" class="btn btn-outline-primary btn-sm">Chi tiết</a>
-            </div>
-          </div>
+<main class="container mt-4">
+  <h1 class="mb-4 text-center">Welcome to Make Trip To Easy!</h1>
+  <!-- <a href="/rooms" class="btn btn-primary mt-3">Xem danh sách phòng</a> -->
+  <a href="/provider/login" class="btn btn-success me-2">Đăng nhập</a>
+  <a href="/provider/register" class="btn btn-warning">Đăng ký nhà cung cấp</a>
+  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+    <% rooms.forEach(room=> { %>
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        <img
+          src="/uploads/<%= room.image %>"
+          class="card-img-top"
+          alt="<%= room.roomName %>"
+          style="height: 180px; object-fit: cover"
+        />
+        <div class="card-body">
+          <h5 class="card-title text-primary"><%= room.roomName %></h5>
+          <p class="text-muted mb-1">
+            <%= room.description.length> 60 ? room.description.slice(0, 60) +
+            '...' : room.description %>
+          </p>
+          <p class="mb-1">
+            <strong>Sức chứa:</strong>
+            <%= room.capacity %> người
+          </p>
+          <p>
+            <strong>Giá:</strong>
+            <%= room.price.toLocaleString() %> VND / đêm
+          </p>
         </div>
-        <% }) %>
+        <div class="card-footer text-end bg-white border-0">
+          <a
+            href="/rooms/<%= room.roomId %>"
+            class="btn btn-outline-primary btn-sm"
+            >Chi tiết</a
+          >
+        </div>
+      </div>
     </div>
-  </main>
+    <% }) %>
+  </div>
+</main>
 
-  <%- include('partials/footer') %>
+<%- include('partials/footer') %>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chỉnh sửa thông tin phòng</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+      .form-container {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .btn-primary {
+        background-color: #007bff;
+      }
+    </style>
+  </head>
+  <body class="container py-5">
+    <div class="form-container mx-auto col-md-8">
+      <h2 class="text-center mb-4">🛠️ Chỉnh sửa thông tin phòng</h2>
+
+      <form
+        action="/provider/edit-room/<%= room.roomId %>"
+        method="POST"
+        enctype="multipart/form-data"
+        id="editRoomForm"
+      >
+        <!-- Tên phòng -->
+        <div class="mb-3">
+          <label for="roomName" class="form-label">Tên phòng</label>
+          <input
+            type="text"
+            class="form-control"
+            id="roomName"
+            name="roomName"
+            value="<%= room.roomName %>"
+            required
+          />
+        </div>
+
+        <!-- Địa chỉ -->
+        <div class="mb-3">
+          <label for="fullAddress" class="form-label">Địa chỉ</label>
+          <input
+            type="text"
+            class="form-control"
+            id="fullAddress"
+            name="fullAddress"
+            value="<%= room.fullAddress %>"
+            required
+          />
+        </div>
+
+        <!-- Sức chứa -->
+        <div class="mb-3">
+          <label for="capacity" class="form-label">Sức chứa (người)</label>
+          <input
+            type="number"
+            class="form-control"
+            id="capacity"
+            name="capacity"
+            value="<%= room.capacity %>"
+            min="1"
+            required
+          />
+        </div>
+
+        <!-- Giá -->
+        <div class="mb-3">
+          <label for="price" class="form-label">Giá (VND)</label>
+          <input
+            type="number"
+            class="form-control"
+            id="price"
+            name="price"
+            value="<%= room.price %>"
+            min="1"
+            required
+          />
+        </div>
+
+        <!-- Tiện ích -->
+        <div class="mb-3">
+          <label for="amenities" class="form-label">Tiện ích</label>
+          <input
+            type="text"
+            class="form-control"
+            id="amenities"
+            name="amenities"
+            value="<%= room.amenities %>"
+            required
+          />
+        </div>
+
+        <!-- Mô tả -->
+        <div class="mb-3">
+          <label for="description" class="form-label">Mô tả chi tiết</label>
+          <textarea
+            class="form-control"
+            id="description"
+            name="description"
+            rows="4"
+            required
+          >
+<%= room.description %></textarea
+          >
+        </div>
+
+        <!-- Ảnh hiện tại -->
+        <div class="mb-3">
+          <label class="form-label">Ảnh hiện tại:</label><br />
+          <% if (room.image) { %>
+          <img
+            src="/<%= room.image %>"
+            alt="Ảnh phòng"
+            width="250"
+            class="rounded shadow mb-2"
+          />
+          <% } else { %>
+          <p class="text-muted">Chưa có ảnh</p>
+          <% } %>
+        </div>
+
+        <!-- Ảnh mới -->
+        <div class="mb-3">
+          <label for="images" class="form-label"
+            >Cập nhật ảnh mới (nếu có):</label
+          >
+          <input
+            type="file"
+            class="form-control"
+            id="images"
+            name="images"
+            multiple
+            accept="image/*"
+          />
+        </div>
+
+        <!-- Nút hành động -->
+        <div class="text-center mt-4">
+          <button type="submit" class="btn btn-primary px-4">
+            💾 Lưu thay đổi
+          </button>
+          <a href="/provider/dashboard" class="btn btn-secondary ms-3 px-4">
+            Hủy
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      // ✅ Thông báo xác nhận khi bấm "Lưu thay đổi"
+      document
+        .getElementById("editRoomForm")
+        .addEventListener("submit", function (e) {
+          const confirmSubmit = confirm(
+            "Bạn có chắc chắn muốn lưu thay đổi cho phòng này không?\nSau khi lưu, trạng thái sẽ chuyển về 'Chờ duyệt'."
+          );
+          if (!confirmSubmit) {
+            e.preventDefault();
+            return;
+          }
+
+          // ✅ Kiểm tra hợp lệ dữ liệu trước khi gửi
+          const roomName = document.getElementById("roomName").value.trim();
+          const fullAddress = document
+            .getElementById("fullAddress")
+            .value.trim();
+          const price = parseFloat(document.getElementById("price").value);
+          const capacity = parseInt(
+            document.getElementById("capacity").value,
+            10
+          );
+          const amenities = document.getElementById("amenities").value.trim();
+          const description = document
+            .getElementById("description")
+            .value.trim();
+          const images = document.getElementById("images").files;
+
+          const roomNameRegex = /^[a-zA-ZÀ-ỹ0-9\s]+$/;
+          const errors = [];
+
+          if (!roomNameRegex.test(roomName)) {
+            errors.push("Tên phòng không hợp lệ. Không chứa ký tự đặc biệt.");
+          }
+
+          if (!fullAddress) {
+            errors.push("Địa chỉ không được để trống.");
+          }
+
+          if (isNaN(price) || price <= 0) {
+            errors.push("Giá phòng phải là số > 0.");
+          }
+
+          if (isNaN(capacity) || capacity < 1) {
+            errors.push("Sức chứa phải ≥ 1.");
+          }
+
+          if (!amenities) {
+            errors.push("Vui lòng nhập tiện ích của phòng.");
+          }
+
+          if (!description) {
+            errors.push("Vui lòng nhập mô tả chi tiết.");
+          }
+
+          // Kiểm tra định dạng ảnh mới (nếu có)
+          if (images.length > 0) {
+            const allowed = ["image/jpeg", "image/png", "image/jpg"];
+            for (let img of images) {
+              if (!allowed.includes(img.type)) {
+                errors.push(
+                  "Ảnh không đúng định dạng (.jpg, .jpeg, .png): " + img.name
+                );
+              }
+            }
+          }
+
+          if (errors.length > 0) {
+            e.preventDefault();
+            alert(errors.join("\n"));
+          }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
