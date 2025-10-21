@@ -19,6 +19,11 @@ router.get('/customer/login', authController.showCustomerLoginForm);
 router.post('/customer/login', authController.loginCustomer);
 router.get('/customer/logout', authController.logoutCustomer);
 
+// Đăng nhập / đăng xuất Provider
+router.get('/provider/login', authController.showProviderLoginForm);
+router.post('/provider/login', authController.loginProvider);
+router.get('/provider/logout', authController.logoutProvider);
+
 // Trang thông tin cá nhân
 router.get('/customer/profile', ensureCustomerLoggedIn, async (req, res) => {
   const customer = await Customer.findByPk(req.session.customer.customerId);
