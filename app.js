@@ -4,22 +4,20 @@ const session = require("express-session");
 const dotenv = require("dotenv");
 const sequelize = require("./config/database");
 
-// Load biến môi trường
 dotenv.config();
 
-// Khởi tạo Express
 const app = express();
 
-// Cấu hình view engine
+// ====== View Engine ======
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.resolve(__dirname, "views"));
 
-// Middleware cơ bản
+// ====== Middleware ======
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Cấu hình session
+// ====== Session ======
 app.use(
   session({
     secret: "your_secret_key",
@@ -28,19 +26,24 @@ app.use(
   })
 );
 
-// Import routes
+// ====== Import Routes ======
 const homeRoutes = require("./routes/homeRoutes");
 const authRoutes = require("./routes/authRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const providerRoutes = require("./routes/providerRoutes");
 
-// Áp dụng routes
-app.use("/rooms", roomRoutes);
-app.use("/provider", providerRoutes);
-app.use("/", homeRoutes);
-app.use(authRoutes);
+// ====== Apply Routes ======
+app.use("/", homeRoutes); // Trang chủ
+app.use("/rooms", roomRoutes); // Cho khách xem phòng
+app.use("/provider", providerRoutes); // Cho nhà cung cấp quản lý
+app.use(authRoutes); // Đăng nhập, đăng ký
 
-// Kết nối DB & khởi động server
+// ====== Trang test API địa chỉ ======
+app.get("/test", (req, res) => {
+  res.render("test"); // views/test.ejs
+});
+
+// ====== Khởi động server ======
 sequelize
   .sync()
   .then(() => {
