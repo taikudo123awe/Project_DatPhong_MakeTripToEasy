@@ -43,7 +43,7 @@ router.get("/add-room", ensureProviderLoggedIn, roomController.showAddRoomForm);
 router.post(
   "/add-room",
   ensureProviderLoggedIn,
-  uploadRoom.single("image"),
+  uploadRoom.array("images", 10), // ✅ chỉ "images"
   roomController.createRoom
 );
 
