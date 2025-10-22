@@ -57,7 +57,7 @@ Room.belongsTo(Provider, { foreignKey: 'providerId'});
 Provider.hasMany(Room, { foreignKey: 'providerId'});
 
 // Room <-> Address (N-1)
-Room.belongsTo(Address, { foreignKey: 'addressId'});
-Address.hasMany(Room, { foreignKey: 'addressId'});
+Room.belongsTo(Address, { foreignKey: 'addressId', as: 'address' });
+Address.hasMany(Room, { foreignKey: 'addressId', as: 'rooms' });
 
 console.log('--- Các liên kết model (Associations) đã được định nghĩa ---');
