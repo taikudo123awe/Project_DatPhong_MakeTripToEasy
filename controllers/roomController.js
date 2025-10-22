@@ -1,9 +1,9 @@
-const { Op } = require('sequelize');
-const Room = require('../models/Room');
-const Provider = require('../models/Provider');
-const Booking = require('../models/Booking');
-const Address = require('../models/Address');
-const sequelize = require('../config/database');
+const { Op } = require("sequelize");
+const Room = require("../models/Room");
+const Provider = require("../models/Provider");
+const Booking = require("../models/Booking");
+const Address = require("../models/Address");
+const sequelize = require("../config/database");
 
 exports.getAllRooms = async (req, res) => {
   try {
@@ -292,7 +292,11 @@ exports.deleteRoom = async (req, res) => {
 exports.searchRooms = async (req, res) => {
   try {
     const { validatedSearch } = req;
-    let city = '', checkInDate = null, checkOutDate = null, numGuests = 1, numRooms = 1;
+    let city = "",
+      checkInDate = null,
+      checkOutDate = null,
+      numGuests = 1,
+      numRooms = 1;
 
     if (validatedSearch) {
       city = validatedSearch.city;
@@ -309,10 +313,10 @@ exports.searchRooms = async (req, res) => {
         where: {
           [Op.and]: [
             { checkInDate: { [Op.lt]: checkOutDate } },
-            { checkOutDate: { [Op.gt]: checkInDate } }
-          ]
+            { checkOutDate: { [Op.gt]: checkInDate } },
+          ],
         },
-        attributes: ['roomId']
+        attributes: ["roomId"],
       });
       bookedRoomIds = overlappingBookings.map((b) => b.roomId);
     }
@@ -321,39 +325,43 @@ exports.searchRooms = async (req, res) => {
     const availableRooms = await Room.findAll({
       where: {
         [Op.and]: [
-          bookedRoomIds.length > 0 ? { roomId: { [Op.notIn]: bookedRoomIds } } : {},
-          { approvalStatus: 'Đã duyệt' },
-          { status: 'Hoạt động' },
-          { capacity: { [Op.gte]: numGuests } } // chỉ lấy phòng có đủ sức chứa
+          bookedRoomIds.length > 0
+            ? { roomId: { [Op.notIn]: bookedRoomIds } }
+            : {},
+          { approvalStatus: "Đã duyệt" },
+          { status: "Hoạt động" },
+          { capacity: { [Op.gte]: numGuests } }, // chỉ lấy phòng có đủ sức chứa
         ],
       },
       include: [
         {
           model: Address,
-          as: 'address',
+          as: "address",
           where: city
             ? sequelize.where(
-                sequelize.fn('LOWER', sequelize.col('address.city')),
+                sequelize.fn("LOWER", sequelize.col("address.city")),
                 { [Op.like]: `%${city.toLowerCase()}%` }
               )
             : {},
-          attributes: ['city', 'district', 'ward']
-        }
+          attributes: ["city", "district", "ward"],
+        },
       ],
-      order: [['postedAt', 'DESC']]
+      order: [["postedAt", "DESC"]],
     });
 
     if (!availableRooms || availableRooms.length === 0) {
-      return res.render('list', {
+      return res.render("list", {
         rooms: [],
         keyword: city,
-        dateRange: `${checkInDate?.toISOString().slice(0,10)} to ${checkOutDate?.toISOString().slice(0,10)}`
+        dateRange: `${checkInDate?.toISOString().slice(0, 10)} to ${checkOutDate
+          ?.toISOString()
+          .slice(0, 10)}`,
       });
     }
 
-    res.render('list', { rooms: availableRooms, keyword: city });
+    res.render("list", { rooms: availableRooms, keyword: city });
   } catch (err) {
-    console.error('❌ Lỗi khi tìm kiếm phòng:', err);
-    res.status(500).send('Lỗi khi tìm kiếm phòng.');
+    console.error("❌ Lỗi khi tìm kiếm phòng:", err);
+    res.status(500).send("Lỗi khi tìm kiếm phòng.");
   }
 };
