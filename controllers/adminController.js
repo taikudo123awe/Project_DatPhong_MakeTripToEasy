@@ -11,6 +11,7 @@ const Account = require('../models/Account');
 const fs = require('fs');
 const path = require('path');
 const { Op } = require('sequelize');
+const Customer = require('../models/Customer'); // require Customer de thuc hien quan ly tai khoan nguoi dung
 
 // 1️⃣ Hiển thị danh sách phòng (quản lý bài đăng)
 exports.getAllRooms = async (req, res) => {
@@ -91,16 +92,23 @@ exports.getDashboard = async (req, res) => {
     try {
         const admin = req.session.admin;
 
-        const [totalRooms, pendingRooms] = await Promise.all([
+        const [totalRooms, pendingRooms,totalCustomers, totalProviders] = await Promise.all([
             Room.count(),
-            Room.count({ where: { approvalStatus: 'Chờ duyệt' } })
+            Room.count({ where: { approvalStatus: 'Chờ duyệt' } }),
+            // Đếm Customer (role=2) đang active
+            Account.count({ where: { role: 2, status: 'active' } }),
+            // Đếm Provider (role=1) đang active
+            Account.count({ where: { role: 1, status: 'active' } })
         ]);
-
+        const approvalRate = totalRooms > 0 ? (((totalRooms - pendingRooms) / totalRooms) * 100).toFixed(0) : 0;
         // Render ra view dashboard và truyền số liệu
         res.render('admin/dashboard', {
             admin,
             totalRooms,
-            pendingRooms
+            pendingRooms,
+            totalCustomers, // <-- Truyền số customer
+            totalProviders, // <-- Truyền số provider
+            approvalRate    // <-- Truyền tỷ lệ duyệt
         });
     } catch (err) {
         console.error('❌ Lỗi lấy số liệu dashboard:', err);
@@ -201,3 +209,108 @@ exports.deleteRoom = async (req, res) => {
     }
 };
 
+//=========== Quan ly tai khoan nguoi dung ===========
+// Hiển thị danh sách tài khoản (Customer & Provider)
+exports.listUsers = async (req, res) => {
+    try {
+        const { status } = req.query; // Lọc theo trạng thái ('active', 'locked', 'deleted')
+        const whereCondition = {
+            role: { [Op.ne]: 0 } // Không hiển thị admin (role != 0)
+        };
+        if (status && ['active', 'locked', 'deleted'].includes(status)) {
+            whereCondition.status = status;
+        }
+
+        const accounts = await Account.findAll({
+            where: whereCondition,
+            include: [
+                // Include Customer hoặc Provider để lấy tên (nếu có)
+                { model: Customer, attributes: ['fullName'], required: false },
+                { model: Provider, attributes: ['providerName'], required: false }
+            ],
+            order: [['accountId', 'ASC']]
+        });
+
+        res.render('admin/userList', { accounts, selectedStatus: status });
+    } catch (error) {
+        console.error('❌ Lỗi khi lấy danh sách tài khoản:', error);
+        res.status(500).send('Lỗi khi tải danh sách tài khoản');
+    }
+};
+// Hiển thị chi tiết tài khoản
+exports.showUserDetails = async (req, res) => {
+    try {
+        const accountId = req.params.accountId;
+        const account = await Account.findByPk(accountId, {
+            include: [
+                { model: Customer, required: false },
+                { model: Provider, required: false }
+            ]
+        });
+
+        if (!account || account.role === 0) { // Không cho xem admin
+            return res.status(404).send('Không tìm thấy tài khoản.');
+        }
+
+        res.render('admin/userDetail', { account });
+    } catch (error) {
+        console.error('❌ Lỗi khi xem chi tiết tài khoản:', error);
+        res.status(500).send('Lỗi khi tải chi tiết tài khoản');
+    }
+};
+// Khóa tài khoản
+exports.lockUser = async (req, res) => {
+    try {
+        const accountId = req.params.accountId;
+        const account = await Account.findByPk(accountId);
+
+        if (!account || account.role === 0) {
+            return res.status(404).send('Tài khoản không hợp lệ.');
+        }
+
+        await account.update({ status: 'locked' });
+        console.log(`🔒 Tài khoản ${account.username} (ID: ${accountId}) đã bị khóa.`);
+        res.redirect(`/admin/users/${accountId}`); // Quay lại trang chi tiết
+    } catch (error) {
+        console.error('❌ Lỗi khi khóa tài khoản:', error);
+        res.status(500).send('Lỗi khi khóa tài khoản');
+    }
+};
+
+// Mở khóa tài khoản
+exports.unlockUser = async (req, res) => {
+    try {
+        const accountId = req.params.accountId;
+        const account = await Account.findByPk(accountId);
+
+        if (!account || account.role === 0) {
+            return res.status(404).send('Tài khoản không hợp lệ.');
+        }
+
+        await account.update({ status: 'active' });
+        console.log(`🔓 Tài khoản ${account.username} (ID: ${accountId}) đã được mở khóa.`);
+        res.redirect(`/admin/users/${accountId}`); // Quay lại trang chi tiết
+    } catch (error) {
+        console.error('❌ Lỗi khi mở khóa tài khoản:', error);
+        res.status(500).send('Lỗi khi mở khóa tài khoản');
+    }
+};
+
+// Xóa tài khoản (Soft delete)
+exports.deleteUser = async (req, res) => {
+    try {
+        const accountId = req.params.accountId;
+        const account = await Account.findByPk(accountId);
+
+        if (!account || account.role === 0) {
+            return res.status(404).send('Tài khoản không hợp lệ.');
+        }
+
+        await account.update({ status: 'deleted' });
+        console.log(`🗑️ Tài khoản ${account.username} (ID: ${accountId}) đã bị xóa (soft delete).`);
+        res.redirect('/admin/users'); // Quay lại danh sách
+    } catch (error) {
+        console.error('❌ Lỗi khi xóa tài khoản:', error);
+        res.status(500).send('Lỗi khi xóa tài khoản');
+    }
+};
