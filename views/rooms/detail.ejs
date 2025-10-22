@@ -13,9 +13,8 @@
             <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
               <img
                 src="/<%= img %>"
-                class="d-block w-100"
+                class="d-block w-100 room-image"
                 alt="Room Image <%= index + 1 %>"
-                style="height: 100%; object-fit: cover"
               />
             </div>
             <% }) %>
@@ -156,5 +155,20 @@
 
   .text-primary {
     color: #8b7d6b !important;
+  }
+
+  .room-image {
+    width: 100%;
+    height: 450px; /* 👈 chiều cao cố định của khung ảnh */
+    object-fit: cover; /* 👈 giúp ảnh phủ toàn khung mà không méo */
+    object-position: center; /* 👈 canh giữa ảnh */
+    border-radius: 8px; /* 👈 bo nhẹ góc nếu muốn */
+  }
+
+  /* Responsive cho điện thoại */
+  @media (max-width: 768px) {
+    .room-image {
+      height: 300px;
+    }
   }
 </style>
