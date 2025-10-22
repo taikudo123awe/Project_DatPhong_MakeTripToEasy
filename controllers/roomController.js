@@ -286,18 +286,16 @@ exports.deleteRoom = async (req, res) => {
 //Tìm kiếm phòng
 exports.searchRooms = async (req, res) => {
   try {
-    const { validatedSearch } = req;
-    let city = '', checkInDate = null, checkOutDate = null, numGuests = 1, numRooms = 1;
+    const validated = req.validatedSearch || {};
+    const city = validated.city || '';
+    const district = validated.district || '';
+    const ward = validated.ward || '';
+    const checkInDate = validated.checkInDate || null;
+    const checkOutDate = validated.checkOutDate || null;
+    const numGuests = validated.numGuests || 1;
+    const numRooms = validated.numRooms || 1;
 
-    if (validatedSearch) {
-      city = validatedSearch.city;
-      checkInDate = validatedSearch.checkInDate;
-      checkOutDate = validatedSearch.checkOutDate;
-      numGuests = validatedSearch.numGuests || 1;
-      numRooms = validatedSearch.numRooms || 1;
-    }
-
-    // ✅ B1: Tìm danh sách phòng đã bị đặt trùng khoảng ngày
+    // B1: Tìm danh sách phòng đã bị đặt trùng khoảng ngày
     let bookedRoomIds = [];
     if (checkInDate && checkOutDate) {
       const overlappingBookings = await Booking.findAll({
@@ -312,7 +310,7 @@ exports.searchRooms = async (req, res) => {
       bookedRoomIds = overlappingBookings.map((b) => b.roomId);
     }
 
-    // ✅ B2: Lấy danh sách phòng trống
+    // B2: Lấy danh sách phòng trống
     const availableRooms = await Room.findAll({
       where: {
         [Op.and]: [
@@ -326,27 +324,39 @@ exports.searchRooms = async (req, res) => {
         {
           model: Address,
           as: 'address',
-          where: city
-            ? sequelize.where(
-                sequelize.fn('LOWER', sequelize.col('address.city')),
-                { [Op.like]: `%${city.toLowerCase()}%` }
-              )
-            : {},
+          where: {
+              ...(city ? { city: { [Op.like]: `%${city}%` } } : {}),
+              ...(district ? { district: { [Op.like]: `%${district}%` } } : {}),
+              ...(ward ? { ward: { [Op.like]: `%${ward}%` } } : {})
+            },
           attributes: ['city', 'district', 'ward']
         }
       ],
       order: [['postedAt', 'DESC']]
     });
 
+    // B3: Nếu không có phòng phù hợp
     if (!availableRooms || availableRooms.length === 0) {
       return res.render('list', {
         rooms: [],
-        keyword: city,
-        dateRange: `${checkInDate?.toISOString().slice(0,10)} to ${checkOutDate?.toISOString().slice(0,10)}`
+        keyword: city || district || ward,
+        dateRange:
+          checkInDate && checkOutDate
+            ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate.toISOString().slice(0, 10)}`
+            : null
       });
     }
 
-    res.render('list', { rooms: availableRooms, keyword: city });
+    // B4: Render danh sách phòng
+    res.render('list', {
+      rooms: availableRooms,
+      keyword: city || district || ward,
+      dateRange:
+        checkInDate && checkOutDate
+          ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate.toISOString().slice(0, 10)}`
+          : null
+    });
+    
   } catch (err) {
     console.error('❌ Lỗi khi tìm kiếm phòng:', err);
     res.status(500).send('Lỗi khi tìm kiếm phòng.');
