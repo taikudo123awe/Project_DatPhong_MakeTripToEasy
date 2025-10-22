@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
+const { ensureProviderLoggedIn } = require('../middlewares/authMiddleware');
+const roomController = require('../controllers/roomController');
+const providerController = require('../controllers/providerController');
+const validateProvider = require('../middlewares/validateProvider');
+const reviewController = require('../controllers/reviewController');
+const bookingController = require('../controllers/bookingController'); //Quan ly dat phong
+// --- THÊM CẤU HÌNH MULTER ---
+const multer = require('multer');
+const path = require('path');
 const fs = require("fs");
-const multer = require("multer");
-
-const { ensureProviderLoggedIn } = require("../middlewares/authMiddleware");
-const validateProvider = require("../middlewares/validateProvider");
-
-const roomController = require("../controllers/roomController");
-const providerController = require("../controllers/providerController");
-const reviewController = require("../controllers/reviewController");
 
 // ================== TẠO THƯ MỤC NẾU CHƯA TỒN TẠI ==================
 const imgroomsPath = path.join(
@@ -115,10 +115,18 @@ router.post(
   reviewController.addFeedback
 );
 
-// Đăng ký nhà cung cấp
-router.get("/register", (req, res) =>
-  res.render("provider/register", { error: null, success: null, formData: {} })
-);
-router.post("/register", validateProvider, providerController.registerProvider);
+// --- THÊM ROUTE MỚI CHO QUẢN LÝ ĐẶT PHÒNG ---
+router.get('/bookings', ensureProviderLoggedIn, bookingController.listAllBookings);
+router.get('/bookings/:bookingId', ensureProviderLoggedIn, bookingController.showBookingDetails);
+router.post('/bookings/confirm', ensureProviderLoggedIn, bookingController.confirmCheckIn);
+router.post('/bookings/cancel', ensureProviderLoggedIn, bookingController.cancelBooking);
+
+// Hiển thị form đăng ký
+router.get('/register', (req, res) => {
+  res.render('provider/register', { error: null, success: null, formData: {} });
+});
+
+// Xử lý đăng ký (kèm middleware kiểm tra)
+router.post('/register', validateProvider, providerController.registerProvider);
 
 module.exports = router;

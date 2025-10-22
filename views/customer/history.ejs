@@ -1,0 +1,50 @@
+<%- include('../partials/header') %>
+
+<main class="container mt-4">
+    <h2>Lịch sử đặt phòng</h2>
+
+    <form action="/customer/payment" method="POST">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Chọn</th>
+                    <th>Phòng</th>
+                    <th>Ngày nhận phòng</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái hóa đơn</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (invoices.length > 0) { %>
+                    <% invoices.forEach(invoice => { %>
+                        <tr>
+                            <td>
+                                <% if (invoice.status === 'Chờ thanh toán') { %>
+                                    <input type="checkbox" name="invoiceIds" value="<%= invoice.invoiceId %>" class="form-check-input">
+                                <% } %>
+                            </td>
+                            <td><%= invoice.Booking.Room.roomName %></td>
+                            <td><%= new Date(invoice.Booking.checkInDate).toLocaleDateString('vi-VN') %></td>
+                            <td><%= invoice.amount.toLocaleString() %> VND</td>
+                            <td>
+                                <% if (invoice.status === 'Chờ thanh toán') { %>
+                                    <span class="badge bg-warning text-dark"><%= invoice.status %></span>
+                                <% } else { %>
+                                    <span class="badge bg-success"><%= invoice.status %></span>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Bạn chưa có lịch sử đặt phòng nào.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-primary">Thanh toán hóa đơn đã chọn</button>
+    </form>
+</main>
+
+<%- include('../partials/footer') %>

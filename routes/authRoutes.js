@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
 const adminAuth = require('../middlewares/adminAuth');
+const { ensureCustomerLoggedIn } = require('../middlewares/authMiddleware');
+const Customer = require('../models/Customer');
+const validateCustomer = require('../middlewares/validateCustomer');
 
 
 router.get('/login', authController.showLoginForm);
@@ -10,7 +13,7 @@ router.get('/logout', authController.logout);
 
 //Đăng ký customer
 router.get('/register', authController.showCustomerRegisterForm);
-router.post('/register', authController.registerCustomer);
+router.post('/register', validateCustomer, authController.registerCustomer);
 
 // CUSTOMMER
 router.get('/customer/login', authController.showCustomerLoginForm);
@@ -26,11 +29,11 @@ router.get('/provider/logout', authController.logoutProvider);
 router.get('/admin/login', authController.showAdminLoginForm);
 router.post('/admin/login', authController.loginAdmin);
 router.get('/admin/logout', authController.logoutAdmin);
-// // Dashboard chỉ dành cho admin đã đăng nhập
-// router.get('/admin/dashboard', adminAuth, (req, res) => {
-//   res.render('admin/dashboard', {
-//     admin: req.session.admin
-//   });
-// });
+
+// Trang thông tin cá nhân
+router.get('/customer/profile', ensureCustomerLoggedIn, async (req, res) => {
+  const customer = await Customer.findByPk(req.session.customer.customerId);
+  res.render('customer/profile', { customer });
+});
 
 module.exports = router;

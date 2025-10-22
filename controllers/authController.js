@@ -45,57 +45,45 @@ exports.logout = (req, res) => {
 
 //đăng ký customer
 exports.showCustomerRegisterForm = (req, res) => {
-  res.render('auth/register', { form: {} });
+  res.render('customer/register', { form: {} });
 };
 
+//Hàm đăng ký tài khoản customer
 exports.registerCustomer = async (req, res) => {
-  const { email, phoneNumber, idCard, password, confirmPassword } = req.body;
+  const t = await sequelize.transaction();
 
   try {
-    // 1) Kiểm tra hợp lệ cơ bản
-    if (!email || !phoneNumber || !idCard || !password || !confirmPassword) {
-      return res.render('auth/register', {
-        error: 'Vui lòng nhập đầy đủ thông tin.',
-        form: { email, phoneNumber, idCard }
-      });
-    }
+    const { fullName, email, phoneNumber, identityNumber, password } = req.body;
 
-    if (password !== confirmPassword) {
-      return res.render('auth/register', {
-        error: 'Mật khẩu xác nhận không khớp.',
-        form: { email, phoneNumber, idCard }
-      });
-    }
+    // 1️⃣ Mã hóa mật khẩu
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 2) Email được dùng làm username -> không trùng
-    const existed = await Account.findOne({ where: { username: email } });
-    if (existed) {
-      return res.render('auth/register', {
-        error: 'Email đã được sử dụng để đăng ký tài khoản.',
-        form: { email, phoneNumber, idCard }
-      });
-    }
+    // 2️⃣ Tạo tài khoản Account (role = 2: Customer)
+    const account = await Account.create({
+      username: email,
+      password: hashedPassword,
+      role: 2
+    }, { transaction: t });
 
-    // 3) Tạo Account (role = 2: customer) + Customer trong 1 transaction
-    await sequelize.transaction(async (t) => {
-      const account = await Account.create(
-        { username: email, password, role: 2 }, // 0: admin, 1: provider, 2: customer
-        { transaction: t }
-      );
+    // 3️⃣ Tạo bản ghi Customer
+    await Customer.create({
+      fullName,
+      email,
+      phoneNumber,
+      identityNumber,
+      accountId: account.accountId
+    }, { transaction: t });
 
-      await Customer.create(
-        { email, phoneNumber, idCard, accountId: account.accountId },
-        { transaction: t }
-      );
+    await t.commit();
+    return res.render('customer/login', {
+      success: 'Đăng ký thành công! Mời bạn đăng nhập.'
     });
-
-    // 4) Trả về trang đăng nhập kèm thông báo thành công
-    return res.render('auth/login', { success: 'Đăng ký thành công! Mời bạn đăng nhập.' });
-  } catch (err) {
-    console.error('❌ Lỗi đăng ký customer:', err);
+  } catch (error) {
+    await t.rollback();
+    console.error('❌ Lỗi khi đăng ký khách hàng:', error);
     return res.render('auth/register', {
-      error: 'Có lỗi xảy ra. Vui lòng thử lại.',
-      form: { email, phoneNumber, idCard }
+      error: 'Đăng ký thất bại. Vui lòng thử lại!',
+      form: req.body
     });
   }
 };
@@ -103,9 +91,10 @@ exports.registerCustomer = async (req, res) => {
 // Đăng nhập/ Đăng xuất của customer
 // Hiển thị form đăng nhập Customer
 exports.showCustomerLoginForm = (req, res) => {
-  console.log('👉 Rendering customer login form...');
-  res.render('auth/customer-login');
+  console.log('👉 showCustomerLoginForm triggered');
+  res.render('customer/login');
 };
+
 // Xử lý đăng nhập Customer
 exports.loginCustomer = async (req, res) => {
   const { email, password } = req.body;
@@ -113,11 +102,19 @@ exports.loginCustomer = async (req, res) => {
   try {
     // Account.role = 2 là customer (0: admin, 1: provider, 2: customer)
     const account = await Account.findOne({
-      where: { username: email, password, role: 2 }
+      where: { username: email, role: 2 }
     });
 
     if (!account) {
-      return res.render('auth/customer-login', {
+      return res.render('customer/login', {
+        error: 'Sai email hoặc mật khẩu!'
+      });
+    }
+
+    // 🔹 So sánh mật khẩu nhập vào với mật khẩu mã hoá trong DB
+    const isMatch = await bcrypt.compare(password, account.password);
+    if (!isMatch) {
+      return res.render('customer/login', {
         error: 'Sai email hoặc mật khẩu!'
       });
     }
@@ -128,7 +125,7 @@ exports.loginCustomer = async (req, res) => {
     });
 
     if (!customer) {
-      return res.render('auth/customer-login', {
+      return res.render('customer/login', {
         error: 'Tài khoản không hợp lệ.'
       });
     }
@@ -137,23 +134,32 @@ exports.loginCustomer = async (req, res) => {
     req.session.customer = {
       accountId: account.accountId,
       customerId: customer.customerId,
+      fullName: customer.fullName,
       email: customer.email
     };
     // Điều hướng đến trang danh sách phòng cho khách
-    return res.redirect('/rooms');
+    return res.redirect('/');
   } catch (err) {
     console.error('❌ Lỗi đăng nhập customer:', err);
-    return res.render('auth/customer-login', {
+    return res.render('customer/login', {
       error: 'Có lỗi xảy ra khi đăng nhập.'
     });
   }
 };
-// Đăng xuất Customer
+  // Đăng xuất Customer
 exports.logoutCustomer = (req, res) => {
-  if (req.session && req.session.customer) {
-    delete req.session.customer;
-  }
-  res.redirect('/customer/login');
+  if (!req.session) return res.redirect('/');
+  req.session.destroy(err => {
+    if (err) {
+      console.error('❌ Lỗi huỷ session:', err);
+      // fallback: xoá field customer và về trang chủ
+      if (req.session) delete req.session.customer;
+      return res.redirect('/');
+    }
+    // cookie mặc định của express-session là 'connect.sid'
+    res.clearCookie('connect.sid');
+    return res.redirect('/');
+  });
 };
 
 // Hiển thị form đăng nhập Provider

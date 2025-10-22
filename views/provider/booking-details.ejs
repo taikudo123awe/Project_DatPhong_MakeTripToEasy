@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chi tiết đơn đặt phòng</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+  <a href="/provider/bookings">&larr; Quay lại danh sách</a>
+
+  <div class="row mt-3">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h4>Thông tin Phiếu đặt phòng (ID: <%= booking.bookingId %>)</h4>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><strong>Trạng thái:</strong> <span class="badge bg-warning text-dark"><%= booking.status %></span></li>
+          <li class="list-group-item"><strong>Ngày đặt:</strong> <%= new Date(booking.bookingDate).toLocaleString('vi-VN') %></li>
+          <li class="list-group-item"><strong>Nhận phòng:</strong> <%= new Date(booking.checkInDate).toLocaleDateString('vi-VN') %></li>
+          <li class="list-group-item"><strong>Trả phòng:</strong> <%= new Date(booking.checkOutDate).toLocaleDateString('vi-VN') %></li>
+          <li class="list-group-item"><strong>Số khách:</strong> <%= booking.numberOfGuests %></li>
+          <li class="list-group-item"><strong>Tổng tiền:</strong> <%= booking.totalAmount.toLocaleString() %> VND</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card mb-3">
+        <div class="card-header"><h5>Thông tin Khách hàng</h5></div>
+        <div class="card-body">
+          <p><strong>Tên:</strong> <%= booking.Customer.fullName %></p>
+          <p><strong>Email:</strong> <%= booking.Customer.email %></p>
+          <p><strong>SĐT:</strong> <%= booking.Customer.phoneNumber %></p>
+          <p><strong>CCCD/CMND:</strong> <%= booking.Customer.identityNumber %></p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h5>Thông tin Phòng</h5></div>
+        <div class="card-body">
+          <p><strong>Tên:</strong> <%= booking.Room.roomName %></p>
+          <p><strong>Giá:</strong> <%= booking.Room.price.toLocaleString() %> VND/đêm</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <form action="/provider/bookings/confirm" method="POST" style="display: inline-block;" onsubmit="return confirm('Bạn có chắc chắn XÁC NHẬN cho khách nhận phòng này?');">
+      <input type="hidden" name="bookingId" value="<%= booking.bookingId %>">
+      <button type-="submit" class="btn btn-success btn-lg">Xác nhận nhận phòng</button>
+    </form>
+
+    <form action="/provider/bookings/cancel" method="POST" style="display: inline-block;" onsubmit="return confirm('Bạn có chắc chắn muốn HỦY đơn đặt phòng này?');">
+      <input type="hidden" name="bookingId" value="<%= booking.bookingId %>">
+      <button type="submit" class="btn btn-danger btn-lg ms-2">Hủy đơn</button>
+    </form>
+  </div>
+
+</body>
+</html>
