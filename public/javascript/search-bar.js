@@ -1,29 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // 🔹 Gợi ý địa điểm
-  const cities = ["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Nha Trang", "Vũng Tàu"];
-  const cityInput = document.getElementById("searchCity");
-  const suggestions = document.getElementById("suggestions");
-
-  cityInput.addEventListener("input", () => {
-    const value = cityInput.value.toLowerCase();
-    suggestions.innerHTML = "";
-    if (!value) return (suggestions.style.display = "none");
-
-    cities
-      .filter(c => c.toLowerCase().includes(value))
-      .forEach(city => {
-        const item = document.createElement("a");
-        item.className = "list-group-item list-group-item-action";
-        item.textContent = city;
-        item.onclick = () => {
-          cityInput.value = city;
-          suggestions.style.display = "none";
-        };
-        suggestions.appendChild(item);
-      });
-    suggestions.style.display = "block";
-  });
-
   // 🔹 Bộ chọn ngày (flatpickr)
   flatpickr("#dateRange", {
     mode: "range",
@@ -31,15 +6,25 @@ document.addEventListener("DOMContentLoaded", () => {
     minDate: "today",
     locale: "vn",
     altInput: true,
-    altFormat: "d/m/Y"
+    altFormat: "d/m/Y",
+    showMonths: 1,
   });
 
   // 🔹 Chọn số khách và phòng
   const guestInput = document.getElementById("guestSummary");
   const guestOptions = document.getElementById("guestOptions");
 
-  guestInput.addEventListener("click", () => {
+  // Mở/đóng dropdown
+  guestInput.addEventListener("click", (e) => {
+    e.stopPropagation(); // Ngăn click lan ra ngoài
     guestOptions.style.display = "block";
+  });
+
+  // Đóng khi click ra ngoài
+  document.addEventListener("click", (e) => {
+    if (!guestOptions.contains(e.target) && e.target !== guestInput) {
+      guestOptions.style.display = "none";
+    }
   });
 
   window.changeGuests = function(type, delta) {
