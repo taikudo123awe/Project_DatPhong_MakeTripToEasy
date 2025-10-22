@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+
+<main class="container mt-4">
+    <h2>Thông tin thanh toán</h2>
+    <a href="/customer/history">&larr; Quay lại lịch sử</a>
+    <hr>
+
+    <div class="alert alert-info">
+        Vui lòng chuyển khoản chính xác số tiền cho từng nhà cung cấp dưới đây và bấm "Đã chuyển tiền" để hoàn tất.
+    </div>
+
+    <form action="/customer/confirm-payment" method="POST">
+        <% providersToPay.forEach(providerData => { %>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Thanh toán cho: <%= providerData.providerName %></h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>Thông tin chuyển khoản</h5>
+                            <p><strong>Ngân hàng:</strong> <%= providerData.paymentInfo.bankName %></p>
+                            <p><strong>Chủ tài khoản:</strong> <%= providerData.paymentInfo.accountHolder %></p>
+                            <p><strong>Số tài khoản:</strong> <%= providerData.paymentInfo.accountNumber %></p>
+                            <hr>
+                            <h5>Các hóa đơn cần thanh toán</h5>
+                            <ul>
+                                <% providerData.invoices.forEach(invoice => { %>
+                                    <li>
+                                        Phòng <%= invoice.Booking.Room.roomName %> - <strong><%= invoice.amount.toLocaleString() %> VND</strong>
+                                    </li>
+                                <% }) %>
+                            </ul>
+                            <h5 class="text-danger">Tổng cộng: <%= providerData.totalAmount.toLocaleString() %> VND</h5>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h5>Quét mã QR</h5>
+                            <% if (providerData.paymentInfo.qrCode) { %>
+                                <img src="/<%= providerData.paymentInfo.qrCode %>" alt="Mã QR" class="img-fluid" style="max-width: 250px;">
+                            <% } else { %>
+                                <p class="text-muted">Nhà cung cấp chưa cập nhật mã QR.</p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+
+        <% invoiceIds.forEach(id => { %>
+            <input type="hidden" name="invoiceIds" value="<%= id %>">
+        <% }) %>
+        
+        <button type="submit" class="btn btn-success btn-lg w-100">Đã chuyển tiền</button>
+    </form>
+</main>
+
+<%- include('../partials/footer') %>

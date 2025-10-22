@@ -1,0 +1,20 @@
+<%- include('../partials/header') %>
+<h2>Danh sách đơn đặt phòng</h2>
+
+<% if (bookings.length === 0) { %>
+  <p>Bạn chưa có đơn đặt phòng nào.</p>
+<% } else { %>
+  <ul>
+    <% bookings.forEach(booking => { %>
+      <li>
+        <strong><%= booking.Room.roomName %></strong> <br>
+        Nhận: <%= new Date(booking.checkInDate).toLocaleDateString('vi-VN') %> |
+        Trả: <%= new Date(booking.checkOutDate).toLocaleDateString('vi-VN') %> <br>
+        Trạng thái: <%= booking.status %> <br>
+        Tổng tiền: <%= booking.totalAmount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) %>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Test vAPI - Địa chỉ Việt Nam</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+  <h2>Chọn địa chỉ:</h2>
+
+  <label for="province">Tỉnh/Thành phố:</label>
+  <select id="province">
+    <option value="">-- Chọn tỉnh --</option>
+  </select>
+
+  <br><br>
+
+  <label for="district">Quận/Huyện:</label>
+  <select id="district" disabled>
+    <option value="">-- Chọn quận --</option>
+  </select>
+
+  <br><br>
+
+  <label for="ward">Phường/Xã:</label>
+  <select id="ward" disabled>
+    <option value="">-- Chọn phường --</option>
+  </select>
+
+  <script>
+    // const BASE_URL = "https://vapi.vnappmob.com/api/province";
+    const BASE_URL = "https://vapi.vnappmob.com/api/v2/province";
+
+    // Load tỉnh
+    $.get(`${BASE_URL}/`, function (data) {
+      if (data.results) {
+        data.results.forEach(function (item) {
+          $('#province').append(`<option value="${item.province_id}">${item.province_name}</option>`);
+        });
+      }
+    });
+
+    // Khi chọn tỉnh → load quận
+    $('#province').change(function () {
+      const provinceId = $(this).val();
+      $('#district').html('<option value="">-- Chọn quận --</option>').prop('disabled', true);
+      $('#ward').html('<option value="">-- Chọn phường --</option>').prop('disabled', true);
+
+      if (!provinceId) return;
+
+      $.get(`${BASE_URL}/district/${provinceId}`, function (data) {
+        if (data.results) {
+          data.results.forEach(function (item) {
+            $('#district').append(`<option value="${item.district_id}">${item.district_name}</option>`);
+          });
+          $('#district').prop('disabled', false);
+        }
+      });
+    });
+
+    // Khi chọn quận → load phường
+    $('#district').change(function () {
+      const districtId = $(this).val();
+      $('#ward').html('<option value="">-- Chọn phường --</option>').prop('disabled', true);
+
+      if (!districtId) return;
+
+      $.get(`${BASE_URL}/ward/${districtId}`, function (data) {
+        if (data.results) {
+          data.results.forEach(function (item) {
+            $('#ward').append(`<option value="${item.ward_id}">${item.ward_name}</option>`);
+          });
+          $('#ward').prop('disabled', false);
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

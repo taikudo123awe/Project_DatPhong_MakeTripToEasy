@@ -1,14 +1,15 @@
-const Room = require("../models/Room");
-const Provider = require("../models/Provider");
-const Address = require("../models/Address");
-// ===========================
-// Lấy danh sách phòng cho trang /rooms
-// ===========================
+const { Op } = require('sequelize');
+const Room = require('../models/Room');
+const Provider = require('../models/Provider');
+const Booking = require('../models/Booking');
+const Address = require('../models/Address');
+const sequelize = require('../config/database');
+
 exports.getAllRooms = async (req, res) => {
   try {
     const rooms = await Room.findAll({
       where: { approvalStatus: "Đã duyệt" },
-      include: { model: Provider, as: "provider" },
+      include: { model: Provider, as: "Provider" },
       order: [["postedAt", "DESC"]],
     });
     res.render("rooms/list", { rooms });
@@ -25,7 +26,7 @@ exports.getRoomsForHome = async (req, res) => {
   try {
     const rooms = await Room.findAll({
       where: { approvalStatus: "Đã duyệt" },
-      include: { model: Provider, as: "provider" },
+      include: { model: Provider, as: "Provider" },
       order: [["postedAt", "DESC"]],
       limit: 8,
     });
@@ -162,12 +163,12 @@ exports.createRoom = async (req, res) => {
 // Chi tiết phòng
 // ===========================
 exports.getRoomDetail = async (req, res) => {
-  const roomId = req.params.id;
+  const roomId = req.params.roomId;
 
   try {
     const room = await Room.findOne({
       where: { roomId, approvalStatus: "Đã duyệt" },
-      include: { model: Provider, as: "provider" }, // ✅ alias đồng bộ
+      include: { model: Provider, as: "Provider" },
     });
 
     if (!room) return res.status(404).send("Không tìm thấy phòng.");
@@ -284,5 +285,75 @@ exports.deleteRoom = async (req, res) => {
     console.error("❌ Lỗi khi ẩn phòng:", err);
     req.session.error = "Đã xảy ra lỗi khi ẩn phòng. Vui lòng thử lại.";
     res.redirect("/provider/dashboard");
+  }
+};
+
+//Tìm kiếm phòng
+exports.searchRooms = async (req, res) => {
+  try {
+    const { validatedSearch } = req;
+    let city = '', checkInDate = null, checkOutDate = null, numGuests = 1, numRooms = 1;
+
+    if (validatedSearch) {
+      city = validatedSearch.city;
+      checkInDate = validatedSearch.checkInDate;
+      checkOutDate = validatedSearch.checkOutDate;
+      numGuests = validatedSearch.numGuests || 1;
+      numRooms = validatedSearch.numRooms || 1;
+    }
+
+    // ✅ B1: Tìm danh sách phòng đã bị đặt trùng khoảng ngày
+    let bookedRoomIds = [];
+    if (checkInDate && checkOutDate) {
+      const overlappingBookings = await Booking.findAll({
+        where: {
+          [Op.and]: [
+            { checkInDate: { [Op.lt]: checkOutDate } },
+            { checkOutDate: { [Op.gt]: checkInDate } }
+          ]
+        },
+        attributes: ['roomId']
+      });
+      bookedRoomIds = overlappingBookings.map((b) => b.roomId);
+    }
+
+    // ✅ B2: Lấy danh sách phòng trống
+    const availableRooms = await Room.findAll({
+      where: {
+        [Op.and]: [
+          bookedRoomIds.length > 0 ? { roomId: { [Op.notIn]: bookedRoomIds } } : {},
+          { approvalStatus: 'Đã duyệt' },
+          { status: 'Hoạt động' },
+          { capacity: { [Op.gte]: numGuests } } // chỉ lấy phòng có đủ sức chứa
+        ],
+      },
+      include: [
+        {
+          model: Address,
+          as: 'address',
+          where: city
+            ? sequelize.where(
+                sequelize.fn('LOWER', sequelize.col('address.city')),
+                { [Op.like]: `%${city.toLowerCase()}%` }
+              )
+            : {},
+          attributes: ['city', 'district', 'ward']
+        }
+      ],
+      order: [['postedAt', 'DESC']]
+    });
+
+    if (!availableRooms || availableRooms.length === 0) {
+      return res.render('list', {
+        rooms: [],
+        keyword: city,
+        dateRange: `${checkInDate?.toISOString().slice(0,10)} to ${checkOutDate?.toISOString().slice(0,10)}`
+      });
+    }
+
+    res.render('list', { rooms: availableRooms, keyword: city });
+  } catch (err) {
+    console.error('❌ Lỗi khi tìm kiếm phòng:', err);
+    res.status(500).send('Lỗi khi tìm kiếm phòng.');
   }
 };

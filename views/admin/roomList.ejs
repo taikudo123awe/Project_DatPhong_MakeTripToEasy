@@ -1,0 +1,80 @@
+<%- include('../partials/header_admin') %>
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Page Header with Filter -->
+        <div class="page-header">
+            <h2 class="page-title">Quản lý bài đăng</h2>
+            <form method="GET" action="/admin/rooms" class="filter-section">
+                <label class="filter-label">Lọc theo trạng thái:</label>
+                <select name="status" class="filter-select" onchange="this.form.submit()">
+                    <option value="">Tất cả</option>
+                    <option value="Chờ duyệt" <%=selectedStatus==='Chờ duyệt' ? 'selected' : '' %>>⏳ Chờ duyệt</option>
+                    <option value="Đã duyệt" <%=selectedStatus==='Đã duyệt' ? 'selected' : '' %>>✅ Đã duyệt</option>
+                    <option value="Từ chối" <%=selectedStatus==='Từ chối' ? 'selected' : '' %>>❌ Từ chối</option>
+                </select>
+            </form>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tên phòng</th>
+                            <th>Nhà cung cấp</th>
+                            <th>Giá</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (rooms.length===0) { %>
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">📭</div>
+                                        <div class="empty-state-text">Không có bài đăng nào</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% } else { %>
+                                <% rooms.forEach(room=> { %>
+                                    <tr>
+                                        <td><strong>
+                                                <%= room.roomName %>
+                                            </strong></td>
+                                        <td>
+                                            <%= room.Provider ? room.Provider.providerName : 'N/A' %>
+                                        </td>
+                                        <td><span class="price">
+                                                <%= room.price.toLocaleString('vi-VN') %> VNĐ
+                                            </span></td>
+                                        <td>
+                                            <% if (room.approvalStatus==='Chờ duyệt' ) { %>
+                                                <span class="status-badge status-pending">Chờ duyệt</span>
+                                                <% } else if (room.approvalStatus==='Đã duyệt' ) { %>
+                                                    <span class="status-badge status-approved">Đã duyệt</span>
+                                                    <% } else if (room.approvalStatus==='Từ chối' ) { %>
+                                                        <span class="status-badge status-rejected">Từ chối</span>
+                                                        <% } %>
+                                        </td>
+                                        <td>
+                                            <a href="/admin/rooms/<%= room.roomId %>" class="btn-view">Xem chi tiết</a>
+                                            <button type="button" class="btn-delete"
+                                                onclick='openDeleteModal(<%= room.roomId %>, "<%- room.roomName.replace(/"/g, "&quot;") %>")'>
+                                                Xoá bài đăng
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Delete Modal from admin folder -->
+    <%- include('./delete_room_modal') %>
+    <%- include('../partials/footer_admin') %>
