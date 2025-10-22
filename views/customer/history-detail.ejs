@@ -1,0 +1,67 @@
+<%- include('../partials/header') %>
+
+<div class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Chi tiết đặt phòng</h3>
+    <a href="/customer/history-dashboard" class="btn btn-outline-secondary">← Quay lại lịch sử</a>
+  </div>
+
+  <% if (!booking) { %>
+    <p class="text-center text-muted">Không tìm thấy thông tin đặt phòng.</p>
+  <% } else { %>
+    <!-- Thông tin phòng -->
+    <div class="card shadow-sm p-4 mb-4">
+      <div class="row">
+        <div class="col-md-5">
+          <img
+            src="/uploads/imgrooms/<%= booking.Room?.image || 'default.png' %>"
+            alt="<%= booking.Room?.roomName %>"
+            class="img-fluid rounded shadow-sm"
+            style="object-fit: cover; height: 250px; width: 100%;"
+          >
+        </div>
+
+        <div class="col-md-7">
+          <h4 class="fw-bold mb-2"><%= booking.Room?.roomName || 'Phòng không xác định' %></h4>
+          <p><strong>Nhà cung cấp:</strong> <%= booking.Room?.Provider?.providerName || 'Không rõ' %></p>
+          <p><strong>Giá mỗi đêm:</strong> <%= booking.Room?.price?.toLocaleString() || '0' %> VND</p>
+          <p><strong>Địa chỉ:</strong> <%= booking.Room?.fullAddress || 'Chưa có thông tin' %></p>
+          <p><strong>Mô tả:</strong> <%= booking.Room?.description || 'Không có mô tả' %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thông tin đặt phòng -->
+    <div class="card shadow-sm p-4 mb-4">
+      <h5 class="fw-bold mb-3">Thông tin đặt phòng</h5>
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>Mã đặt phòng:</strong> #<%= booking.bookingId %></p>
+          <p><strong>Ngày đặt:</strong> <%= new Date(booking.bookingDate).toLocaleDateString('vi-VN') %></p>
+          <p><strong>Nhận phòng:</strong> <%= new Date(booking.checkInDate).toLocaleDateString('vi-VN') %></p>
+          <p><strong>Trả phòng:</strong> <%= new Date(booking.checkOutDate).toLocaleDateString('vi-VN') %></p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Số khách:</strong> <%= booking.numberOfGuests %></p>
+          <p><strong>Tổng tiền:</strong> <%= booking.totalAmount.toLocaleString() %> VND</p>
+          <p><strong>Trạng thái:</strong> <%= booking.status %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thông tin hóa đơn -->
+    <div class="card shadow-sm p-4">
+      <h5 class="fw-bold mb-3">Thông tin hóa đơn</h5>
+      <% if (booking.invoice) { %>
+        <p><strong>Mã hóa đơn:</strong> #<%= booking.invoice.invoiceId %></p>
+        <p><strong>Ngày tạo:</strong> <%= new Date(booking.invoice.invoiceDate).toLocaleDateString('vi-VN') %></p>
+        <p><strong>Số tiền:</strong> <%= booking.invoice.amount.toLocaleString() %> VND</p>
+        <p><strong>Trạng thái:</strong> <span class="text-success"><%= booking.invoice.status %></span></p>
+      <% } else { %>
+        <p class="text-muted">Chưa có hóa đơn cho đơn đặt phòng này.</p>
+      <% } %>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

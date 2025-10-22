@@ -167,3 +167,65 @@ exports.cancelBooking = async (req, res) => {
     res.status(500).send('Lỗi máy chủ');
   }
 };
+
+// Hiển thị form đặt phòng cho khách
+exports.showBookingForm = async (req, res) => {
+  const roomId = req.params.roomId;
+  try {
+    const room = await Room.findByPk(roomId);
+    if (!room) return res.status(404).send("Không tìm thấy phòng");
+
+    res.render("customer/booking", { room });
+  } catch (err) {
+    console.error("❌ Lỗi hiển thị form đặt phòng:", err);
+    res.status(500).send("Lỗi máy chủ");
+  }
+};
+
+// Xử lý khi khách đặt phòng
+exports.handleBooking = async (req, res) => {
+  const { checkInDate, checkOutDate, numberOfGuests } = req.body;
+  const customerId = req.session.customer.customerId;
+  const roomId = req.params.roomId;
+
+  try {
+    const room = await Room.findByPk(roomId);
+    if (!room) return res.status(404).send("Không tìm thấy phòng");
+
+    const totalAmount = room.price; // hoặc tính theo ngày ở, số khách,...
+
+    await Booking.create({
+      bookingDate: new Date(),
+      checkInDate,
+      checkOutDate,
+      numberOfGuests,
+      customerId,
+      roomId,
+      totalAmount,
+      status: "Chờ nhận phòng"
+    });
+
+    res.redirect("/customer/bookings"); // Hoặc redirect ra trang cảm ơn / xác nhận
+  } catch (err) {
+    console.error("❌ Lỗi khi đặt phòng:", err);
+    res.status(500).send("Đặt phòng thất bại");
+  }
+};
+
+// Hiển thị danh sách các đơn đặt phòng của customer
+exports.listCustomerBookings = async (req, res) => {
+  try {
+    const customerId = req.session.customer.customerId;
+
+    const bookings = await Booking.findAll({
+      where: { customerId },
+      include: [Room], // Lấy thêm thông tin phòng
+      order: [["bookingDate", "DESC"]]
+    });
+
+    res.render("customer/booking-list", { bookings });
+  } catch (err) {
+    console.error("❌ Lỗi khi lấy danh sách booking của khách:", err);
+    res.status(500).send("Lỗi máy chủ");
+  }
+};

@@ -1,0 +1,93 @@
+<%- include('../partials/header_admin') %>
+<link rel="stylesheet" href="/css/admin-room-detail.css"> <div class="detail-container">
+    <a href="/admin/users" class="back-button">Quay lại danh sách tài khoản</a>
+
+    <div class="page-header-detail" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);">
+        <h1 class="page-title-detail">👤 Chi tiết tài khoản</h1>
+    </div>
+
+    <div class="detail-card">
+        <div class="info-group">
+            <span class="info-label">Thông tin tài khoản</span>
+            <div class="provider-card" style="border-left-color: #4f46e5;">
+                <div class="provider-info">
+                    <div class="provider-item"><strong>ID Tài khoản:</strong> <span><%= account.accountId %></span></div>
+                    <div class="provider-item"><strong>Username:</strong> <span><%= account.username %></span></div>
+                    <div class="provider-item"><strong>Vai trò:</strong>
+                        <span>
+                            <% if (account.role === 1) { %> Nhà cung cấp <% } else { %> Khách hàng <% } %>
+                        </span>
+                    </div>
+                     <div class="provider-item"><strong>Trạng thái:</strong>
+                        <span>
+                             <% if (account.status === 'active') { %>
+                                <span class="status-badge-large status-approved" style="background-color: #d1fae5; color: #065f46;">Hoạt động</span>
+                            <% } else if (account.status === 'locked') { %>
+                                <span class="status-badge-large status-pending" style="background-color: #fef3c7; color: #92400e;">Bị khóa</span>
+                            <% } else if (account.status === 'deleted') { %>
+                                    <span class="status-badge-large status-rejected" style="background-color: #fee2e2; color: #991b1b;">Đã xóa</span>
+                            <% } else { %>
+                                <span class="status-badge-large"><%= account.status %></span>
+                            <% } %>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <% if (account.Customer) { %>
+            <div class="info-group">
+                <span class="info-label">Thông tin Khách hàng</span>
+                 <div class="provider-card" style="border-left-color: #64748b;">
+                     <div class="provider-info">
+                        <div class="provider-item"><strong>ID Khách hàng:</strong> <span><%= account.Customer.customerId %></span></div>
+                        <div class="provider-item"><strong>Họ Tên:</strong> <span><%= account.Customer.fullName %></span></div>
+                        <div class="provider-item"><strong>Email:</strong> <span><%= account.Customer.email %></span></div>
+                        <div class="provider-item"><strong>SĐT:</strong> <span><%= account.Customer.phoneNumber %></span></div>
+                        <div class="provider-item"><strong>CCCD:</strong> <span><%= account.Customer.identityNumber %></span></div>
+                     </div>
+                 </div>
+            </div>
+        <% } else if (account.Provider) { %>
+            <div class="info-group">
+                <span class="info-label">Thông tin Nhà cung cấp</span>
+                 <div class="provider-card" style="border-left-color: #0ea5e9;">
+                     <div class="provider-info">
+                        <div class="provider-item"><strong>ID Nhà CC:</strong> <span><%= account.Provider.providerId %></span></div>
+                        <div class="provider-item"><strong>Tên NCC:</strong> <span><%= account.Provider.providerName %></span></div>
+                        <div class="provider-item"><strong>Email:</strong> <span><%= account.Provider.email %></span></div>
+                        <div class="provider-item"><strong>SĐT:</strong> <span><%= account.Provider.phoneNumber %></span></div>
+                        <div class="provider-item"><strong>CCCD:</strong> <span><%= account.Provider.identityNumber %></span></div>
+                        <div class="provider-item"><strong>Mã số thuế:</strong> <span><%= account.Provider.taxCode || 'N/A' %></span></div>
+                    </div>
+                 </div>
+            </div>
+        <% } %>
+    </div>
+
+    <% if (account.status !== 'deleted') { %>
+        <div class="action-section">
+            <h3 class="action-title">Hành động quản lý</h3>
+            <div class="action-buttons">
+                <% if (account.status === 'active') { %>
+                    <form action="/admin/users/<%= account.accountId %>/lock" method="POST" onsubmit="return confirm('Bạn có chắc muốn KHÓA tài khoản này? Người dùng sẽ không thể đăng nhập.')">
+                        <button type="submit" class="btn-reject" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);">🔒 Khóa tài khoản</button>
+                    </form>
+                <% } else if (account.status === 'locked') { %>
+                    <form action="/admin/users/<%= account.accountId %>/unlock" method="POST" onsubmit="return confirm('Bạn có chắc muốn MỞ KHÓA tài khoản này?')">
+                        <button type="submit" class="btn-approve">🔓 Mở khóa tài khoản</button>
+                    </form>
+                <% } %>
+
+                <form action="/admin/users/<%= account.accountId %>/delete" method="POST" onsubmit="return confirm('Bạn có chắc muốn XÓA tài khoản này? Hành động này không thể hoàn tác trên giao diện.')">
+                    <button type="submit" class="btn-reject">🗑️ Xóa tài khoản</button>
+                </form>
+            </div>
+        </div>
+    <% } else { %>
+         <div class="alert alert-danger text-center">Tài khoản này đã bị xóa.</div>
+    <% } %>
+
+</div>
+
+<%- include('../partials/footer_admin') %>

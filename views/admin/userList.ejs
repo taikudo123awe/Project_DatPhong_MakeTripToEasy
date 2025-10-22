@@ -1,0 +1,81 @@
+<%- include('../partials/header_admin') %>
+<link rel="stylesheet" href="/css/admin-rooms.css"> <div class="main-container">
+    <div class="page-header">
+        <h2 class="page-title">👥 Quản lý tài khoản</h2>
+        <form method="GET" action="/admin/users" class="filter-section">
+            <label class="filter-label">Lọc theo trạng thái:</label>
+            <select name="status" class="filter-select" onchange="this.form.submit()">
+                <option value="">Tất cả</option>
+                <option value="active" <%= selectedStatus === 'active' ? 'selected' : '' %>>🟢 Hoạt động</option>
+                <option value="locked" <%= selectedStatus === 'locked' ? 'selected' : '' %>>🔒 Bị khóa</option>
+                <option value="deleted" <%= selectedStatus === 'deleted' ? 'selected' : '' %>>🗑️ Đã xóa</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username (SĐT/Email)</th>
+                        <th>Họ Tên / Tên NCC</th>
+                        <th>Vai trò</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (accounts.length === 0) { %>
+                        <tr>
+                            <td colspan="5">
+                                <div class="empty-state">
+                                    <div class="empty-state-icon">🚫</div>
+                                    <div class="empty-state-text">Không có tài khoản nào</div>
+                                </div>
+                            </td>
+                        </tr>
+                    <% } else { %>
+                        <% accounts.forEach(account => { %>
+                            <tr>
+                                <td><strong><%= account.username %></strong></td>
+                                <td>
+                                    <% if (account.Customer) { %>
+                                        <%= account.Customer.fullName %>
+                                    <% } else if (account.Provider) { %>
+                                        <%= account.Provider.providerName %>
+                                    <% } else { %>
+                                        N/A
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (account.role === 1) { %>
+                                        <span class="badge bg-primary">Nhà cung cấp</span>
+                                    <% } else if (account.role === 2) { %>
+                                        <span class="badge bg-secondary">Khách hàng</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (account.status === 'active') { %>
+                                        <span class="status-badge status-approved" style="background-color: #d1fae5; color: #065f46;">Hoạt động</span>
+                                    <% } else if (account.status === 'locked') { %>
+                                        <span class="status-badge status-pending" style="background-color: #fef3c7; color: #92400e;">Bị khóa</span>
+                                    <% } else if (account.status === 'deleted') { %>
+                                         <span class="status-badge status-rejected" style="background-color: #fee2e2; color: #991b1b;">Đã xóa</span>
+                                    <% } else { %>
+                                        <span class="status-badge"><%= account.status %></span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <a href="/admin/users/<%= account.accountId %>" class="btn-view">Xem chi tiết</a>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer_admin') %>

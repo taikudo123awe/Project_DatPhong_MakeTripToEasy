@@ -1,9 +1,9 @@
-const { Op } = require('sequelize');
-const Room = require('../models/Room');
-const Provider = require('../models/Provider');
-const Booking = require('../models/Booking');
-const Address = require('../models/Address');
-const sequelize = require('../config/database');
+const { Op } = require("sequelize");
+const Room = require("../models/Room");
+const Provider = require("../models/Provider");
+const Booking = require("../models/Booking");
+const Address = require("../models/Address");
+const sequelize = require("../config/database");
 
 exports.getAllRooms = async (req, res) => {
   try {
@@ -147,7 +147,7 @@ exports.createRoom = async (req, res) => {
       description,
       image: imageString,
       providerId,
-      status: "Phòng trống",
+      status: "Hoạt động",
       approvalStatus: "Chờ duyệt",
       postedAt: new Date(),
     });
@@ -255,11 +255,14 @@ exports.updateRoom = async (req, res) => {
 };
 
 // ===========================
-// Xóa phòng
+// Xóa (ẩn) phòng — soft delete
 // ===========================
 exports.deleteRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
+    const providerId = req.session.provider?.id;
+
+    // 1️⃣ Lấy phòng cần xóa
     const room = await Room.findByPk(roomId);
 
     if (!room) {
@@ -267,18 +270,20 @@ exports.deleteRoom = async (req, res) => {
       return res.redirect("/provider/dashboard");
     }
 
-    const providerId = req.session.provider?.id;
+    // 2️⃣ Kiểm tra quyền sở hữu
     if (room.providerId !== providerId) {
       req.session.error = "Bạn không có quyền xóa phòng này.";
       return res.redirect("/provider/dashboard");
     }
 
-    await Room.destroy({ where: { roomId } });
-    req.session.success = `Phòng "${room.roomName}" đã được xóa thành công.`;
+    // 3️⃣ Chỉ đổi trạng thái, không xóa dữ liệu
+    await Room.update({ status: "Ngưng hoạt động" }, { where: { roomId } });
+
+    req.session.success = `🗑️ Phòng "${room.roomName}" đã được ẩn khỏi hệ thống (ngưng hoạt động).`;
     res.redirect("/provider/dashboard");
   } catch (err) {
-    console.error("❌ Lỗi khi xóa phòng:", err);
-    req.session.error = "Đã xảy ra lỗi khi xóa phòng. Vui lòng thử lại.";
+    console.error("❌ Lỗi khi ẩn phòng:", err);
+    req.session.error = "Đã xảy ra lỗi khi ẩn phòng. Vui lòng thử lại.";
     res.redirect("/provider/dashboard");
   }
 };
@@ -286,69 +291,98 @@ exports.deleteRoom = async (req, res) => {
 //Tìm kiếm phòng
 exports.searchRooms = async (req, res) => {
   try {
-    const { validatedSearch } = req;
-    let city = '', checkInDate = null, checkOutDate = null, numGuests = 1, numRooms = 1;
+    const validated = req.validatedSearch || {};
+    const city = validated.city || '';
+    const district = validated.district || '';
+    const ward = validated.ward || '';
+    const checkInDate = validated.checkInDate || null;
+    const checkOutDate = validated.checkOutDate || null;
+    const numGuests = validated.numGuests || 1;
+    const numRooms = validated.numRooms || 1;
 
-    if (validatedSearch) {
-      city = validatedSearch.city;
-      checkInDate = validatedSearch.checkInDate;
-      checkOutDate = validatedSearch.checkOutDate;
-      numGuests = validatedSearch.numGuests || 1;
-      numRooms = validatedSearch.numRooms || 1;
-    }
-
-    // ✅ B1: Tìm danh sách phòng đã bị đặt trùng khoảng ngày
+    // B1: Tìm danh sách phòng đã bị đặt trùng khoảng ngày
     let bookedRoomIds = [];
     if (checkInDate && checkOutDate) {
       const overlappingBookings = await Booking.findAll({
         where: {
           [Op.and]: [
             { checkInDate: { [Op.lt]: checkOutDate } },
-            { checkOutDate: { [Op.gt]: checkInDate } }
-          ]
+            { checkOutDate: { [Op.gt]: checkInDate } },
+          ],
         },
-        attributes: ['roomId']
+        attributes: ["roomId"],
       });
       bookedRoomIds = overlappingBookings.map((b) => b.roomId);
     }
 
-    // ✅ B2: Lấy danh sách phòng trống
+    // B2: Lấy danh sách phòng trống
     const availableRooms = await Room.findAll({
       where: {
         [Op.and]: [
-          bookedRoomIds.length > 0 ? { roomId: { [Op.notIn]: bookedRoomIds } } : {},
-          { approvalStatus: 'Đã duyệt' },
-          { status: 'Hoạt động' },
-          { capacity: { [Op.gte]: numGuests } } // chỉ lấy phòng có đủ sức chứa
+          bookedRoomIds.length > 0
+            ? { roomId: { [Op.notIn]: bookedRoomIds } }
+            : {},
+          { approvalStatus: "Đã duyệt" },
+          { status: "Hoạt động" },
+          { capacity: { [Op.gte]: numGuests } }, // chỉ lấy phòng có đủ sức chứa
         ],
       },
       include: [
         {
           model: Address,
-          as: 'address',
-          where: city
-            ? sequelize.where(
-                sequelize.fn('LOWER', sequelize.col('address.city')),
-                { [Op.like]: `%${city.toLowerCase()}%` }
-              )
-            : {},
-          attributes: ['city', 'district', 'ward']
-        }
+          as: "address",
+          where: {
+            [Op.and]: [
+              city
+                ? sequelize.where(
+                  sequelize.fn("LOWER", sequelize.col("address.city")),
+                  { [Op.like]: `%${city.toLowerCase()}%` }
+                )
+                : null,
+              district
+                ? sequelize.where(
+                  sequelize.fn("LOWER", sequelize.col("address.district")),
+                  { [Op.like]: `%${district.toLowerCase()}%` }
+                )
+                : null,
+              ward
+                ? sequelize.where(
+                  sequelize.fn("LOWER", sequelize.col("address.ward")),
+                  { [Op.like]: `%${ward.toLowerCase()}%` }
+                )
+                : null,
+            ].filter(Boolean), // lọc null để tránh lỗi
+          },
+          attributes: ["city", "district", "ward"],
+        },
       ],
-      order: [['postedAt', 'DESC']]
+
+      order: [["postedAt", "DESC"]],
     });
 
+    // B3: Nếu không có phòng phù hợp
     if (!availableRooms || availableRooms.length === 0) {
-      return res.render('list', {
+      return res.render("list", {
         rooms: [],
-        keyword: city,
-        dateRange: `${checkInDate?.toISOString().slice(0,10)} to ${checkOutDate?.toISOString().slice(0,10)}`
+        keyword: city || district || ward,
+        dateRange:
+          checkInDate && checkOutDate
+            ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate.toISOString().slice(0, 10)}`
+            : null
       });
     }
 
-    res.render('list', { rooms: availableRooms, keyword: city });
+    // B4: Render danh sách phòng
+    res.render('list', {
+      rooms: availableRooms,
+      keyword: city || district || ward,
+      dateRange:
+        checkInDate && checkOutDate
+          ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate.toISOString().slice(0, 10)}`
+          : null
+    });
   } catch (err) {
-    console.error('❌ Lỗi khi tìm kiếm phòng:', err);
-    res.status(500).send('Lỗi khi tìm kiếm phòng.');
+    console.error("❌ Lỗi khi tìm kiếm phòng:", err);
+    res.status(500).send("Lỗi khi tìm kiếm phòng.");
   }
 };
