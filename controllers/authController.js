@@ -110,7 +110,14 @@ exports.loginCustomer = async (req, res) => {
         error: 'Sai email hoặc mật khẩu!'
       });
     }
-
+    // --- THÊM KIỂM TRA STATUS ---
+    if (account.status === 'locked') {
+      return res.render('customer/login', { error: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.' });
+  }
+  if (account.status === 'deleted') {
+       return res.render('customer/login', { error: 'Tài khoản không tồn tại.' });
+  }
+  // --- KẾT THÚC KIỂM TRA ---
     // 🔹 So sánh mật khẩu nhập vào với mật khẩu mã hoá trong DB
     const isMatch = await bcrypt.compare(password, account.password);
     if (!isMatch) {
@@ -180,7 +187,14 @@ exports.loginProvider = async (req, res) => {
         success: null
       });
     }
-
+    // --- THÊM KIỂM TRA STATUS ---
+    if (account.status === 'locked') {
+      return res.render('provider/login', { error: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.', success: null });
+  }
+  if (account.status === 'deleted') {
+       return res.render('provider/login', { error: 'Tài khoản không tồn tại.', success: null });
+  }
+  // --- KẾT THÚC KIỂM TRA ---
     const isMatch = await bcrypt.compare(password, account.password);
     if (!isMatch) {
       return res.render('provider/login', {
