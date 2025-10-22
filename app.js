@@ -11,6 +11,8 @@ const authRoutes = require('./routes/authRoutes');
 const roomRoutes = require('./routes/roomRoutes');
 const providerRoutes = require('./routes/providerRoutes');
 const customerRoutes = require('./routes/customerRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+
 
 require('./models/associations');
   app.set('view engine', 'ejs');
@@ -59,7 +61,12 @@ app.use('/', homeRoutes);
 app.use(authRoutes);
 app.use('/provider', providerRoutes);
 app.use('/customer', customerRoutes);
+app.use('/provider/report', reportRoutes);
 
 sequelize.sync().then(() => {
   app.listen(3000, () => console.log('🚀 Server running on http://localhost:3000'));
 });
+
+
+
+

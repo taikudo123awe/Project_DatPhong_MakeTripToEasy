@@ -12,4 +12,15 @@ router.post('/payment', ensureCustomerLoggedIn, customerController.showPaymentPa
 // Bước 7, 8: Xác nhận đã chuyển tiền
 router.post('/confirm-payment', ensureCustomerLoggedIn, customerController.confirmPayment);
 
+// Hiển thị form chỉnh sửa
+router.get('/update', customerController.showEditProfile);
+router.post('/update', ensureCustomerLoggedIn, customerController.updateProfile);
+
+// router.get('/booking-status', customerController.showBookingStatus);
+
+router.get('/history-dashboard', customerController.viewBookingHistory);
+
+router.get('/history-detail/:id', customerController.viewBookingDetail);
+
+
 module.exports = router;

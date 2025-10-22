@@ -17,4 +17,6 @@ const Invoice = sequelize.define('Invoice', {
     timestamps: false
 });
 
+
+
 module.exports = Invoice;

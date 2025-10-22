@@ -45,8 +45,8 @@ Booking.belongsTo(Room, { foreignKey: 'roomId', onDelete: 'CASCADE' });
 Room.hasMany(Booking, { foreignKey: 'roomId', onDelete: 'CASCADE' });
 
 // Invoice <-> Booking (N-1)
-Invoice.belongsTo(Booking, { foreignKey: 'bookingId', onDelete: 'CASCADE' });
-Booking.hasOne(Invoice, { foreignKey: 'bookingId', onDelete: 'CASCADE' });
+Invoice.belongsTo(Booking, { foreignKey: 'bookingId', onDelete: 'CASCADE', as: 'booking' });
+Booking.hasOne(Invoice, { foreignKey: 'bookingId', onDelete: 'CASCADE', as: 'invoice' }); // ✅ thêm as
 
 // Invoice <-> Customer (N-1)
 Invoice.belongsTo(Customer, { foreignKey: 'customerId', onDelete: 'SET NULL' });
@@ -59,5 +59,12 @@ Provider.hasMany(Room, { foreignKey: 'providerId'});
 // Room <-> Address (N-1)
 Room.belongsTo(Address, { foreignKey: 'addressId'});
 Address.hasMany(Room, { foreignKey: 'addressId'});
+
+// Booking.js
+Booking.hasOne(Invoice, { foreignKey: 'bookingId' });
+
+// Invoice.js
+Invoice.belongsTo(Booking, { foreignKey: 'bookingId' });
+
 
 console.log('--- Các liên kết model (Associations) đã được định nghĩa ---');
