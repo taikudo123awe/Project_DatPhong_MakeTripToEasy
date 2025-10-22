@@ -1,56 +1,125 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const { ensureProviderLoggedIn } = require('../middlewares/authMiddleware');
 const roomController = require('../controllers/roomController');
 const providerController = require('../controllers/providerController');
 const validateProvider = require('../middlewares/validateProvider');
-const Room = require('../models/Room');
 const reviewController = require('../controllers/reviewController');
+const bookingController = require('../controllers/bookingController'); //Quan ly dat phong
 // --- THÊM CẤU HÌNH MULTER ---
 const multer = require('multer');
 const path = require('path');
+const fs = require("fs");
 
-// Cấu hình nơi lưu trữ file
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './public/uploads/qrcodes/');
+// ================== TẠO THƯ MỤC NẾU CHƯA TỒN TẠI ==================
+const imgroomsPath = path.join(
+  __dirname,
+  "..",
+  "public",
+  "uploads",
+  "imgrooms"
+);
+const qrcodesPath = path.join(__dirname, "..", "public", "uploads", "qrcodes");
+
+if (!fs.existsSync(imgroomsPath))
+  fs.mkdirSync(imgroomsPath, { recursive: true });
+if (!fs.existsSync(qrcodesPath)) fs.mkdirSync(qrcodesPath, { recursive: true });
+
+// ================== CẤU HÌNH MULTER ==================
+
+// Upload ảnh phòng
+const storageRoom = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "./public/uploads/imgrooms/"),
+  filename: (req, file, cb) => {
+    const id = req.session.provider?.id || "unknown";
+    cb(null, `${id}-room-${Date.now()}${path.extname(file.originalname)}`);
   },
-  filename: function (req, file, cb) {
-    // Tạo tên file duy nhất: providerId-qr-timestamp.ext
-    const providerId = req.session.provider.id;
-    const uniqueSuffix = Date.now() + path.extname(file.originalname);
-    cb(null, providerId + '-qr-' + uniqueSuffix);
-  }
 });
+const uploadRoom = multer({ storage: storageRoom });
 
-// Khởi tạo middleware upload
-const upload = multer({ storage: storage });
-// Hiển thị form
-router.get('/add-room', ensureProviderLoggedIn, roomController.showAddRoomForm);
+// Upload QR code
+const storageQR = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "./public/uploads/qrcodes/"),
+  filename: (req, file, cb) => {
+    const id = req.session.provider?.id || "unknown";
+    cb(null, `${id}-qr-${Date.now()}${path.extname(file.originalname)}`);
+  },
+});
+const uploadQR = multer({ storage: storageQR });
 
-// Xử lý form
-router.post('/add-room', ensureProviderLoggedIn, roomController.createRoom);
+// ================== ROUTES ==================
 
-// Cập nhật route dashboard để dùng controller
-router.get('/dashboard', ensureProviderLoggedIn, providerController.showDashboard);
-
-// GET: Hiển thị form
-router.get('/edit-profile', ensureProviderLoggedIn, providerController.showEditProfileForm);
-
-// POST: Xử lý cập nhật
-router.post('/edit-profile',
+// Dashboard
+router.get(
+  "/dashboard",
   ensureProviderLoggedIn,
-  upload.single('qrCodeImage'), // Thêm middleware
+  providerController.showDashboard
+);
+
+// Thêm phòng
+router.get("/add-room", ensureProviderLoggedIn, roomController.showAddRoomForm);
+router.post(
+  "/add-room",
+  ensureProviderLoggedIn,
+  uploadRoom.array("images", 10),
+  roomController.createRoom
+);
+
+// Sửa phòng
+router.get(
+  "/edit-room/:roomId",
+  ensureProviderLoggedIn,
+  roomController.showEditRoomForm
+);
+router.post(
+  "/edit-room/:roomId",
+  ensureProviderLoggedIn,
+  uploadRoom.array("images", 5),
+  roomController.updateRoom
+);
+
+// Xoá phòng
+router.post(
+  "/delete-room/:roomId",
+  ensureProviderLoggedIn,
+  roomController.deleteRoom
+);
+
+// Hồ sơ nhà cung cấp
+router.get(
+  "/edit-profile",
+  ensureProviderLoggedIn,
+  providerController.showEditProfileForm
+);
+router.post(
+  "/edit-profile",
+  ensureProviderLoggedIn,
+  uploadQR.single("qrCodeImage"),
   providerController.updateProfile
 );
-// --- KẾT THÚC THÊM ---
-// --- THÊM ROUTE MỚI CHO CHỨC NĂNG ĐÁNH GIÁ ---
 
-router.get('/reviews', ensureProviderLoggedIn, reviewController.showReviewedRooms);
-router.get('/reviews/:roomId', ensureProviderLoggedIn, reviewController.showRoomReviews);
-router.post('/reviews/feedback', ensureProviderLoggedIn, reviewController.addFeedback);
+// Đánh giá & phản hồi
+router.get(
+  "/reviews",
+  ensureProviderLoggedIn,
+  reviewController.showReviewedRooms
+);
+router.get(
+  "/reviews/:roomId",
+  ensureProviderLoggedIn,
+  reviewController.showRoomReviews
+);
+router.post(
+  "/reviews/feedback",
+  ensureProviderLoggedIn,
+  reviewController.addFeedback
+);
 
-// --- KẾT THÚC THÊM ---
+// --- THÊM ROUTE MỚI CHO QUẢN LÝ ĐẶT PHÒNG ---
+router.get('/bookings', ensureProviderLoggedIn, bookingController.listAllBookings);
+router.get('/bookings/:bookingId', ensureProviderLoggedIn, bookingController.showBookingDetails);
+router.post('/bookings/confirm', ensureProviderLoggedIn, bookingController.confirmCheckIn);
+router.post('/bookings/cancel', ensureProviderLoggedIn, bookingController.cancelBooking);
 
 // Hiển thị form đăng ký
 router.get('/register', (req, res) => {

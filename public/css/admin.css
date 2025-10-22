@@ -1,0 +1,129 @@
+:root {
+    --primary-color: #ff6b6b;
+    --primary-hover: #ee5a6f;
+    --bg-light: #fff5f5;
+    --text-dark: #1e293b;
+    --border-color: #ffe0e0;
+    --shadow: 0 2px 8px rgba(255, 107, 107, 0.12);
+}
+
+body {
+    background-color: var(--bg-light);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Styled Navbar */
+.navbar-custom {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #ff6b35 100%);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
+    padding: 1rem 0;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.2s;
+}
+
+.navbar-brand:hover {
+    transform: translateY(-2px);
+}
+
+.navbar-brand::before {
+    content: "⚙️";
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-weight: 500;
+    padding: 0.5rem 1.2rem !important;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+/* Container */
+.container.mt-4 {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    min-height: 400px;
+}
+
+/* Modern Footer */
+.footer-custom {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 50%, #ff6b35 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-top: 3rem;
+    box-shadow: 0 -4px 12px rgba(255, 107, 107, 0.25);
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.footer-brand {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.footer-text {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.9rem;
+}
+
+.footer-links {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.footer-links a:hover {
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.footer-divider {
+    width: 60px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 2px;
+    margin: 1rem 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar-brand::before {
+        font-size: 1.2rem;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}

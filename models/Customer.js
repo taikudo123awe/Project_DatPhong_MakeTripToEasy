@@ -8,10 +8,12 @@ const Customer = sequelize.define('Customer', {
     primaryKey: true
   },
   fullName: {
-    type: DataTypes.STRING(50)
+    type: DataTypes.STRING(58),
+    allowNull: false
   },
   identityNumber: {
-    type: DataTypes.STRING(12)
+    type: DataTypes.STRING(12),
+    allowNull: false
   },
   email: {
     type: DataTypes.STRING(255)

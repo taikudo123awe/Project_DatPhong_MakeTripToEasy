@@ -1,0 +1,92 @@
+<%- include('../partials/header_admin') %>
+    <div class="detail-container">
+        <!-- Back Button -->
+        <a href="/admin/rooms" class="back-button">Quay lại danh sách</a>
+
+        <!-- Page Header -->
+        <div class="page-header-detail">
+            <h1 class="page-title-detail">Chi tiết phòng</h1>
+        </div>
+
+        <!-- Detail Card -->
+        <div class="detail-card">
+            <!-- Room Name -->
+            <div class="info-group">
+                <span class="info-label">Tên phòng</span>
+                <div class="info-value large">
+                    <%= room.roomName %>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="info-group">
+                <span class="info-label">Mô tả</span>
+                <div class="info-value description">
+                    <%= room.description %>
+                </div>
+            </div>
+
+            <!-- Price -->
+            <div class="info-group">
+                <span class="info-label">Giá thuê</span>
+                <div class="info-value large">
+                    <%= room.price.toLocaleString('vi-VN') %> VNĐ
+                </div>
+            </div>
+
+            <!-- Provider Info -->
+            <div class="info-group">
+                <span class="info-label">Thông tin nhà cung cấp</span>
+                <div class="provider-card">
+                    <div class="provider-title">Nhà cung cấp</div>
+                    <div class="provider-info">
+                        <div class="provider-item">
+                            <strong>Tên:</strong>
+                            <span>
+                                <%= room.Provider ? room.Provider.providerName : 'N/A' %>
+                            </span>
+                        </div>
+                        <div class="provider-item">
+                            <strong>Email:</strong>
+                            <span>
+                                <%= room.Provider ? room.Provider.email : 'N/A' %>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="info-group">
+                <span class="info-label">Trạng thái hiện tại</span>
+                <div>
+                    <% if (room.approvalStatus==='Chờ duyệt' ) { %>
+                        <span class="status-badge-large status-pending">Chờ duyệt</span>
+                        <% } else if (room.approvalStatus==='Đã duyệt' ) { %>
+                            <span class="status-badge-large status-approved">Đã duyệt</span>
+                            <% } else if (room.approvalStatus==='Từ chối' ) { %>
+                                <span class="status-badge-large status-rejected">Từ chối</span>
+                                <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Section -->
+        <div class="action-section">
+            <h3 class="action-title">Hành động quản lý</h3>
+            <div class="action-buttons">
+                <!-- Approve Form -->
+                <form action="/admin/rooms/<%= room.roomId %>/approve" method="POST">
+                    <button type="submit" class="btn-approve">Duyệt bài</button>
+                </form>
+
+                <!-- Reject Form -->
+                <form action="/admin/rooms/<%= room.roomId %>/reject" method="POST" class="action-form">
+                    <input type="text" name="reason" class="reason-input" placeholder="Nhập lý do từ chối..." required>
+                    <button type="submit" class="btn-reject">Từ chối</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer_admin') %>

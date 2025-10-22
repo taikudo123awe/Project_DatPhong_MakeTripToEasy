@@ -1,0 +1,122 @@
+<%- include('../partials/header_admin') %>
+
+    <div class="dashboard-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">Chào mừng đến với Admin Panel</h1>
+            <p class="welcome-subtitle">Xin chào, <strong>
+                    <%= admin.email %>
+                </strong></p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-icon">🏠</div>
+                <div class="stat-value">
+                    <%= typeof totalRooms !=='undefined' ? totalRooms : 0 %>
+                </div>
+                <div class="stat-label">Tổng phòng</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-value">
+                    <%= typeof pendingRooms !=='undefined' ? pendingRooms : 0 %>
+                </div>
+                <div class="stat-label">Chờ duyệt</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">458</div>
+                <div class="stat-label">Người dùng</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-value">98%</div>
+                <div class="stat-label">Tỷ lệ duyệt</div>
+            </div>
+        </div>
+
+        <!-- Main Features -->
+        <h2 class="features-title">Chức năng chính</h2>
+        <div class="features-grid">
+            <!-- Room Management Card -->
+            <div class="feature-card rooms">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">🏠</div>
+                </div>
+                <div class="feature-content">
+                    <h3 class="feature-title">Quản lý Phòng</h3>
+                    <p class="feature-description">
+                        Duyệt, quản lý và theo dõi tất cả các bài đăng phòng trên hệ thống.
+                        Kiểm soát chất lượng và đảm bảo trải nghiệm tốt nhất cho người dùng.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="feature-stat-item">
+                            <span class="feature-stat-value"><%= typeof totalRooms !=='undefined' ? totalRooms : 0 %></span>
+                            <span class="feature-stat-label">Tổng phòng</span>
+                        </div>
+                        <div class="feature-stat-item">
+                            <span class="feature-stat-value"><%= typeof pendingRooms !=='undefined' ? pendingRooms : 0 %></span>
+                            <span class="feature-stat-label">Chờ duyệt</span>
+                        </div>
+                    </div>
+                    <a href="/admin/rooms" class="feature-button">
+                        Quản lý phòng
+                    </a>
+                </div>
+            </div>
+
+            <!-- User Management Card -->
+            <div class="feature-card users">
+                <div class="feature-icon-wrapper">
+                    <div class="feature-icon">👥</div>
+                </div>
+                <div class="feature-content">
+                    <h3 class="feature-title">Quản lý Người dùng</h3>
+                    <p class="feature-description">
+                        Quản lý tài khoản Customer và Provider. Theo dõi hoạt động,
+                        xử lý báo cáo và đảm bảo an toàn cho cộng đồng.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="feature-stat-item">
+                            <span class="feature-stat-value">320</span>
+                            <span class="feature-stat-label">Customers</span>
+                        </div>
+                        <div class="feature-stat-item">
+                            <span class="feature-stat-value">138</span>
+                            <span class="feature-stat-label">Providers</span>
+                        </div>
+                    </div>
+                    <a href="/admin/users" class="feature-button">
+                        Quản lý người dùng
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h3 class="quick-actions-title">Thao tác nhanh</h3>
+            <div class="quick-actions-grid">
+                <a href="/admin/rooms?status=Chờ duyệt" class="quick-action-btn">
+                    <span class="quick-action-icon">⏳</span>
+                    <span>Phòng chờ duyệt</span>
+                </a>
+                <a href="/admin/reports" class="quick-action-btn">
+                    <span class="quick-action-icon">📊</span>
+                    <span>Báo cáo</span>
+                </a>
+                <a href="/admin/settings" class="quick-action-btn">
+                    <span class="quick-action-icon">⚙️</span>
+                    <span>Cài đặt</span>
+                </a>
+                <a href="/admin/logs" class="quick-action-btn">
+                    <span class="quick-action-icon">📝</span>
+                    <span>Nhật ký</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer_admin') %>

@@ -5,6 +5,10 @@ const Room = require('./Room');
 const Customer = require('./Customer');
 const Review = require('./Review');
 const Feedback = require('./Feedback');
+const Admin = require('./Admin');
+const Booking = require('./Booking');
+const Invoice = require('./Invoice');
+const Address = require('./Address');
 
 // --- Định nghĩa các mối quan hệ mới ---
 
@@ -27,5 +31,33 @@ Provider.hasMany(Feedback, { foreignKey: 'providerId' });
 // Feedback <-> Review (1-1)
 Feedback.belongsTo(Review, { foreignKey: 'reviewId' });
 Review.hasOne(Feedback, { foreignKey: 'reviewId' });
+
+// Admin <-> Account (1-1)
+Admin.belongsTo(Account, { foreignKey: 'accountId' });
+Account.hasOne(Admin, { foreignKey: 'accountId' });
+
+// Customer <-> Booking (1-N)
+Booking.belongsTo(Customer, { foreignKey: 'customerId', onDelete: 'CASCADE' });
+Customer.hasMany(Booking, { foreignKey: 'customerId', onDelete: 'CASCADE' });
+
+// Room <-> Booking (1-N)
+Booking.belongsTo(Room, { foreignKey: 'roomId', onDelete: 'CASCADE' });
+Room.hasMany(Booking, { foreignKey: 'roomId', onDelete: 'CASCADE' });
+
+// Invoice <-> Booking (N-1)
+Invoice.belongsTo(Booking, { foreignKey: 'bookingId', onDelete: 'CASCADE' });
+Booking.hasOne(Invoice, { foreignKey: 'bookingId', onDelete: 'CASCADE' });
+
+// Invoice <-> Customer (N-1)
+Invoice.belongsTo(Customer, { foreignKey: 'customerId', onDelete: 'SET NULL' });
+Customer.hasMany(Invoice, { foreignKey: 'customerId', onDelete: 'SET NULL' });
+
+// Room <-> Provider (N-1)
+Room.belongsTo(Provider, { foreignKey: 'providerId'});
+Provider.hasMany(Room, { foreignKey: 'providerId'});
+
+// Room <-> Address (N-1)
+Room.belongsTo(Address, { foreignKey: 'addressId'});
+Address.hasMany(Room, { foreignKey: 'addressId'});
 
 console.log('--- Các liên kết model (Associations) đã được định nghĩa ---');
