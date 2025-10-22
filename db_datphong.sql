@@ -1,31 +1,4 @@
--- phpMyAdmin SQL Dump
--- version 5.2.2
--- https://www.phpmyadmin.net/
---
--- Máy chủ: mydb:3306
--- Thời gian đã tạo: Th10 20, 2025 lúc 07:29 AM
--- Phiên bản máy phục vụ: 11.7.2-MariaDB-ubu2404
--- Phiên bản PHP: 8.2.28
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Cơ sở dữ liệu: `db_datphong`
---
-
--- --------------------------------------------------------
-
---
--- Cấu trúc bảng cho bảng `Account`
---
 
 CREATE TABLE `Account` (
   `accountId` int(11) NOT NULL,
@@ -35,40 +8,6 @@ CREATE TABLE `Account` (
   `status` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
---
--- Đang đổ dữ liệu cho bảng `Account`
---
-
-INSERT INTO `Account` (`accountId`, `username`, `password`, `role`, `status`) VALUES
-(1, 'user1', 'pass1', 0, 'active'),
-(2, 'user2', 'pass2', 0, 'active'),
-(3, 'user3', 'pass3', 1, 'active'),
-(4, 'user4', 'pass4', 0, 'active'),
-(5, 'user5', 'pass5', 0, 'active'),
-(6, 'user6', 'pass6', 1, 'active'),
-(7, 'user7', 'pass7', 1, 'active'),
-(8, 'user8', 'pass8', 2, 'active'),
-(9, 'user9', 'pass9', 2, 'active'),
-(10, 'user10', 'pass10', 2, 'active'),
-(11, 'user11', 'pass11', 0, 'active'),
-(12, 'user12', 'pass12', 2, 'active'),
-(13, 'user13', 'pass13', 2, 'active'),
-(14, 'user14', 'pass14', 2, 'active'),
-(15, 'user15', 'pass15', 0, 'active'),
-(16, 'user16', 'pass16', 1, 'active'),
-(17, 'user17', 'pass17', 0, 'active'),
-(18, 'user18', 'pass18', 1, 'active'),
-(19, 'user19', 'pass19', 1, 'active'),
-(20, 'user20', 'pass20', 1, 'active'),
-(21, '0123123132', '$2b$10$n1UylfHIcXC/s6W.0ccUteZhWMDv2VrfAH8hQaIDDrePM4bIe/bmO', 1, 'active'),
-(22, '0123123131', '$2b$10$ktTq6y6GO1Hw/YmozUWfM.UAD1yw.Xdo8Cd.93IpEIQqmVwSA6vyu', 1, 'active'),
-(23, '0212121212', '$2b$10$FpgoSwvnD.qQnaZqtttpROot5FtApZeSaGdlmISAgnPG24FFlPwBG', 1, 'active'),
-(24, '0212121211', '$2b$10$ICCPDRsiDNcVWSJ5Un/uFO8Bnqm9dq/fXlpVS.94Nh3d0ChIuWZjO', 1, 'active'),
-(25, '0212121213', '$2b$10$IJPbu906AgtFPed3kGhKy.nMQ43vhqLLdfU/LFMNCEcbk0CcJ0ISW', 1, 'active'),
-(26, '0141414141', '$2b$10$nDmmJO.cw5cwwJzveKo2zutLks5t6wNrSxuJkvtjKPFSkSj.zXSKy', 1, 'active'),
-(27, '0123456789', '$2b$10$05ArFoqLBtS3Sf3DXIH/n.ns5A0FfDpiRZTNO.0QRfR7i3RE4rVMK', 1, 'active');
-
--- --------------------------------------------------------
 
 --
 -- Cấu trúc bảng cho bảng `Address`
@@ -81,25 +20,7 @@ CREATE TABLE `Address` (
   `ward` varchar(58) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
---
--- Đang đổ dữ liệu cho bảng `Address`
---
 
-INSERT INTO `Address` (`addressId`, `city`, `district`, `ward`) VALUES
-(1, 'City1', 'District1', 'Ward1'),
-(2, 'City2', 'District2', 'Ward2'),
-(3, 'City3', 'District3', 'Ward3'),
-(4, 'City4', 'District4', 'Ward4'),
-(5, 'City5', 'District5', 'Ward5'),
-(6, 'City6', 'District6', 'Ward6'),
-(7, 'City7', 'District7', 'Ward7'),
-(8, 'City8', 'District8', 'Ward8'),
-(9, 'City9', 'District9', 'Ward9'),
-(10, 'City10', 'District10', 'Ward10');
-
--- --------------------------------------------------------
-
---
 -- Cấu trúc bảng cho bảng `Admin`
 --
 
@@ -119,9 +40,6 @@ INSERT INTO `Admin` (`adminId`, `email`, `phoneNumber`, `accountId`) VALUES
 
 -- --------------------------------------------------------
 
---
--- Cấu trúc bảng cho bảng `Booking`
---
 
 CREATE TABLE `Booking` (
   `bookingId` int(11) NOT NULL,

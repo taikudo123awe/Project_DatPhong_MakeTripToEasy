@@ -162,12 +162,12 @@ exports.createRoom = async (req, res) => {
 // Chi tiết phòng
 // ===========================
 exports.getRoomDetail = async (req, res) => {
-  const roomId = req.params.id;
+  const roomId = req.params.roomId;
 
   try {
     const room = await Room.findOne({
       where: { roomId, approvalStatus: "Đã duyệt" },
-      include: { model: Provider, as: "Provider" }, // ✅ alias đồng bộ
+      include: { model: Provider, as: "Provider" },
     });
 
     if (!room) return res.status(404).send("Không tìm thấy phòng.");
