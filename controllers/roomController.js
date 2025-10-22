@@ -332,34 +332,31 @@ exports.searchRooms = async (req, res) => {
           model: Address,
           as: "address",
           where: {
-            ...(city
-              ? sequelize.where(
-                sequelize.fn("LOWER", sequelize.col("address.city")),
-                {
-                  [Op.like]: `%${city.toLowerCase()}%`,
-                }
-              )
-              : {}),
-            ...(district
-              ? sequelize.where(
-                sequelize.fn("LOWER", sequelize.col("address.district")),
-                {
-                  [Op.like]: `%${district.toLowerCase()}%`,
-                }
-              )
-              : {}),
-            ...(ward
-              ? sequelize.where(
-                sequelize.fn("LOWER", sequelize.col("address.ward")),
-                {
-                  [Op.like]: `%${ward.toLowerCase()}%`,
-                }
-              )
-              : {}),
+            [Op.and]: [
+              city
+                ? sequelize.where(
+                  sequelize.fn("LOWER", sequelize.col("address.city")),
+                  { [Op.like]: `%${city.toLowerCase()}%` }
+                )
+                : null,
+              district
+                ? sequelize.where(
+                  sequelize.fn("LOWER", sequelize.col("address.district")),
+                  { [Op.like]: `%${district.toLowerCase()}%` }
+                )
+                : null,
+              ward
+                ? sequelize.where(
+                  sequelize.fn("LOWER", sequelize.col("address.ward")),
+                  { [Op.like]: `%${ward.toLowerCase()}%` }
+                )
+                : null,
+            ].filter(Boolean), // lọc null để tránh lỗi
           },
           attributes: ["city", "district", "ward"],
-        }
+        },
       ],
+
       order: [["postedAt", "DESC"]],
     });
 

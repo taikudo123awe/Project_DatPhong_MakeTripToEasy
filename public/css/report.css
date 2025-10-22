@@ -1,0 +1,57 @@
+body {
+  background-color: #f8f9fa;
+  padding: 2rem;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.report-container {
+  background: #fff;
+  border: 2px solid #bbaaff;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}
+
+h2 {
+  font-weight: 700;
+}
+
+.summary-box {
+  border: 2px solid #000;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  display: inline-block;
+  margin-bottom: 2rem;
+}
+
+.summary-box h3 {
+  font-weight: 600;
+}
+
+.tabs {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 0.3rem;
+}
+
+.tabs a {
+  font-weight: 600;
+  text-decoration: none;
+  color: #000;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 4px;
+}
+
+.tabs a.active {
+  border-color: #000;
+}
+
+canvas {
+  margin-top: 1rem;
+}
+
+.chart-section {
+  margin-top: 2rem;
+}
