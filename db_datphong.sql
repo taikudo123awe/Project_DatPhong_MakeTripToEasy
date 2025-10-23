@@ -149,7 +149,7 @@ CREATE TABLE `Room` (
   `price` float DEFAULT NULL,
   `amenities` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
-  `image` varchar(255) DEFAULT NULL,
+  `image` text DEFAULT NULL,
   `fullAddress` varchar(255) DEFAULT NULL,
   `status` varchar(30) DEFAULT NULL,
   `postedAt` datetime DEFAULT NULL,

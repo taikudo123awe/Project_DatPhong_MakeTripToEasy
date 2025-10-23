@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const sequelize = require("./config/database");
 dotenv.config();
 const app = express();
+
 const path = require("path");
 require("dotenv").config();
 const session = require("express-session");
@@ -12,6 +13,7 @@ const roomRoutes = require("./routes/roomRoutes");
 const providerRoutes = require("./routes/providerRoutes");
 const customerRoutes = require("./routes/customerRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 
 require("./models/associations");
 app.set("view engine", "ejs");
@@ -61,11 +63,16 @@ app.use("/", homeRoutes);
 app.use(authRoutes);
 app.use("/provider", providerRoutes);
 app.use("/customer", customerRoutes);
-// app.use('/booking', bookingRoutes);
 app.use("/customer/bookings", bookingRoutes);
+app.use('/provider/report', reportRoutes);
+
 
 sequelize.sync().then(() => {
   app.listen(3000, () =>
     console.log("🚀 Server running on http://localhost:3000")
   );
 });
+
+
+
+

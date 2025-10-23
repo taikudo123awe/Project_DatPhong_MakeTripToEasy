@@ -3,33 +3,49 @@
   <form action="/rooms/search" method="get" class="row g-2 align-items-center">
 
     <!-- Cột 1: Địa điểm -->
-    <div class="col-md-4 position-relative">
-      <label class="form-label fw-semibold">Địa điểm</label>
-      <input type="text" name="city" id="searchCity" 
-             class="form-control" placeholder="Nhập thành phố bạn muốn đến..." 
-             autocomplete="off">
-      <div id="suggestions" class="list-group position-absolute w-100 shadow" 
-           style="z-index: 1000; display:none;">
-        <!-- Gợi ý sẽ hiển thị bằng JS -->
-      </div>
+    <!-- Thành phố -->
+    <div class="col-md-3">
+      <label class="form-label fw-semibold">Thành phố</label>
+      <select name="city" id="city" class="form-select">
+        <option value="">-- Chọn thành phố --</option>
+      </select>
+      <input type="hidden" id="cityName" name="cityName">
+    </div>
+
+    <!-- Quận/Huyện -->
+    <div class="col-md-3">
+      <label class="form-label fw-semibold">Quận/Huyện</label>
+      <select name="district" id="district" class="form-select" disabled>
+        <option value="">-- Chọn quận/huyện --</option>
+      </select>
+      <input type="hidden" id="districtName" name="districtName">
+    </div>
+
+    <!-- Phường/Xã -->
+    <div class="col-md-3">
+      <label class="form-label fw-semibold">Phường/Xã</label>
+      <select name="ward" id="ward" class="form-select" disabled>
+        <option value="">-- Chọn phường/xã --</option>
+      </select>
+      <input type="hidden" id="wardName" name="wardName">
     </div>
 
     <!-- Cột 2: Ngày -->
-    <div class="col-md-4">
+    <div class="col-md-3">
       <label class="form-label fw-semibold">Ngày nhận - trả phòng</label>
-      <input type="text" id="dateRange" name="dateRange" class="form-control" readonly>
+      <input type="text" id="dateRange" name="dateRange" class="form-control" readonly placeholder="Chọn ngày">
     </div>
 
     <!-- Cột 3: Số người lớn và phòng -->
-    <div class="col-md-3 position-relative">
+    <!-- 👥 Bộ chọn khách & phòng -->
+    <div class="col-md-6 position-relative">
       <label class="form-label fw-semibold">Khách & phòng</label>
-      <input type="text" id="guestSummary" name="guests" 
-             class="form-control" readonly value="2 người lớn · 1 phòng">
+      <input type="text" id="guestSummary" class="form-control" readonly value="2 người lớn · 1 phòng">
 
-      <!-- Bảng chọn số lượng -->
-      <div id="guestOptions" class="card p-3 shadow position-absolute" 
-           style="z-index:1000; display:none; width: 220px;">
-        <div class="d-flex justify-content-between align-items-center mb-2">
+      <!-- Dropdown chọn -->
+      <div id="guestOptions" class="card shadow p-3 position-absolute" 
+          style="z-index: 2000; display:none; width: 240px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
           <span>Người lớn</span>
           <div>
             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="changeGuests('adults', -1)">-</button>
@@ -37,7 +53,8 @@
             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="changeGuests('adults', 1)">+</button>
           </div>
         </div>
-        <div class="d-flex justify-content-between align-items-center">
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
           <span>Phòng</span>
           <div>
             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="changeGuests('rooms', -1)">-</button>
@@ -45,7 +62,7 @@
             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="changeGuests('rooms', 1)">+</button>
           </div>
         </div>
-        <button type="button" class="btn btn-primary btn-sm mt-3 w-100" onclick="closeGuests()">Xong</button>
+        <button type="button" class="btn btn-primary btn-sm mt-2 w-100" onclick="closeGuests()">Xong</button>
       </div>
     </div>
 
@@ -56,3 +73,11 @@
 
   </form>
 </div>
+
+<script src="/javascript/addressAPI.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+flatpickr("#dateRange", { mode: "range", dateFormat: "Y-m-d" });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">

@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="vi">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Make Trip To Easy - Đặt phòng khách sạn</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Playfair Display', 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            color: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(184, 134, 11, 0.95) 0%, rgba(217, 119, 6, 0.95) 100%);
+            backdrop-filter: blur(15px);
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 30px rgba(184, 134, 11, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid #d97706;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .nav-brand {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fbbf24;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-brand i {
+            color: #f59e0b;
+            filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.5));
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(45deg, rgba(184, 134, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="%23b8860b" opacity="0.1"/><circle cx="80" cy="40" r="1" fill="%23d97706" opacity="0.1"/><circle cx="40" cy="80" r="1" fill="%23f59e0b" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+            opacity: 0.3;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #fbbf24, #f59e0b, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            color: #e5e7eb;
+            font-style: italic;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-section {
+            background: linear-gradient(135deg, rgba(184, 134, 11, 0.9) 0%, rgba(217, 119, 6, 0.9) 100%);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 2.5rem;
+            margin: 2rem auto;
+            max-width: 900px;
+            box-shadow: 0 15px 50px rgba(184, 134, 11, 0.4);
+            border: 2px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #fbbf24;
+            margin-bottom: 0.7rem;
+            font-size: 1rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-input {
+            padding: 1rem 1.2rem;
+            border: 2px solid rgba(251, 191, 36, 0.3);
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.3);
+            color: #f5f5f5;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.2);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .form-input::placeholder {
+            color: #d1d5db;
+        }
+
+        .search-btn {
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            color: #1a1a1a;
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(245, 158, 11, 0.6);
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin: 3rem 0;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #059669, #047857);
+            color: #f0fdf4;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(45d, #d97706, #b45309);
+            color: #fffbeb;
+            border: 2px solid rgba(217, 119, 6, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .rooms-section {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(45, 45, 45, 0.8) 100%);
+            backdrop-filter: blur(15px);
+            border-radius: 30px 30px 0 0;
+            padding: 4rem 2rem;
+            margin-top: 4rem;
+            min-height: 70vh;
+            border-top: 3px solid #d97706;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 4rem;
+            position: relative;
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            border-radius: 2px;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .room-card {
+            background: linear-gradient(135deg, rgba(184, 134, 11, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s ease;
+            position: relative;
+            border: 2px solid rgba(251, 191, 36, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .room-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(184, 134, 11, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .room-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(184, 134, 11, 0.3);
+            border-color: #fbbf24;
+        }
+
+        .room-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+            filter: sepia(20%) saturate(1.2) brightness(0.9);
+        }
+
+        .room-card:hover .room-image {
+            transform: scale(1.1);
+            filter: sepia(30%) saturate(1.4) brightness(1);
+        }
+
+        .room-content {
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .room-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fbbf24;
+            margin-bottom: 0.8rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .room-description {
+            color: #d1d5db;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .room-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .room-capacity {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            color: #e5e7eb;
+            font-weight: 600;
+        }
+
+        .room-capacity i {
+            color: #f59e0b;
+        }
+
+        .room-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #fbbf24;
+            text-align: right;
+        }
+
+        .room-price-unit {
+            font-size: 0.9rem;
+            font-weight: normal;
+            color: #d1d5db;
+            display: block;
+        }
+
+        .room-footer {
+            padding: 0 2rem 2rem;
+        }
+
+        .detail-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #f59e0b, #d97706);
+            color: #1a1a1a;
+            padding: 1rem;
+            border: none;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        .detail-btn:hover {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            color: #1a1a1a;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(245, 158, 11, 0.6);
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+            color: #d1d5db;
+            text-align: center;
+            padding: 3rem;
+            margin-top: 4rem;
+            border-top: 3px solid #d97706;
+        }
+
+        .footer p {
+            margin: 0.5rem 0;
+        }
+
+        .footer p:first-child {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .rooms-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 2.2rem;
+            }
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #1a1a1a;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Luxury accents */
+        .luxury-accent {
+            position: relative;
+        }
+
+        .luxury-accent::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #f59e0b, #d97706, #b45309, #f59e0b);
+            border-radius: inherit;
+            z-index: -1;
+            animation: rotate 3s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body><!-- Header Section -->
+  <header class="header">
+   <div class="container">
+    <nav style="display: flex; justify-content: space-between; align-items: center;">
+     <div class="nav-brand"><i class="fas fa-crown"></i> <span>Make Trip To Easy</span>
+     </div>
+     <div><!-- Navigation items can be added here -->
+     </div>
+    </nav>
+   </div>
+  </header><!-- Hero Section -->
+  <section class="hero-section">
+   <div class="container">
+    <h1 class="hero-title" id="heroTitle">Chào mừng đến với Make Trip To Easy!</h1>
+    <p class="hero-subtitle" id="heroSubtitle">Trải nghiệm sang trọng - Dịch vụ đẳng cấp - Kỷ niệm vĩnh cửu</p>
+   </div>
+  </section><!-- Search Section -->
+  <section class="search-section luxury-accent">
+   <div class="container">
+    <form class="search-form" id="searchForm">
+     <div class="form-group"><label class="form-label"> <i class="fas fa-map-marker-alt"></i> Điểm đến sang trọng </label> <input type="text" class="form-input" placeholder="Khám phá thiên đường..." name="location">
+     </div>
+     <div class="form-group"><label class="form-label"> <i class="fas fa-calendar-alt"></i> Ngày bắt đầu hành trình </label> <input type="date" class="form-input" name="checkin">
+     </div>
+     <div class="form-group"><label class="form-label"> <i class="fas fa-calendar-alt"></i> Ngày kết thúc </label> <input type="date" class="form-input" name="checkout">
+     </div>
+     <div class="form-group"><label class="form-label"> <i class="fas fa-users"></i> Số khách quý </label> <select class="form-input" name="guests"> <option value="1">1 khách VIP</option> <option value="2">2 khách VIP</option> <option value="3">3 khách VIP</option> <option value="4">4 khách VIP</option> <option value="5">5+ khách VIP</option> </select>
+     </div>
+     <div class="form-group"><button type="submit" class="search-btn"> <i class="fas fa-search"></i> <span>Tìm kiếm</span>
+       <div class="loading-spinner"></div></button>
+     </div>
+    </form>
+   </div>
+  </section><!-- Auth Buttons -->
+  <div class="container">
+   <div class="auth-buttons" id="authSection"><!-- This will be populated by JavaScript based on customer status -->
+   </div>
+  </div><!-- Rooms Section -->
+  <section class="rooms-section">
+   <div class="container">
+    <h2 class="section-title" id="sectionTitle"><i class="fas fa-gem"></i> Bộ sưu tập phòng đẳng cấp</h2>
+    <div class="rooms-grid" id="roomsContainer"><!-- Rooms will be populated by JavaScript -->
+    </div>
+   </div>
+  </section><!-- Footer -->
+  <footer class="footer">
+   <div class="container">
+    <p>© 2024 Make Trip To Easy. Luxury Experience Redefined.</p>
+    <p>Nơi mỗi khoảnh khắc đều trở thành kỷ niệm đáng nhớ</p>
+   </div>
+  </footer><!-- External Libraries -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+        // Sample data structure matching your EJS variables
+        const sampleCustomer = null; // Set to null to show login buttons, or {} to hide them
+        const sampleRooms = [
+            {
+                roomId: 1,
+                roomName: "Presidential Suite Hướng Biển",
+                description: "Căn suite tổng thống với tầm nhìn panorama ra biển, nội thất cao cấp và dịch vụ butler 24/7",
+                capacity: 2,
+                price: 8500000,
+                image: "presidential-suite.jpg"
+            },
+            {
+                roomId: 2,
+                roomName: "Royal Family Villa",
+                description: "Biệt thự hoàng gia rộng rãi với hồ bơi riêng, vườn nhiệt đới và không gian sang trọng",
+                capacity: 6,
+                price: 15000000,
+                image: "royal-villa.jpg"
+            },
+            {
+                roomId: 3,
+                roomName: "Diamond Deluxe Room",
+                description: "Phòng deluxe cao cấp với thiết kế hiện đại, ban công riêng và view thành phố tuyệt đẹp",
+                capacity: 2,
+                price: 4200000,
+                image: "diamond-deluxe.jpg"
+            },
+            {
+                roomId: 4,
+                roomName: "Golden Penthouse",
+                description: "Penthouse đỉnh cao với sân thượng riêng, jacuzzi và tầm nhìn 360 độ ra toàn thành phố",
+                capacity: 4,
+                price: 25000000,
+                image: "golden-penthouse.jpg"
+            }
+        ];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderAuthButtons();
+            renderRooms();
+            initializeDatePickers();
+            initializeSearch();
+        });
+
+        function renderAuthButtons() {
+            const authSection = document.getElementById('authSection');
+            
+            if (!sampleCustomer) {
+                authSection.innerHTML = `
+                    <a href="/login" class="btn btn-success">
+                        <i class="fas fa-sign-in-alt"></i> Đăng nhập VIP
+                    </a>
+                    <a href="/provider/register" class="btn btn-warning">
+                        <i class="fas fa-crown"></i> Trở thành đối tác
+                    </a>
+                `;
+            } else {
+                authSection.innerHTML = `
+                    <div style="color: #fbbf24; font-weight: 700; font-size: 1.1rem;">
+                        <i class="fas fa-user-crown"></i> Chào mừng quý khách, ${sampleCustomer.name || 'VIP Member'}!
+                    </div>
+                `;
+            }
+        }
+
+        function renderRooms() {
+            const roomsContainer = document.getElementById('roomsContainer');
+            
+            if (sampleRooms.length === 0) {
+                roomsContainer.innerHTML = `
+                    <div style="text-align: center; padding: 4rem; color: #d1d5db;">
+                        <i class="fas fa-gem" style="font-size: 4rem; margin-bottom: 2rem; opacity: 0.5; color: #f59e0b;"></i>
+                        <h3 style="color: #fbbf24;">Không tìm thấy phòng phù hợp</h3>
+                        <p>Vui lòng điều chỉnh tiêu chí tìm kiếm để khám phá những trải nghiệm tuyệt vời</p>
+                    </div>
+                `;
+                return;
+            }
+
+            roomsContainer.innerHTML = sampleRooms.map(room => `
+                <div class="room-card">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=220&fit=crop&auto=format" 
+                         class="room-image" 
+                         alt="${room.roomName}"
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIyMCIgdmlld0JveD0iMCAwIDQwMCAyMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjIwIiBmaWxsPSJsaW5lYXItZ3JhZGllbnQoMTM1ZGVnLCAjMWExYTFhIDAlLCAjMmQyZDJkIDEwMCUpIi8+CjxwYXRoIGQ9Ik0xNzUgODVIMjI1VjEzNUgxNzVWODVaIiBmaWxsPSIjZjU5ZTBiIiBvcGFjaXR5PSIwLjMiLz4KPHBhdGggZD0iTTE4NSA5NUgyMTVWMTA1SDE4NVY5NVoiIGZpbGw9IiNmYmJmMjQiIG9wYWNpdHk9IjAuNSIvPgo8dGV4dCB4PSIyMDAiIHk9IjE2MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjZDFkNWRiIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5MdXh1cnkgUm9vbTwvdGV4dD4KPHN2Zz4K'; this.alt='Luxury Room Image';">
+                    
+                    <div class="room-content">
+                        <h3 class="room-title">${room.roomName}</h3>
+                        <p class="room-description">
+                            ${room.description.length > 80 ? room.description.slice(0, 80) + '...' : room.description}
+                        </p>
+                        
+                        <div class="room-details">
+                            <div class="room-capacity">
+                                <i class="fas fa-users"></i>
+                                <span>${room.capacity} khách VIP</span>
+                            </div>
+                            <div class="room-price">
+                                ${room.price.toLocaleString()} VND
+                                <span class="room-price-unit">/ đêm</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="room-footer">
+                        <a href="/rooms/${room.roomId}" class="detail-btn">
+                            <i class="fas fa-eye"></i> Khám phá ngay
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function initializeDatePickers() {
+            const checkinInput = document.querySelector('input[name="checkin"]');
+            const checkoutInput = document.querySelector('input[name="checkout"]');
+            
+            if (checkinInput && checkoutInput) {
+                const today = new Date().toISOString().split('T')[0];
+                checkinInput.min = today;
+                checkoutInput.min = today;
+                
+                checkinInput.addEventListener('change', function() {
+                    checkoutInput.min = this.value;
+                    if (checkoutInput.value && checkoutInput.value <= this.value) {
+                        checkoutInput.value = '';
+                    }
+                });
+            }
+        }
+
+        function initializeSearch() {
+            const searchForm = document.getElementById('searchForm');
+            const searchBtn = searchForm.querySelector('.search-btn');
+            const spinner = searchBtn.querySelector('.loading-spinner');
+            const btnText = searchBtn.querySelector('span');
+            
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                spinner.style.display = 'block';
+                btnText.textContent = 'Đang tìm kiếm...';
+                searchBtn.disabled = true;
+                
+                setTimeout(() => {
+                    spinner.style.display = 'none';
+                    btnText.textContent = 'Tìm kiếm';
+                    searchBtn.disabled = false;
+                    
+                    console.log('Luxury search completed');
+                }, 2000);
+            });
+        }
+
+        // Element SDK configuration
+        const defaultConfig = {
+            primary_color: "#f59e0b",
+            secondary_color: "#d97706", 
+            accent_color: "#fbbf24",
+            success_color: "#059669",
+            hero_title: "Chào mừng đến với Make Trip To Easy!",
+            hero_subtitle: "Trải nghiệm sang trọng - Dịch vụ đẳng cấp - Kỷ niệm vĩnh cửu",
+            section_title: "Bộ sưu tập phòng đẳng cấp"
+        };
+
+        async function render(config) {
+            // Update text content
+            const heroTitle = document.getElementById('heroTitle');
+            const heroSubtitle = document.getElementById('heroSubtitle');
+            const sectionTitle = document.getElementById('sectionTitle');
+            
+            if (heroTitle) {
+                heroTitle.textContent = config.hero_title || defaultConfig.hero_title;
+            }
+            if (heroSubtitle) {
+                heroSubtitle.textContent = config.hero_subtitle || defaultConfig.hero_subtitle;
+            }
+            if (sectionTitle) {
+                sectionTitle.innerHTML = `<i class="fas fa-gem"></i> ${config.section_title || defaultConfig.section_title}`;
+            }
+            
+            // Update colors
+            const root = document.documentElement;
+            root.style.setProperty('--primary-color', config.primary_color || defaultConfig.primary_color);
+            root.style.setProperty('--secondary-color', config.secondary_color || defaultConfig.secondary_color);
+            root.style.setProperty('--accent-color', config.accent_color || defaultConfig.accent_color);
+            root.style.setProperty('--success-color', config.success_color || defaultConfig.success_color);
+            
+            // Update gradient backgrounds
+            const primaryColor = config.primary_color || defaultConfig.primary_color;
+            const secondaryColor = config.secondary_color || defaultConfig.secondary_color;
+            const accentColor = config.accent_color || defaultConfig.accent_color;
+            const successColor = config.success_color || defaultConfig.success_color;
+            
+            // Update header gradient
+            const header = document.querySelector('.header');
+            if (header) {
+                header.style.background = `linear-gradient(135deg, ${primaryColor}f2 0%, ${secondaryColor}f2 100%)`;
+            }
+            
+            // Update search section gradient
+            const searchSection = document.querySelector('.search-section');
+            if (searchSection) {
+                searchSection.style.background = `linear-gradient(135deg, ${primaryColor}e6 0%, ${secondaryColor}e6 100%)`;
+            }
+            
+            // Update buttons
+            const searchBtns = document.querySelectorAll('.search-btn, .detail-btn');
+            searchBtns.forEach(btn => {
+                btn.style.background = `linear-gradient(45deg, ${primaryColor}, ${secondaryColor})`;
+            });
+            
+            const successBtns = document.querySelectorAll('.btn-success');
+            successBtns.forEach(btn => {
+                btn.style.background = `linear-gradient(45deg, ${successColor}, #047857)`;
+            });
+            
+            const warningBtns = document.querySelectorAll('.btn-warning');
+            warningBtns.forEach(btn => {
+                btn.style.background = `linear-gradient(45deg, ${secondaryColor}, #b45309)`;
+            });
+            
+            // Update title gradients
+            const heroTitleEl = document.querySelector('.hero-title');
+            const sectionTitleEl = document.querySelector('.section-title');
+            
+            if (heroTitleEl) {
+                heroTitleEl.style.background = `linear-gradient(45deg, ${accentColor}, ${primaryColor})`;
+                heroTitleEl.style.webkitBackgroundClip = 'text';
+                heroTitleEl.style.webkitTextFillColor = 'transparent';
+                heroTitleEl.style.backgroundClip = 'text';
+            }
+            
+            if (sectionTitleEl) {
+                sectionTitleEl.style.background = `linear-gradient(45deg, ${accentColor}, ${primaryColor})`;
+                sectionTitleEl.style.webkitBackgroundClip = 'text';
+                sectionTitleEl.style.webkitTextFillColor = 'transparent';
+                sectionTitleEl.style.backgroundClip = 'text';
+            }
+        }
+
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [
+                    {
+                        get: () => config.primary_color || defaultConfig.primary_color,
+                        set: (value) => {
+                            config.primary_color = value;
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ primary_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.secondary_color || defaultConfig.secondary_color,
+                        set: (value) => {
+                            config.secondary_color = value;
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ secondary_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.accent_color || defaultConfig.accent_color,
+                        set: (value) => {
+                            config.accent_color = value;
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ accent_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.success_color || defaultConfig.success_color,
+                        set: (value) => {
+                            config.success_color = value;
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ success_color: value });
+                            }
+                        }
+                    }
+                ],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            };
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["hero_title", config.hero_title || defaultConfig.hero_title],
+                ["hero_subtitle", config.hero_subtitle || defaultConfig.hero_subtitle],
+                ["section_title", config.section_title || defaultConfig.section_title]
+            ]);
+        }
+
+        // Initialize Element SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig,
+                render,
+                mapToCapabilities,
+                mapToEditPanelValues
+            });
+        }
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9929b1cbc034105e',t:'MTc2MTE0MzQ0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
