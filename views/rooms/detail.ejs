@@ -20,8 +20,8 @@
             && total > 5) { %>
             <div
               class="sub-image more-overlay"
+              data-index="<%= index + 1 %>"
               data-text="+<%= total - 4 %> ảnh"
-              onclick="openLightbox(<%= index + 1 %>)"
             >
               <img src="/<%= img %>" alt="More Images" />
             </div>

@@ -32,3 +32,8 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") changeImage(1);
   if (e.key === "ArrowLeft") changeImage(-1);
 });
+document.querySelectorAll(".sub-image").forEach((img) => {
+  img.addEventListener("click", () => {
+    openLightbox(parseInt(img.dataset.index));
+  });
+});
