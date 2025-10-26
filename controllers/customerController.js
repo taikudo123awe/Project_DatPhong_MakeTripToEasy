@@ -5,7 +5,6 @@ const Room = require("../models/Room");
 const Provider = require("../models/Provider");
 const PaymentInfo = require("../models/PaymentInfo");
 const Customer = require("../models/Customer");
-const sequelize = require("../config/database");
 const Review = require("../models/Review");
 // Lấy tất cả booking/invoice và gom nhóm theo trạng thái
 exports.showBookingsByStatus = async (req, res) => {
@@ -172,32 +171,32 @@ exports.confirmPayment = async (req, res) => {
       { status: "Đã thanh toán" },
       {
         where: {
-          invoiceId: { [Op.in]: invoiceIdList }
+          invoiceId: { [Op.in]: invoiceIdList },
         },
-        transaction: t
+        transaction: t,
       }
     );
 
     // 3. Cập nhật trạng thái Phiếu đặt phòng (Booking) thành "Đã hoàn thành"
     // Chỉ cập nhật các phiếu đang ở trạng thái "Đang sử dụng"
     await Booking.update(
-      { status: 'Đã hoàn thành' },
+      { status: "Đã hoàn thành" },
       {
         where: {
           bookingId: { [Op.in]: bookingIds },
-          status: 'Đang sử dụng' // Điều kiện quan trọng
+          status: "Đang sử dụng", // Điều kiện quan trọng
         },
-        transaction: t
+        transaction: t,
       }
     );
 
     await t.commit(); // Hoàn tất giao dịch
-    
-    res.redirect('/customer/history'); 
+
+    res.redirect("/customer/history");
   } catch (err) {
     await t.rollback(); // Hoàn tác nếu có lỗi
-    console.error('❌ Lỗi khi xác nhận thanh toán:', err);
-    res.status(500).send('Lỗi máy chủ');
+    console.error("❌ Lỗi khi xác nhận thanh toán:", err);
+    res.status(500).send("Lỗi máy chủ");
   }
 };
 
@@ -324,6 +323,7 @@ exports.viewBookingHistory = async (req, res) => {
       { label: "Tất cả", value: "all" },
       { label: "Chờ nhận phòng", value: "Chờ nhận" },
       { label: "Đang sử dụng", value: "Đang sử dụng" },
+      { label: "Chưa thanh toán", value: "Chưa thanh toán" },
       { label: "Đã hoàn thành", value: "invoice:Đã thanh toán" },
       { label: "Đã hủy", value: "Đã hủy" },
     ];
