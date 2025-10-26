@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Make Trip To Easy</title>
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+  <!-- CSS Riêng -->
+  <link rel="stylesheet" href="/css/provider-header.css" />
+
+  <style>
+    /* ✅ Custom dropdown (thay cho Bootstrap) */
+    .dropdown-custom {
+      position: relative;
+    }
+
+    .dropdown-toggle-custom {
+      cursor: pointer;
+      color: #8b7d6b !important;
+      font-weight: 500;
+      padding: 8px 18px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .dropdown-toggle-custom:hover {
+      color: #d4af37 !important;
+      background-color: rgba(212, 175, 55, 0.08);
+    }
+
+    .dropdown-menu-custom {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      min-width: 200px;
+      padding: 8px 0;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .dropdown-menu-custom a {
+      display: block;
+      padding: 8px 15px;
+      text-decoration: none;
+      color: #8b7d6b;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+
+    .dropdown-menu-custom a:hover {
+      background-color: rgba(212, 175, 55, 0.12);
+      color: #d4af37;
+    }
+
+    .dropdown-custom.open .dropdown-menu-custom {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="container py-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <!-- Logo -->
+        <div class="d-flex align-items-center gap-3">
+          <a href="/provider/dashboard">
+            <img src="/images/logo.svg" alt="Make Trip To Easy Logo" class="logo">
+          </a>
+          <a href="/provider/dashboard" class="brand-name m-0 text-decoration-none">Make Trip To Easy</a>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-md">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="nav ms-auto gap-2 align-items-center">
+              <li class="nav-item"><a href="/provider/dashboard" class="nav-link">Trang chủ</a></li>
+              <li class="nav-item"><a href="/provider/add-room" class="nav-link">Thêm Phòng</a></li>
+
+              <% if (provider) { %>
+                <!-- ✅ Dropdown Quản lý phòng -->
+                <li class="nav-item dropdown-custom">
+                  <span class="dropdown-toggle-custom">Quản lý phòng <i class="fa-solid fa-chevron-down small"></i></span>
+                  <div class="dropdown-menu-custom">
+                    <a href="/provider/add-room">+ Thêm phòng mới</a>
+                    <a href="/provider/reviews">Xem đánh giá</a>
+                    <a href="/provider/bookings">Quản lý đơn</a>
+                    <a href="/provider/report">Báo cáo thống kê</a>
+                  </div>
+                </li>
+
+                <!-- ✅ Dropdown Tài khoản -->
+                <li class="nav-item dropdown-custom">
+                  <span class="dropdown-toggle-custom">
+                    Xin chào, <%= provider.fullName || provider.providerName %> <i class="fa-solid fa-user"></i>
+                  </span>
+                  <div class="dropdown-menu-custom">
+                    <a href="/provider/edit-profile">Thông tin cá nhân</a>
+                    <a href="/logout">Đăng xuất</a>
+                  </div>
+                </li>
+              <% } else { %>
+                <li class="nav-item"><a href="/provider/login" class="nav-link">Đăng nhập</a></li>
+              <% } %>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- ✅ Script nhỏ điều khiển dropdown -->
+  <script>
+    document.addEventListener('click', (e) => {
+      // Đóng tất cả dropdown khác
+      document.querySelectorAll('.dropdown-custom').forEach(menu => {
+        if (!menu.contains(e.target)) {
+          menu.classList.remove('open');
+        }
+      });
+
+      // Toggle dropdown hiện tại
+      const toggle = e.target.closest('.dropdown-toggle-custom');
+      if (toggle) {
+        toggle.parentElement.classList.toggle('open');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -3,6 +3,7 @@ const router = express.Router();
 const customerController = require("../controllers/customerController");
 const { ensureCustomerLoggedIn } = require("../middlewares/authMiddleware");
 const reviewController = require("../controllers/reviewController");
+const validateUpdateProfile = require('../middlewares/validateUpdateProfile');
 const Review = require("../models/Review");
 //Gửi đánh giá
 router.post("/review/:bookingId", reviewController.submitReview);
@@ -28,23 +29,16 @@ router.post(
 );
 
 // Hiển thị form chỉnh sửa
-router.get("/update", customerController.showEditProfile);
-router.post(
-  "/update",
-  ensureCustomerLoggedIn,
-  customerController.updateProfile
-);
+router.get('/update',ensureCustomerLoggedIn ,customerController.showEditProfile);
+router.post('/update', ensureCustomerLoggedIn,  validateUpdateProfile, customerController.updateProfile);
 
-router.get("/history-dashboard", customerController.viewBookingHistory);
-
-router.get("/history-detail/:id", customerController.viewBookingDetail);
-// --- THÊM ROUTE MỚI CHO XEM CHI TIẾT ---
-// Trong routes/customerRoutes.js
 router.get(
   "/booking/:bookingId",
   ensureCustomerLoggedIn,
   customerController.showCustomerBookingDetail
 );
-// --- KẾT THÚC THÊM ---
+
+router.get('/history-dashboard', ensureCustomerLoggedIn,customerController.viewBookingHistory);
+router.get('/history-detail/:id', ensureCustomerLoggedIn,customerController.viewBookingDetail);
 
 module.exports = router;

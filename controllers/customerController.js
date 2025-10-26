@@ -210,9 +210,13 @@ exports.showEditProfile = async (req, res) => {
     const customer = await Customer.findByPk(customerSession.customerId);
     if (!customer) return res.status(404).send("Customer not found");
 
-    // ✅ truyền biến success để EJS dùng
-    const success = req.query.success === "1";
-    res.render("customer/update", { customer, success });
+    const success = req.query.success === '1';
+
+    res.render('customer/update', { 
+      customer,
+      success,
+      error: null
+    });
   } catch (err) {
     console.error("showEditProfile error:", err);
     res.status(500).send("Server error");
