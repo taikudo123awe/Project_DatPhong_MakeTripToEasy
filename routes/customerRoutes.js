@@ -16,8 +16,6 @@ router.post('/confirm-payment', ensureCustomerLoggedIn, customerController.confi
 router.get('/update', customerController.showEditProfile);
 router.post('/update', ensureCustomerLoggedIn, customerController.updateProfile);
 
-// router.get('/booking-status', customerController.showBookingStatus);
-
 router.get('/history-dashboard', customerController.viewBookingHistory);
 
 router.get('/history-detail/:id', customerController.viewBookingDetail);

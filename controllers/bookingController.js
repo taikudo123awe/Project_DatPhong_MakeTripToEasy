@@ -171,16 +171,25 @@ exports.cancelBooking = async (req, res) => {
 // Hiển thị form đặt phòng cho khách
 exports.showBookingForm = async (req, res) => {
   const roomId = req.params.roomId;
+  const { checkInDate, checkOutDate, numberOfGuests } = req.query; // 👈 lấy dữ liệu từ URL query
+
   try {
     const room = await Room.findByPk(roomId);
     if (!room) return res.status(404).send("Không tìm thấy phòng");
 
-    res.render("customer/booking", { room });
+    // Render view, truyền thêm dữ liệu đã chọn (nếu có)
+    res.render("customer/booking", {
+      room,
+      checkInDate: checkInDate || "",
+      checkOutDate: checkOutDate || "",
+      numberOfGuests: numberOfGuests || "",
+    });
   } catch (err) {
     console.error("❌ Lỗi hiển thị form đặt phòng:", err);
     res.status(500).send("Lỗi máy chủ");
   }
 };
+
 
 // Xử lý khi khách đặt phòng
 exports.handleBooking = async (req, res) => {
@@ -205,7 +214,7 @@ exports.handleBooking = async (req, res) => {
       status: "Chờ nhận phòng"
     });
 
-    res.redirect("/customer/bookings"); // Hoặc redirect ra trang cảm ơn / xác nhận
+    res.redirect("/customer/bookings");
   } catch (err) {
     console.error("❌ Lỗi khi đặt phòng:", err);
     res.status(500).send("Đặt phòng thất bại");

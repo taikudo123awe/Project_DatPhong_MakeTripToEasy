@@ -164,6 +164,7 @@ exports.createRoom = async (req, res) => {
 // ===========================
 exports.getRoomDetail = async (req, res) => {
   const roomId = req.params.roomId;
+  const { checkInDate, checkOutDate, numberOfGuests } = req.query;
 
   try {
     const room = await Room.findOne({
@@ -173,12 +174,19 @@ exports.getRoomDetail = async (req, res) => {
 
     if (!room) return res.status(404).send("Không tìm thấy phòng.");
 
-    res.render("rooms/detail", { room });
+    //lấy dữ liệu từ tìm kiếm
+    res.render("rooms/detail", {
+      room,
+      checkInDate: checkInDate || "",
+      checkOutDate: checkOutDate || "",
+      numberOfGuests: numberOfGuests || ""
+    });
   } catch (err) {
     console.error("❌ Lỗi khi tải thông tin phòng:", err);
     res.status(500).send("Lỗi khi tải thông tin phòng");
   }
 };
+
 
 // ===========================
 // Hiển thị form chỉnh sửa
@@ -372,6 +380,22 @@ exports.searchRooms = async (req, res) => {
       });
     }
 
+    console.log("✅ searchParams:", {
+      checkInDate,
+      checkOutDate,
+      numGuests,
+      numRooms
+    });
+
+    //lưu dữ liệu tìm kiếm 
+    // Truyền thêm thông tin tìm kiếm để hiển thị / dùng lại ở trang đặt phòng
+    const searchParams = {
+      checkInDate: checkInDate ? checkInDate.toISOString().slice(0, 10) : "",
+      checkOutDate: checkOutDate ? checkOutDate.toISOString().slice(0, 10) : "",
+      numGuests,
+      numRooms,
+    };
+
     // B4: Render danh sách phòng
     res.render('list', {
       rooms: availableRooms,
@@ -379,7 +403,8 @@ exports.searchRooms = async (req, res) => {
       dateRange:
         checkInDate && checkOutDate
           ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate.toISOString().slice(0, 10)}`
-          : null
+          : null,
+      searchParams
     });
   } catch (err) {
     console.error("❌ Lỗi khi tìm kiếm phòng:", err);

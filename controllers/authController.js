@@ -198,7 +198,7 @@ exports.loginProvider = async (req, res) => {
     const isMatch = await bcrypt.compare(password, account.password);
     if (!isMatch) {
       return res.render('provider/login', {
-        error: 'Mật khẩu không chính xác!',
+        error: 'Tài khoản hoặc mật khẩu không chính xác!',
         success: null
       });
     }
