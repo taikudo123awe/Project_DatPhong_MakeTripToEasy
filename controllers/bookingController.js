@@ -192,7 +192,27 @@ exports.handleBooking = async (req, res) => {
     const room = await Room.findByPk(roomId);
     if (!room) return res.status(404).send("Không tìm thấy phòng");
 
-    const totalAmount = room.price; // hoặc tính theo ngày ở, số khách,...
+    // --- TÍNH TOÁN SỐ ĐÊM VÀ TỔNG TIỀN ---
+    const date1 = new Date(checkInDate);
+    const date2 = new Date(checkOutDate);
+
+    // Kiểm tra ngày hợp lệ (ngày trả phòng phải sau ngày nhận phòng)
+    if (isNaN(date1) || isNaN(date2) || date1 >= date2) {
+       // Nên có validate ở client-side, nhưng thêm ở đây để an toàn
+      console.error("❌ Ngày nhận/trả phòng không hợp lệ:", checkInDate, checkOutDate);
+      // Có thể render lại trang đặt phòng với lỗi
+      return res.status(400).send("Ngày nhận phòng hoặc trả phòng không hợp lệ.");
+    }
+
+    // Tính số mili giây chênh lệch
+    const timeDifference = date2.getTime() - date1.getTime();
+
+    // Chuyển đổi mili giây sang số ngày (số đêm)
+    const numberOfNights = Math.ceil(timeDifference / (1000 * 3600 * 24)); // 1000ms * 60s * 60m * 24h
+
+    // Tính tổng tiền
+    const totalAmount = room.price * numberOfNights;
+    // --- KẾT THÚC TÍNH TOÁN ---
 
     await Booking.create({
       bookingDate: new Date(),
@@ -201,14 +221,17 @@ exports.handleBooking = async (req, res) => {
       numberOfGuests,
       customerId,
       roomId,
-      totalAmount,
+      totalAmount, // Sử dụng totalAmount đã tính
       status: "Chờ nhận phòng"
     });
 
-    res.redirect("/customer/bookings"); // Hoặc redirect ra trang cảm ơn / xác nhận
+    // Chuyển hướng đến trang lịch sử/phiếu đặt phòng sau khi đặt thành công
+    res.redirect("/customer/history");
+
   } catch (err) {
     console.error("❌ Lỗi khi đặt phòng:", err);
-    res.status(500).send("Đặt phòng thất bại");
+    // Có thể render lại trang đặt phòng với lỗi
+    res.status(500).send("Đặt phòng thất bại. Vui lòng thử lại.");
   }
 };
 

@@ -6,23 +6,54 @@ const Provider = require('../models/Provider');
 const PaymentInfo = require('../models/PaymentInfo');
 const Customer = require('../models/Customer');
 
-// Bước 1: Hiển thị trang lịch sử đặt phòng
-exports.showBookingHistory = async (req, res) => {
+// Lấy tất cả booking/invoice và gom nhóm theo trạng thái
+exports.showBookingsByStatus = async (req, res) => {
   try {
     const customerId = req.session.customer.customerId;
-    const invoices = await Invoice.findAll({
+
+    // Lấy tất cả các Booking của customer, kèm Room và Invoice (nếu có)
+    const allBookings = await Booking.findAll({
       where: { customerId },
-      include: {
-        model: Booking,
-        include: {
+      include: [
+        {
           model: Room,
           attributes: ['roomName']
+        },
+        {
+          model: Invoice,
+          required: false // LEFT JOIN
         }
-      },
-      order: [['invoiceDate', 'DESC']]
+      ],
+      order: [['bookingDate', 'DESC']] // Sắp xếp theo ngày đặt mới nhất
     });
 
-    res.render('customer/history', { invoices });
+    // Gom nhóm
+    const grouped = {
+      all: allBookings,
+      unpaid: [],
+      paid: [],
+      cancelled: []
+    };
+
+    allBookings.forEach(booking => {
+      if (booking.status === 'Đã hủy') {
+        grouped.cancelled.push(booking);
+      } else if (booking.Invoice && booking.Invoice.status === 'Đã thanh toán') {
+        grouped.paid.push(booking); // Lưu cả booking có invoice đã thanh toán
+      } else if (booking.Invoice && booking.Invoice.status === 'Chờ thanh toán') {
+        grouped.unpaid.push(booking); // Lưu cả booking có invoice chờ thanh toán
+      }
+      // Các trạng thái khác của booking (VD: Đang sử dụng, Chờ nhận phòng mà chưa có Invoice)
+      // vẫn nằm trong 'all' nhưng không vào 3 nhóm lọc chính
+    });
+
+    res.render('customer/history', {
+      allBookings: grouped.all,
+      unpaidBookings: grouped.unpaid,
+      paidBookings: grouped.paid,
+      cancelledBookings: grouped.cancelled
+    });
+
   } catch (err) {
     console.error('❌ Lỗi khi lấy lịch sử đặt phòng:', err);
     res.status(500).send('Lỗi máy chủ');
@@ -278,5 +309,48 @@ exports.viewBookingDetail = async (req, res) => {
   } catch (error) {
     console.error('viewBookingDetail error:', error);
     res.status(500).send('Server error');
+  }
+};
+
+// --- HÀM MỚI ĐỂ HIỂN THỊ CHI TIẾT BOOKING CHO CUSTOMER ---
+exports.showCustomerBookingDetail = async (req, res) => {
+  try {
+    const customerId = req.session.customer.customerId;
+    const { bookingId } = req.params;
+
+    const booking = await Booking.findOne({
+      where: {
+        bookingId: bookingId,
+        customerId: customerId // Đảm bảo booking này là của customer đang đăng nhập
+      },
+      include: [
+        {
+          model: Room,
+          include: {
+            model: Provider,
+            attributes: ['providerName', 'phoneNumber', 'email'] // Lấy thông tin NCC
+          },
+          attributes: { exclude: ['providerId', 'addressId'] } // Loại bỏ khóa ngoại không cần thiết
+        },
+        {
+          model: Customer, // Lấy lại thông tin customer nếu cần
+          attributes: { exclude: ['accountId'] }
+        },
+        {
+          model: Invoice, // Lấy thông tin hóa đơn (nếu có)
+          required: false
+        }
+      ]
+    });
+
+    if (!booking) {
+      return res.status(404).send('Không tìm thấy phiếu đặt phòng.');
+    }
+
+    res.render('customer/booking-detail', { booking }); // Render view mới
+
+  } catch (err) {
+    console.error('❌ Lỗi khi xem chi tiết booking:', err);
+    res.status(500).send('Lỗi máy chủ');
   }
 };
