@@ -351,16 +351,14 @@ exports.viewBookingDetail = async (req, res) => {
       ],
     });
 
-    if (!booking) {
-      return res.status(404).send("Không tìm thấy đơn đặt phòng");
-    }
+    if (!booking) return res.status(404).send("Không tìm thấy đơn đặt phòng");
 
-    // ✅ Lấy review (nếu khách đã đánh giá phòng này)
+    // ✅ Lấy review nếu khách đã đánh giá phòng này
     const existingReview = await Review.findOne({
       where: { customerId, roomId: booking.Room.roomId },
     });
 
-    // ✅ Lấy thông báo từ session (nếu có)
+    // ✅ Lấy message (nếu có)
     const error = req.session.error || null;
     const success = req.session.success || null;
     req.session.error = null;
@@ -368,9 +366,9 @@ exports.viewBookingDetail = async (req, res) => {
 
     res.render("customer/history-detail", {
       booking,
-      existingReview,
       error,
       success,
+      existingReview, // truyền sang view
     });
   } catch (error) {
     console.error("viewBookingDetail error:", error);

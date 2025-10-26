@@ -3,6 +3,7 @@ const router = express.Router();
 const customerController = require("../controllers/customerController");
 const { ensureCustomerLoggedIn } = require("../middlewares/authMiddleware");
 const reviewController = require("../controllers/reviewController");
+const Review = require("../models/Review");
 //Gửi đánh giá
 router.post("/review/:bookingId", reviewController.submitReview);
 // Bước 1: Xem lịch sử phòng đã đặt
