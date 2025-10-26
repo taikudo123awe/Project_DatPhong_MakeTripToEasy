@@ -1,13 +1,3 @@
-<<<<<<< Updated upstream
-const { Op } = require('sequelize');
-const Invoice = require('../models/Invoice');
-const Booking = require('../models/Booking');
-const Room = require('../models/Room');
-const Provider = require('../models/Provider');
-const PaymentInfo = require('../models/PaymentInfo');
-const Customer = require('../models/Customer');
-
-=======
 const { Op } = require("sequelize");
 const Invoice = require("../models/Invoice");
 const Booking = require("../models/Booking");
@@ -15,9 +5,7 @@ const Room = require("../models/Room");
 const Provider = require("../models/Provider");
 const PaymentInfo = require("../models/PaymentInfo");
 const Customer = require("../models/Customer");
-const sequelize = require("../config/database");
 const Review = require("../models/Review");
->>>>>>> Stashed changes
 // Lấy tất cả booking/invoice và gom nhóm theo trạng thái
 exports.showBookingsByStatus = async (req, res) => {
   try {
@@ -153,78 +141,25 @@ exports.confirmPayment = async (req, res) => {
       return res.redirect("/customer/history");
     }
 
-<<<<<<< Updated upstream
     // Cập nhật trạng thái các hóa đơn đã chọn
-=======
-    // Đảm bảo invoiceIds luôn là một mảng
-    const invoiceIdList = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
-
-    // 1. Tìm các hóa đơn (để lấy bookingIds)
-    const invoices = await Invoice.findAll({
-      where: {
-        invoiceId: { [Op.in]: invoiceIdList },
-        customerId: customerId,
-        status: "Chờ thanh toán", // Chỉ cập nhật HĐ chờ thanh toán
-      },
-      attributes: ["bookingId"], // Chỉ cần lấy bookingId
-      transaction: t,
-    });
-
-    if (invoices.length === 0) {
-      await t.rollback();
-      return res.redirect("/customer/history"); // Không có gì để cập nhật
-    }
-
-    // Lấy danh sách các bookingId liên quan
-    const bookingIds = invoices.map((inv) => inv.bookingId);
-
-    // 2. Cập nhật trạng thái Hóa đơn (Invoice) thành "Đã thanh toán"
->>>>>>> Stashed changes
     await Invoice.update(
       { status: "Đã thanh toán" },
       {
         where: {
-<<<<<<< Updated upstream
-          invoiceId: { [Op.in]: Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds] },
-          customerId
-        }
+          invoiceId: {
+            [Op.in]: Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds],
+          },
+          customerId,
+        },
       }
     );
 
     // TODO: Có thể thêm logic gửi email thông báo ở đây
-    
-    res.redirect('/customer/history'); // Quay lại lịch sử với thông báo thành công (có thể thêm)
+
+    res.redirect("/customer/history"); // Quay lại lịch sử với thông báo thành công (có thể thêm)
   } catch (err) {
-    console.error('❌ Lỗi khi xác nhận thanh toán:', err);
-    res.status(500).send('Lỗi máy chủ');
-=======
-          invoiceId: { [Op.in]: invoiceIdList },
-        },
-        transaction: t,
-      }
-    );
-
-    // 3. Cập nhật trạng thái Phiếu đặt phòng (Booking) thành "Đã hoàn thành"
-    // Chỉ cập nhật các phiếu đang ở trạng thái "Đang sử dụng"
-    await Booking.update(
-      { status: "Đã hoàn thành" },
-      {
-        where: {
-          bookingId: { [Op.in]: bookingIds },
-          status: "Đang sử dụng", // Điều kiện quan trọng
-        },
-        transaction: t,
-      }
-    );
-
-    await t.commit(); // Hoàn tất giao dịch
-
-    res.redirect("/customer/history");
-  } catch (err) {
-    await t.rollback(); // Hoàn tác nếu có lỗi
     console.error("❌ Lỗi khi xác nhận thanh toán:", err);
     res.status(500).send("Lỗi máy chủ");
->>>>>>> Stashed changes
   }
 };
 
@@ -349,9 +284,9 @@ exports.viewBookingHistory = async (req, res) => {
 
     const statuses = [
       { label: "Tất cả", value: "all" },
-      { label: "Chờ nhận phòng", value: "Chờ nhận" },
-      { label: "Đang sử dụng", value: "Đang sử dụng" },
-      { label: "Đã hoàn thành", value: "invoice:Đã thanh toán" },
+      { label: "Đã đặt", value: "Đang chờ" },
+      { label: "Đã thanh toán", value: "invoice:Đã thanh toán" },
+      { label: "Chưa thanh toán", value: "invoice:Chưa thanh toán" },
       { label: "Đã hủy", value: "Đã hủy" },
     ];
 
@@ -378,16 +313,14 @@ exports.viewBookingDetail = async (req, res) => {
       ],
     });
 
-    if (!booking) {
-      return res.status(404).send("Không tìm thấy đơn đặt phòng");
-    }
+    if (!booking) return res.status(404).send("Không tìm thấy đơn đặt phòng");
 
-    // ✅ Lấy review (nếu khách đã đánh giá phòng này)
+    // ✅ Lấy review nếu khách đã đánh giá phòng này
     const existingReview = await Review.findOne({
       where: { customerId, roomId: booking.Room.roomId },
     });
 
-    // ✅ Lấy thông báo từ session (nếu có)
+    // ✅ Lấy message (nếu có)
     const error = req.session.error || null;
     const success = req.session.success || null;
     req.session.error = null;
@@ -395,9 +328,9 @@ exports.viewBookingDetail = async (req, res) => {
 
     res.render("customer/history-detail", {
       booking,
-      existingReview,
       error,
       success,
+      existingReview, // truyền sang view
     });
   } catch (error) {
     console.error("viewBookingDetail error:", error);
