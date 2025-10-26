@@ -22,5 +22,7 @@ router.get('/history-dashboard', customerController.viewBookingHistory);
 
 router.get('/history-detail/:id', customerController.viewBookingDetail);
 
+// Hủy phòng
+router.post('/cancel-booking', ensureCustomerLoggedIn, bookingController.cancelBookingByCustomer);
 
 module.exports = router;
