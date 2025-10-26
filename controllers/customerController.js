@@ -1,13 +1,3 @@
-<<<<<<< Updated upstream
-const { Op } = require('sequelize');
-const Invoice = require('../models/Invoice');
-const Booking = require('../models/Booking');
-const Room = require('../models/Room');
-const Provider = require('../models/Provider');
-const PaymentInfo = require('../models/PaymentInfo');
-const Customer = require('../models/Customer');
-
-=======
 const { Op } = require("sequelize");
 const Invoice = require("../models/Invoice");
 const Booking = require("../models/Booking");
@@ -17,7 +7,6 @@ const PaymentInfo = require("../models/PaymentInfo");
 const Customer = require("../models/Customer");
 const sequelize = require("../config/database");
 const Review = require("../models/Review");
->>>>>>> Stashed changes
 // Lấy tất cả booking/invoice và gom nhóm theo trạng thái
 exports.showBookingsByStatus = async (req, res) => {
   try {
@@ -153,9 +142,7 @@ exports.confirmPayment = async (req, res) => {
       return res.redirect("/customer/history");
     }
 
-<<<<<<< Updated upstream
     // Cập nhật trạng thái các hóa đơn đã chọn
-=======
     // Đảm bảo invoiceIds luôn là một mảng
     const invoiceIdList = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
 
@@ -179,12 +166,10 @@ exports.confirmPayment = async (req, res) => {
     const bookingIds = invoices.map((inv) => inv.bookingId);
 
     // 2. Cập nhật trạng thái Hóa đơn (Invoice) thành "Đã thanh toán"
->>>>>>> Stashed changes
     await Invoice.update(
       { status: "Đã thanh toán" },
       {
         where: {
-<<<<<<< Updated upstream
           invoiceId: { [Op.in]: Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds] },
           customerId
         }
@@ -197,34 +182,6 @@ exports.confirmPayment = async (req, res) => {
   } catch (err) {
     console.error('❌ Lỗi khi xác nhận thanh toán:', err);
     res.status(500).send('Lỗi máy chủ');
-=======
-          invoiceId: { [Op.in]: invoiceIdList },
-        },
-        transaction: t,
-      }
-    );
-
-    // 3. Cập nhật trạng thái Phiếu đặt phòng (Booking) thành "Đã hoàn thành"
-    // Chỉ cập nhật các phiếu đang ở trạng thái "Đang sử dụng"
-    await Booking.update(
-      { status: "Đã hoàn thành" },
-      {
-        where: {
-          bookingId: { [Op.in]: bookingIds },
-          status: "Đang sử dụng", // Điều kiện quan trọng
-        },
-        transaction: t,
-      }
-    );
-
-    await t.commit(); // Hoàn tất giao dịch
-
-    res.redirect("/customer/history");
-  } catch (err) {
-    await t.rollback(); // Hoàn tác nếu có lỗi
-    console.error("❌ Lỗi khi xác nhận thanh toán:", err);
-    res.status(500).send("Lỗi máy chủ");
->>>>>>> Stashed changes
   }
 };
 
