@@ -270,3 +270,40 @@ exports.listCustomerBookings = async (req, res) => {
     res.status(500).send("Lỗi máy chủ");
   }
 };
+
+// Khách hàng hủy đặt phòng (chỉ khi đang "Chờ nhận phòng")
+exports.cancelBookingByCustomer = async (req, res) => {
+  try {
+    const { bookingId } = req.body;
+    const customerId = req.session.customer?.customerId;
+
+    if (!customerId) {
+      return res.redirect('/customer/login');
+    }
+
+    // Tìm booking của khách hàng đang "Chờ nhận phòng"
+    const booking = await Booking.findOne({
+      where: { bookingId, customerId, status: 'Chờ nhận phòng' },
+    });
+
+    if (!booking) {
+      req.session.error = 'Không thể hủy đơn này.';
+      return res.redirect('/customer/history-dashboard');
+    }
+
+    // Cập nhật trạng thái booking
+    await booking.update({ status: 'Đã hủy' });
+
+    // Cập nhật hóa đơn (nếu có)
+    await Invoice.update(
+      { status: 'Đã hủy' },
+      { where: { bookingId: booking.bookingId } }
+    );
+
+    req.session.success = 'Đã hủy đặt phòng thành công.';
+    res.redirect('/customer/history-dashboard');
+  } catch (err) {
+    console.error('❌ Lỗi khi khách hủy đặt phòng:', err);
+    res.status(500).send('Lỗi máy chủ');
+  }
+};

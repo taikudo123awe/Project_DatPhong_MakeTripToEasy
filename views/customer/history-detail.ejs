@@ -48,33 +48,31 @@
         </p>
       </div>
     </div>
-  </div>
-  <!-- Thông tin đặt phòng -->
-  <div class="card shadow-sm p-4 mb-4">
-    <h5 class="fw-bold mb-3">Thông tin đặt phòng</h5>
-    <div class="row">
-      <div class="col-md-6">
-        <p><strong>Mã đặt phòng:</strong> #<%= booking.bookingId %></p>
-        <p>
-          <strong>Ngày đặt:</strong> <%= new
-          Date(booking.bookingDate).toLocaleDateString('vi-VN') %>
-        </p>
-        <p>
-          <strong>Nhận phòng:</strong> <%= new
-          Date(booking.checkInDate).toLocaleDateString('vi-VN') %>
-        </p>
-        <p>
-          <strong>Trả phòng:</strong> <%= new
-          Date(booking.checkOutDate).toLocaleDateString('vi-VN') %>
-        </p>
-      </div>
-      <div class="col-md-6">
-        <p><strong>Số khách:</strong> <%= booking.numberOfGuests %></p>
-        <p>
-          <strong>Tổng tiền:</strong> <%= booking.totalAmount.toLocaleString()
-          %> VND
-        </p>
-        <p><strong>Trạng thái:</strong> <%= booking.status %></p>
+
+    <!-- Thông tin đặt phòng -->
+    <div class="card shadow-sm p-4 mb-4">
+      <h5 class="fw-bold mb-3">Thông tin đặt phòng</h5>
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>Mã đặt phòng:</strong> #<%= booking.bookingId %></p>
+          <p><strong>Ngày đặt:</strong> <%= new Date(booking.bookingDate).toLocaleDateString('vi-VN') %></p>
+          <p><strong>Nhận phòng:</strong> <%= new Date(booking.checkInDate).toLocaleDateString('vi-VN') %></p>
+          <p><strong>Trả phòng:</strong> <%= new Date(booking.checkOutDate).toLocaleDateString('vi-VN') %></p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Số khách:</strong> <%= booking.numberOfGuests %></p>
+          <p><strong>Tổng tiền:</strong> <%= booking.totalAmount.toLocaleString() %> VND</p>
+          <p><strong>Trạng thái:</strong> <%= booking.status %></p>
+          <% if (booking.status === 'Chờ nhận phòng') { %>
+            <form action="/customer/cancel-booking" method="POST" class="mt-3">
+              <input type="hidden" name="bookingId" value="<%= booking.bookingId %>">
+              <button type="submit" class="btn btn-danger"
+                      onclick="return confirm('Bạn có chắc muốn hủy đặt phòng này không?')">
+                <i class="fa-solid fa-ban me-1"></i> Hủy đặt phòng
+              </button>
+            </form>
+          <% } %>
+        </div>
       </div>
     </div>
   </div>

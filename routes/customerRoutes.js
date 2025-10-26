@@ -4,7 +4,8 @@ const customerController = require("../controllers/customerController");
 const { ensureCustomerLoggedIn } = require("../middlewares/authMiddleware");
 const reviewController = require("../controllers/reviewController");
 const validateUpdateProfile = require('../middlewares/validateUpdateProfile');
-const Review = require("../models/Review");
+const bookingController = require("../controllers/bookingController");
+
 //Gửi đánh giá
 router.post("/review/:bookingId", reviewController.submitReview);
 // Bước 1: Xem lịch sử phòng đã đặt
@@ -40,5 +41,7 @@ router.get(
 
 router.get('/history-dashboard', ensureCustomerLoggedIn,customerController.viewBookingHistory);
 router.get('/history-detail/:id', ensureCustomerLoggedIn,customerController.viewBookingDetail);
+// Hủy phòng
+router.post('/cancel-booking', ensureCustomerLoggedIn, bookingController.cancelBookingByCustomer);
 
 module.exports = router;

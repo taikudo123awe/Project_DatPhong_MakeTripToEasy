@@ -344,6 +344,7 @@ exports.searchRooms = async (req, res) => {
           [Op.and]: [
             { checkInDate: { [Op.lt]: checkOutDate } },
             { checkOutDate: { [Op.gt]: checkInDate } },
+            { status: { [Op.ne]: 'Đã hủy' } } // Chỉ lấy các booking chưa hủy
           ],
         },
         attributes: ["roomId"],
