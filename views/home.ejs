@@ -22,20 +22,35 @@
       <div
         class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden hover-card"
       >
+        <% const firstImage = room.image ? room.image.split(';')[0] :
+        'uploads/imgrooms/default.png'; %>
         <img
-          src="<%= room.image %>"
+          src="/<%= firstImage %>"
           class="card-img-top"
           alt="<%= room.roomName %>"
           style="height: 180px; object-fit: cover"
         />
         <div class="card-body">
-          <h5 class="card-title text-primary fw-bold mb-2">
+          <h5 class="card-title text-primary fw-bold mb-1">
             <%= room.roomName %>
           </h5>
+
+          <% if (room.avgRating) { %>
+          <p class="mb-2">
+            <span class="text-warning fw-bold">⭐ <%= room.avgRating %></span>
+            <span class="text-muted small"
+              >(<%= room.reviewCount %> đánh giá)</span
+            >
+          </p>
+          <% } else { %>
+          <p class="text-muted small mb-2 fst-italic">Chưa có đánh giá</p>
+          <% } %>
+
           <p class="text-muted small mb-2">
             <%= room.description.length > 60 ? room.description.slice(0, 60) +
             '...' : room.description %>
           </p>
+
           <p class="mb-1">
             <strong>Sức chứa:</strong> <%= room.capacity %> người
           </p>
@@ -43,12 +58,14 @@
             <strong>Giá:</strong> <%= room.price.toLocaleString() %> VND / đêm
           </p>
         </div>
+
         <div class="card-footer bg-white border-0 text-end">
           <a
             href="/rooms/<%= room.roomId %>"
             class="btn btn-outline-primary btn-sm px-3"
-            >Chi tiết</a
           >
+            Chi tiết
+          </a>
         </div>
       </div>
     </div>

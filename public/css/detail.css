@@ -142,6 +142,20 @@
 body.lightbox-open {
   overflow: hidden !important; /* 👈 không cho body cuộn */
 }
+
+.list-group-item {
+  padding: 15px;
+  border: none;
+  border-bottom: 1px solid #eee;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
 @keyframes fadeIn {
   from {
     opacity: 0;
