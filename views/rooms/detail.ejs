@@ -83,6 +83,47 @@
           <p><strong>SĐT:</strong> <%= room.Provider?.phoneNumber %></p>
         </div>
 
+        <!-- PHẦN HIỂN THỊ ĐÁNH GIÁ PHÒNG -->
+        <div class="mt-4">
+          <h5 class="fw-bold text-secondary mb-3">
+            <i class="fa-solid fa-comments me-2"></i>Đánh giá từ khách hàng
+          </h5>
+
+          <% if (room.Reviews && room.Reviews.length > 0) { %>
+          <!-- ⭐ Trung bình số sao -->
+          <% const avgRating = ( room.Reviews.reduce((sum, r) => sum + r.rating,
+          0) / room.Reviews.length ).toFixed(1); %>
+          <p>
+            <strong>⭐ Trung bình:</strong>
+            <span class="text-warning fw-bold"><%= avgRating %></span> / 5 (<%=
+            room.Reviews.length %> lượt đánh giá)
+          </p>
+
+          <!-- Danh sách đánh giá -->
+          <div class="list-group shadow-sm">
+            <% room.Reviews.forEach(r => { %>
+            <div class="list-group-item border-0 border-bottom">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>
+                    <i class="fa-solid fa-user me-2"></i>
+                    <%= r.Customer ? r.Customer.fullName : 'Người dùng ẩn danh'
+                    %>
+                  </strong>
+                  <span class="text-warning ms-2">⭐ <%= r.rating %>/5</span>
+                </div>
+                <small class="text-muted">
+                  <%= new Date(r.reviewDate).toLocaleDateString('vi-VN') %>
+                </small>
+              </div>
+              <p class="mt-2 mb-0 text-secondary"><%= r.comment %></p>
+            </div>
+            <% }) %>
+          </div>
+          <% } else { %>
+          <p class="text-muted">Phòng này hiện chưa có đánh giá nào.</p>
+          <% } %>
+        </div>
         <div class="d-flex gap-3 mt-4">
           <a href="/" class="btn btn-outline-secondary px-4">
             <i class="fa-solid fa-arrow-left me-2"></i> Quay lại
