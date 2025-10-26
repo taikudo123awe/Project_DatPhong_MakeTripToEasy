@@ -1,43 +1,69 @@
 <%- include('partials/header') %>
 
-<main class="container mt-4">
-  <h1 class="mb-4 text-center text-primary fw-bold">Welcome to Make Trip To Easy!</h1>
+  <main class="container mt-4">
+    <h1 class="mb-4 text-center text-primary fw-bold">
+      Welcome to Make Trip To Easy!
+    </h1>
 
-  <!-- Thanh tìm kiếm -->
-  <%- include('partials/search-bar') %>
-
-  <% if (!customer) { %>
-    <div class="text-center mt-3 mb-4">
-      <a href="/login" class="btn btn-success me-2 px-4">Đăng nhập</a>
-      <a href="/provider/register" class="btn btn-warning px-4">Đăng ký nhà cung cấp</a>
-    </div>
-  <% } %>
-
-  <!-- Danh sách phòng -->
-  <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mt-3">
-    <% rooms.forEach(room => { %>
-      <div class="col">
-        <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden hover-card">
-          <img src="<%= room.image %>" class="card-img-top" alt="<%= room.roomName %>" style="height: 180px; object-fit: cover;">
-          <div class="card-body">
-            <h5 class="card-title text-primary fw-bold mb-2"><%= room.roomName %></h5>
-            <p class="text-muted small mb-2">
-              <%= room.description.length > 60 ? room.description.slice(0, 60) + '...' : room.description %>
-            </p>
-            <p class="mb-1"><strong>Sức chứa:</strong> <%= room.capacity %> người</p>
-            <p class="mb-0"><strong>Giá:</strong> <%= room.price.toLocaleString() %> VND / đêm</p>
-          </div>
-          <div class="card-footer bg-white border-0 text-end">
-            <a href="/rooms/<%= room.roomId %>" class="btn btn-outline-primary btn-sm px-3">Chi tiết</a>
-          </div>
+    <!-- Thanh tìm kiếm -->
+    <%- include('partials/search-bar') %>
+      <% if (!customer) { %>
+        <div class="text-center mt-3 mb-4">
+          <a href="/login" class="btn btn-success me-2 px-4">Đăng nhập</a>
+          <a href="/provider/register" class="btn btn-warning px-4">Đăng ký nhà cung cấp</a>
         </div>
-      </div>
-    <% }) %>
-  </div>
-</main>
+        <% } %>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="/javascript/search-bar.js"></script>
+          <!-- Danh sách phòng -->
+          <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mt-3">
+            <% rooms.forEach(room=> { %>
+              <div class="col">
+                <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden hover-card">
+                  <% const firstImage=room.image ? room.image.split(';')[0] : 'uploads/imgrooms/default.png' ; %>
+                    <img src="/<%= firstImage %>" class="card-img-top" alt="<%= room.roomName %>"
+                      style="height: 180px; object-fit: cover" />
+                    <div class="card-body">
+                      <h5 class="card-title text-primary fw-bold mb-1">
+                        <%= room.roomName %>
+                      </h5>
 
-<%- include('partials/footer') %>
+                      <% if (room.avgRating) { %>
+                        <p class="mb-2">
+                          <span class="text-warning fw-bold">⭐ <%= room.avgRating %></span>
+                          <span class="text-muted small">(<%= room.reviewCount %> đánh giá)</span>
+                        </p>
+                        <% } else { %>
+                          <p class="text-muted small mb-2 fst-italic">Chưa có đánh giá</p>
+                          <% } %>
+
+                            <p class="text-muted small mb-2">
+                              <%= room.description.length> 60 ? room.description.slice(0, 60) +
+                                '...' : room.description %>
+                            </p>
+
+                            <p class="mb-1">
+                              <strong>Sức chứa:</strong>
+                              <%= room.capacity %> người
+                            </p>
+                            <p class="mb-0">
+                              <strong>Giá:</strong>
+                              <%= room.price.toLocaleString() %> VND / đêm
+                            </p>
+                    </div>
+
+                    <div class="card-footer bg-white border-0 text-end">
+                      <a href="/rooms/<%= room.roomId %>" class="btn btn-outline-primary btn-sm px-3">
+                        Chi tiết
+                      </a>
+                    </div>
+                </div>
+              </div>
+              <% }) %>
+          </div>
+  </main>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="/javascript/search-bar.js"></script>
+
+  <%- include('partials/footer') %>

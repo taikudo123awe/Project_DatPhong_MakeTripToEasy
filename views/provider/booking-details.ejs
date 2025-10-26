@@ -10,22 +10,36 @@
   <div class="row mt-3">
     <div class="col-md-6">
       <div class="card">
-        <div class="card-header">
-          <h4>Thông tin Phiếu đặt phòng (ID: <%= booking.bookingId %>)</h4>
-        </div>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item"><strong>Trạng thái:</strong> <span class="badge bg-warning text-dark"><%= booking.status %></span></li>
-          <li class="list-group-item"><strong>Ngày đặt:</strong> <%= new Date(booking.bookingDate).toLocaleString('vi-VN') %></li>
-          <li class="list-group-item"><strong>Nhận phòng:</strong> <%= new Date(booking.checkInDate).toLocaleDateString('vi-VN') %></li>
-          <li class="list-group-item"><strong>Trả phòng:</strong> <%= new Date(booking.checkOutDate).toLocaleDateString('vi-VN') %></li>
-          <li class="list-group-item"><strong>Số khách:</strong> <%= booking.numberOfGuests %></li>
-          <li class="list-group-item"><strong>Tổng tiền:</strong> <%= booking.totalAmount.toLocaleString() %> VND</li>
-        </ul>
+         <div class="card-header"><h4>Thông tin Phiếu đặt phòng (ID: <%= booking.bookingId %>)</h4></div>
+         <ul class="list-group list-group-flush">
+             <li class="list-group-item"><strong>Trạng thái:</strong>
+                <% if (booking.status === 'Chờ nhận phòng') { %> <span class="badge bg-warning text-dark"><%= booking.status %></span> <% } %>
+                <% if (booking.status === 'Đang sử dụng') { %> <span class="badge bg-info"><%= booking.status %></span> <% } %>
+                <% if (booking.status === 'Đã hoàn thành') { %> <span class="badge bg-success"><%= booking.status %></span> <% } %>
+                <% if (booking.status === 'Đã hủy') { %> <span class="badge bg-danger"><%= booking.status %></span> <% } %>
+             </li>
+             <li class="list-group-item"><strong>Ngày đặt:</strong> <%= new Date(booking.bookingDate).toLocaleString('vi-VN') %></li>
+             <li class="list-group-item"><strong>Nhận phòng:</strong> <%= new Date(booking.checkInDate).toLocaleDateString('vi-VN') %></li>
+             <li class="list-group-item"><strong>Trả phòng:</strong> <%= new Date(booking.checkOutDate).toLocaleDateString('vi-VN') %></li>
+             <li class="list-group-item"><strong>Số khách:</strong> <%= booking.numberOfGuests %></li>
+             <li class="list-group-item"><strong>Tổng tiền:</strong> <%= booking.totalAmount.toLocaleString() %> VND</li>
+         </ul>
       </div>
+       <% if (booking.Invoice) { %>
+        <div class="card mt-3">
+             <div class="card-header"><h5>Thông tin Hóa đơn</h5></div>
+             <div class="card-body">
+                 <p><strong>Trạng thái HĐ:</strong>
+                    <% if (booking.Invoice.status === 'Chờ thanh toán') { %> <span class="badge bg-warning text-dark"><%= booking.Invoice.status %></span> <% } %>
+                    <% if (booking.Invoice.status === 'Đã thanh toán') { %> <span class="badge bg-success"><%= booking.Invoice.status %></span> <% } %>
+                 </p>
+                 <p><strong>Ngày tạo HĐ:</strong> <%= new Date(booking.Invoice.invoiceDate).toLocaleDateString('vi-VN') %></p>
+             </div>
+        </div>
+       <% } %>
     </div>
-
     <div class="col-md-6">
-      <div class="card mb-3">
+       <div class="card mb-3">
         <div class="card-header"><h5>Thông tin Khách hàng</h5></div>
         <div class="card-body">
           <p><strong>Tên:</strong> <%= booking.Customer.fullName %></p>
@@ -44,17 +58,18 @@
     </div>
   </div>
 
-  <div class="mt-4">
-    <form action="/provider/bookings/confirm" method="POST" style="display: inline-block;" onsubmit="return confirm('Bạn có chắc chắn XÁC NHẬN cho khách nhận phòng này?');">
-      <input type="hidden" name="bookingId" value="<%= booking.bookingId %>">
-      <button type-="submit" class="btn btn-success btn-lg">Xác nhận nhận phòng</button>
-    </form>
+  <% if (booking.status === 'Chờ nhận phòng') { %>
+    <div class="mt-4">
+      <form action="/provider/bookings/confirm" method="POST" style="display: inline-block;" onsubmit="return confirm('Bạn có chắc chắn XÁC NHẬN cho khách nhận phòng này?');">
+        <input type="hidden" name="bookingId" value="<%= booking.bookingId %>">
+        <button type="submit" class="btn btn-success btn-lg">Xác nhận nhận phòng</button>
+      </form>
 
-    <form action="/provider/bookings/cancel" method="POST" style="display: inline-block;" onsubmit="return confirm('Bạn có chắc chắn muốn HỦY đơn đặt phòng này?');">
-      <input type="hidden" name="bookingId" value="<%= booking.bookingId %>">
-      <button type="submit" class="btn btn-danger btn-lg ms-2">Hủy đơn</button>
-    </form>
-  </div>
-
-</body>
+      <form action="/provider/bookings/cancel" method="POST" style="display: inline-block;" onsubmit="return confirm('Bạn có chắc chắn muốn HỦY đơn đặt phòng này?');">
+        <input type="hidden" name="bookingId" value="<%= booking.bookingId %>">
+        <button type="submit" class="btn btn-danger btn-lg ms-2">Hủy đơn</button>
+      </form>
+    </div>
+  <% } %>
+  </body>
 </html>

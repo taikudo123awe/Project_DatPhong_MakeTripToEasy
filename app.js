@@ -64,15 +64,10 @@ app.use(authRoutes);
 app.use("/provider", providerRoutes);
 app.use("/customer", customerRoutes);
 app.use("/customer/bookings", bookingRoutes);
-app.use('/provider/report', reportRoutes);
-
+app.use("/provider/report", reportRoutes);
 
 sequelize.sync().then(() => {
   app.listen(3000, () =>
     console.log("🚀 Server running on http://localhost:3000")
   );
 });
-
-
-
-

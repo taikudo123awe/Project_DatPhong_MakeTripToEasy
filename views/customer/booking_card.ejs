@@ -1,0 +1,76 @@
+<%
+// Xác định class CSS và text hiển thị dựa trên trạng thái
+let cardClass = '';
+let statusText = booking.status; // Mặc định lấy trạng thái booking
+let invoiceStatusText = 'N/A';
+let invoiceStatusClass = 'text-muted';
+
+if (booking.Invoice) { // Nếu có hóa đơn
+    invoiceStatusText = booking.Invoice.status;
+    if (booking.Invoice.status === 'Đã thanh toán') {
+        cardClass = 'status-paid';
+        invoiceStatusClass = 'text-success fw-bold';
+    } else if (booking.Invoice.status === 'Chờ thanh toán') {
+        cardClass = 'status-unpaid';
+        invoiceStatusClass = 'text-warning fw-bold';
+    }
+}
+
+// Ưu tiên hiển thị trạng thái booking nếu nó đặc biệt (Hủy, Chờ nhận phòng)
+if (booking.status === 'Đã hủy') {
+    cardClass = 'status-cancelled';
+    statusText = 'Đã hủy';
+    invoiceStatusText = 'N/A'; // Đơn hủy không có trạng thái hóa đơn
+} else if (booking.status === 'Chờ nhận phòng') {
+     cardClass = 'status-pending';
+     statusText = 'Chờ nhận phòng';
+     invoiceStatusText = 'Chưa tạo'; // Chưa có hóa đơn khi chờ
+} else if (booking.status === 'Đang sử dụng' && !cardClass) { // Chỉ set màu xanh dương nếu chưa bị set màu vàng/xanh lá
+    cardClass = 'status-inuse';
+    statusText = 'Đang sử dụng';
+}
+
+%>
+    <div class="card card-booking <%= cardClass %>">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <% if (showCheckbox && booking.Invoice && booking.Invoice.status==='Chờ thanh toán' ) { %>
+                    <div class="col-md-1 d-flex justify-content-center">
+                        <input type="checkbox" name="invoiceIds" value="<%= booking.Invoice.invoiceId %>"
+                            class="form-check-input">
+                    </div>
+                    <% } else { %>
+                        <div class="col-md-1"></div>
+                        <% } %>
+
+                            <div class="col-md-7">
+                                <h5 class="card-title mb-1">
+                                    <%= booking.Room ? booking.Room.roomName : 'Phòng không tồn tại' %>
+                                </h5>
+                                <p class="card-text small text-muted mb-1">
+                                    Ngày đặt: <%= new Date(booking.bookingDate).toLocaleDateString('vi-VN') %> |
+                                        Nhận phòng: <%= new Date(booking.checkInDate).toLocaleDateString('vi-VN') %> -
+                                            Trả phòng: <%= new Date(booking.checkOutDate).toLocaleDateString('vi-VN') %>
+                                </p>
+                                <p class="card-text mb-0"><strong>Tổng tiền:</strong>
+                                    <%= booking.totalAmount.toLocaleString() %> VND
+                                </p>
+                            </div>
+
+                            <div class="col-md-2">
+                                <p class="mb-1"><strong>Phiếu:</strong> <span
+                                        class="badge <%= cardClass.includes('unpaid') ? 'bg-warning text-dark' : (cardClass.includes('paid') ? 'bg-success' : (cardClass.includes('cancelled') ? 'bg-danger' : (cardClass.includes('inuse') ? 'bg-info' : (cardClass.includes('pending') ? 'bg-secondary' : 'bg-light text-dark')))) %>">
+                                        <%= statusText %>
+                                    </span></p>
+                                <p class="mb-0"><strong>Hóa đơn:</strong> <span class="<%= invoiceStatusClass %>">
+                                        <%= invoiceStatusText %>
+                                    </span></p>
+                            </div>
+
+                            <div class="col-md-2 text-end">
+                                <a href="/customer/booking/<%= booking.bookingId %>"
+                                    class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+                            </div>
+            </div>
+        </div>
+    </div>

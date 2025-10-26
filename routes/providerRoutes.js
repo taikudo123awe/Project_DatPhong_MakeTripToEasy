@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const { ensureProviderLoggedIn } = require('../middlewares/authMiddleware');
-const roomController = require('../controllers/roomController');
-const providerController = require('../controllers/providerController');
-const validateProvider = require('../middlewares/validateProvider');
-const reviewController = require('../controllers/reviewController');
-const bookingController = require('../controllers/bookingController'); //Quan ly dat phong
+const { ensureProviderLoggedIn } = require("../middlewares/authMiddleware");
+const roomController = require("../controllers/roomController");
+const providerController = require("../controllers/providerController");
+const validateProvider = require("../middlewares/validateProvider");
+const reviewController = require("../controllers/reviewController");
+const bookingController = require("../controllers/bookingController"); //Quan ly dat phong
 // --- THÊM CẤU HÌNH MULTER ---
-const multer = require('multer');
-const path = require('path');
+const multer = require("multer");
+const path = require("path");
 const fs = require("fs");
 
 // ================== TẠO THƯ MỤC NẾU CHƯA TỒN TẠI ==================
@@ -74,7 +74,7 @@ router.get(
 router.post(
   "/edit-room/:roomId",
   ensureProviderLoggedIn,
-  uploadRoom.array("images", 5),
+  uploadRoom.array("images", 10),
   roomController.updateRoom
 );
 
@@ -116,17 +116,33 @@ router.post(
 );
 
 // --- THÊM ROUTE MỚI CHO QUẢN LÝ ĐẶT PHÒNG ---
-router.get('/bookings', ensureProviderLoggedIn, bookingController.listAllBookings);
-router.get('/bookings/:bookingId', ensureProviderLoggedIn, bookingController.showBookingDetails);
-router.post('/bookings/confirm', ensureProviderLoggedIn, bookingController.confirmCheckIn);
-router.post('/bookings/cancel', ensureProviderLoggedIn, bookingController.cancelBooking);
+router.get(
+  "/bookings",
+  ensureProviderLoggedIn,
+  bookingController.listAllBookings
+);
+router.get(
+  "/bookings/:bookingId",
+  ensureProviderLoggedIn,
+  bookingController.showBookingDetails
+);
+router.post(
+  "/bookings/confirm",
+  ensureProviderLoggedIn,
+  bookingController.confirmCheckIn
+);
+router.post(
+  "/bookings/cancel",
+  ensureProviderLoggedIn,
+  bookingController.cancelBooking
+);
 
 // Hiển thị form đăng ký
-router.get('/register', (req, res) => {
-  res.render('provider/register', { error: null, success: null, formData: {} });
+router.get("/register", (req, res) => {
+  res.render("provider/register", { error: null, success: null, formData: {} });
 });
 
 // Xử lý đăng ký (kèm middleware kiểm tra)
-router.post('/register', validateProvider, providerController.registerProvider);
+router.post("/register", validateProvider, providerController.registerProvider);
 
 module.exports = router;
