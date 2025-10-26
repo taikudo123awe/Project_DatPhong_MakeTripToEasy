@@ -9,63 +9,72 @@ const Provider = require('../models/Provider'); // Cần Provider để kiểm t
 
 // SỬA LẠI HÀM NÀY: Lấy tất cả booking và gom nhóm
 exports.listAllBookings = async (req, res) => {
-    try {
-      const providerId = req.session.provider.id;
-  
-      const allBookings = await Booking.findAll({
-        include: [
-          {
-            model: Room,
-            where: { providerId: providerId }, // Chỉ lấy phòng của provider này
-            required: true,
-            attributes: ['roomName'] // Chỉ cần tên phòng
-          },
-          {
-            model: Customer,
-            attributes: ['fullName', 'phoneNumber']
-          },
-          {
-            model: Invoice, // Include Invoice để lấy trạng thái
-            attributes: ['status'], // Chỉ cần trạng thái hóa đơn
-            required: false // LEFT JOIN, vì đơn chờ/hủy chưa có hóa đơn
-          }
-        ],
-        order: [
-          // Ưu tiên trạng thái: Chờ -> Đang sử dụng -> Đã hủy
-          sequelize.literal(`CASE Booking.status WHEN 'Chờ nhận phòng' THEN 1 WHEN 'Đang sử dụng' THEN 2 WHEN 'Đã hủy' THEN 3 ELSE 4 END`),
-          ['checkInDate', 'ASC'] // Sau đó sắp xếp theo ngày nhận phòng
-        ]
-      });
-  
-      // Gom nhóm bookings theo trạng thái
-      const groupedBookings = {
-        pending: [],
-        inUse: [],
-        cancelled: []
-      };
-  
-      allBookings.forEach(booking => {
-        if (booking.status === 'Chờ nhận phòng') {
-          groupedBookings.pending.push(booking);
-        } else if (booking.status === 'Đang sử dụng') {
-          groupedBookings.inUse.push(booking);
-        } else if (booking.status === 'Đã hủy') {
-          groupedBookings.cancelled.push(booking);
+  try {
+    const providerId = req.session.provider.id;
+
+    // Lấy tất cả booking
+    const allBookings = await Booking.findAll({
+      include: [
+        {
+          model: Room,
+          where: { providerId: providerId },
+          required: true,
+          attributes: ['roomName']
+        },
+        {
+          model: Customer,
+          attributes: ['fullName', 'phoneNumber']
+        },
+        {
+          model: Invoice,
+          attributes: ['status'],
+          required: false
         }
-        // Bỏ qua các trạng thái khác nếu có
-      });
-  
-      res.render('provider/bookings', {
-        pendingBookings: groupedBookings.pending,
-        inUseBookings: groupedBookings.inUse,
-        cancelledBookings: groupedBookings.cancelled
-      });
-  
-    } catch (err) {
-      console.error('Lỗi khi lấy danh sách đặt phòng:', err);
-      res.status(500).send('Lỗi máy chủ');
-    }
-  };
+      ],
+      order: [
+        // Sửa lại thứ tự sắp xếp
+        sequelize.literal(`CASE Booking.status 
+          WHEN 'Chờ nhận phòng' THEN 1 
+          WHEN 'Đang sử dụng' THEN 2 
+          WHEN 'Đã hoàn thành' THEN 3  
+          WHEN 'Đã hủy' THEN 4 
+          ELSE 5 END`),
+        ['checkInDate', 'ASC']
+      ]
+    });
+
+    // Gom nhóm bookings
+    const groupedBookings = {
+      pending: [],
+      inUse: [],
+      completed: [], // <-- THÊM MỚI
+      cancelled: []
+    };
+
+    allBookings.forEach(booking => {
+      if (booking.status === 'Chờ nhận phòng') {
+        groupedBookings.pending.push(booking);
+      } else if (booking.status === 'Đang sử dụng') {
+        groupedBookings.inUse.push(booking);
+      } else if (booking.status === 'Đã hoàn thành') { // <-- THÊM MỚI
+        groupedBookings.completed.push(booking);
+      } else if (booking.status === 'Đã hủy') {
+        groupedBookings.cancelled.push(booking);
+      }
+    });
+
+    res.render('provider/bookings', {
+      pendingBookings: groupedBookings.pending,
+      inUseBookings: groupedBookings.inUse,
+      completedBookings: groupedBookings.completed, // <-- TRUYỀN BIẾN MỚI
+      cancelledBookings: groupedBookings.cancelled
+    });
+
+  } catch (err) {
+    console.error('Lỗi khi lấy danh sách đặt phòng:', err);
+    res.status(500).send('Lỗi máy chủ');
+  }
+};
 // Hiển thị chi tiết
 exports.showBookingDetails = async (req, res) => {
   try {

@@ -6,6 +6,8 @@ const Provider = require("../models/Provider");
 const PaymentInfo = require("../models/PaymentInfo");
 const Customer = require("../models/Customer");
 const Review = require("../models/Review");
+const sequelize = require("../config/database");
+
 // Lấy tất cả booking/invoice và gom nhóm theo trạng thái
 exports.showBookingsByStatus = async (req, res) => {
   try {
@@ -132,7 +134,9 @@ exports.showPaymentPage = async (req, res) => {
 };
 
 // Bước 7 & 8: Xác nhận đã chuyển tiền
+// SỬA LẠI HÀM NÀY: Xác nhận đã chuyển tiền
 exports.confirmPayment = async (req, res) => {
+  const t = await sequelize.transaction(); // Bắt đầu transaction
   try {
     const { invoiceIds } = req.body;
     const customerId = req.session.customer.customerId;
@@ -141,23 +145,57 @@ exports.confirmPayment = async (req, res) => {
       return res.redirect("/customer/history");
     }
 
-    // Cập nhật trạng thái các hóa đơn đã chọn
+    // Đảm bảo invoiceIds luôn là một mảng
+    const invoiceIdList = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
+
+    // 1. Tìm các hóa đơn (để lấy bookingIds)
+    const invoices = await Invoice.findAll({
+      where: {
+        invoiceId: { [Op.in]: invoiceIdList },
+        customerId: customerId,
+        status: "Chờ thanh toán", // Chỉ cập nhật HĐ chờ thanh toán
+      },
+      attributes: ["bookingId"], // Chỉ cần lấy bookingId
+      transaction: t,
+    });
+
+    if (invoices.length === 0) {
+      await t.rollback();
+      return res.redirect("/customer/history"); // Không có gì để cập nhật
+    }
+
+    // Lấy danh sách các bookingId liên quan
+    const bookingIds = invoices.map((inv) => inv.bookingId);
+
+    // 2. Cập nhật trạng thái Hóa đơn (Invoice) thành "Đã thanh toán"
     await Invoice.update(
       { status: "Đã thanh toán" },
       {
         where: {
-          invoiceId: {
-            [Op.in]: Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds],
-          },
-          customerId,
+          invoiceId: { [Op.in]: invoiceIdList },
         },
+        transaction: t,
       }
     );
 
-    // TODO: Có thể thêm logic gửi email thông báo ở đây
+    // 3. Cập nhật trạng thái Phiếu đặt phòng (Booking) thành "Đã hoàn thành"
+    // Chỉ cập nhật các phiếu đang ở trạng thái "Đang sử dụng"
+    await Booking.update(
+      { status: "Đã hoàn thành" },
+      {
+        where: {
+          bookingId: { [Op.in]: bookingIds },
+          status: "Đang sử dụng", // Điều kiện quan trọng
+        },
+        transaction: t,
+      }
+    );
 
-    res.redirect("/customer/history"); // Quay lại lịch sử với thông báo thành công (có thể thêm)
+    await t.commit(); // Hoàn tất giao dịch
+
+    res.redirect("/customer/history");
   } catch (err) {
+    await t.rollback(); // Hoàn tác nếu có lỗi
     console.error("❌ Lỗi khi xác nhận thanh toán:", err);
     res.status(500).send("Lỗi máy chủ");
   }
