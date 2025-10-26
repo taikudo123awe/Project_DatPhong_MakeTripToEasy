@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-const { Op } = require('sequelize');
-const Invoice = require('../models/Invoice');
-const Booking = require('../models/Booking');
-const Room = require('../models/Room');
-const Provider = require('../models/Provider');
-const PaymentInfo = require('../models/PaymentInfo');
-const Customer = require('../models/Customer');
-const sequelize = require('../config/database');
-=======
 const { Op } = require("sequelize");
 const Invoice = require("../models/Invoice");
 const Booking = require("../models/Booking");
@@ -17,7 +7,6 @@ const PaymentInfo = require("../models/PaymentInfo");
 const Customer = require("../models/Customer");
 const sequelize = require("../config/database");
 const Review = require("../models/Review");
->>>>>>> khang
 // Lấy tất cả booking/invoice và gom nhóm theo trạng thái
 exports.showBookingsByStatus = async (req, res) => {
   try {
@@ -155,10 +144,7 @@ exports.confirmPayment = async (req, res) => {
       return res.redirect("/customer/history");
     }
 
-<<<<<<< HEAD
-=======
     // Cập nhật trạng thái các hóa đơn đã chọn
->>>>>>> khang
     // Đảm bảo invoiceIds luôn là một mảng
     const invoiceIdList = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
 
@@ -167,21 +153,6 @@ exports.confirmPayment = async (req, res) => {
       where: {
         invoiceId: { [Op.in]: invoiceIdList },
         customerId: customerId,
-<<<<<<< HEAD
-        status: 'Chờ thanh toán' // Chỉ cập nhật HĐ chờ thanh toán
-      },
-      attributes: ['bookingId'], // Chỉ cần lấy bookingId
-      transaction: t
-    });
-
-    if (invoices.length === 0) {
-        await t.rollback();
-        return res.redirect('/customer/history'); // Không có gì để cập nhật
-    }
-
-    // Lấy danh sách các bookingId liên quan
-    const bookingIds = invoices.map(inv => inv.bookingId);
-=======
         status: "Chờ thanh toán", // Chỉ cập nhật HĐ chờ thanh toán
       },
       attributes: ["bookingId"], // Chỉ cần lấy bookingId
@@ -195,7 +166,6 @@ exports.confirmPayment = async (req, res) => {
 
     // Lấy danh sách các bookingId liên quan
     const bookingIds = invoices.map((inv) => inv.bookingId);
->>>>>>> khang
 
     // 2. Cập nhật trạng thái Hóa đơn (Invoice) thành "Đã thanh toán"
     await Invoice.update(
