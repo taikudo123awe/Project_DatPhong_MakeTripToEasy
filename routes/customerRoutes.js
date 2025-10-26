@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const customerController = require('../controllers/customerController');
 const { ensureCustomerLoggedIn } = require('../middlewares/authMiddleware');
+const bookingController = require('../controllers/bookingController');
 
 // Bước 1: Xem lịch sử phòng đã đặt
 router.get('/history', ensureCustomerLoggedIn, customerController.showBookingsByStatus);
@@ -25,5 +26,8 @@ router.get('/history-detail/:id', customerController.viewBookingDetail);
 // Trong routes/customerRoutes.js
 router.get('/booking/:bookingId', ensureCustomerLoggedIn, customerController.showCustomerBookingDetail);
 // --- KẾT THÚC THÊM ---
+
+// Hủy phòng
+router.post('/cancel-booking', ensureCustomerLoggedIn, bookingController.cancelBookingByCustomer);
 
 module.exports = router;
