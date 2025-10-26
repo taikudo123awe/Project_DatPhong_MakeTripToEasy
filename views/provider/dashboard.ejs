@@ -8,16 +8,7 @@
 </head>
 
 <body class="container mt-4">
-  <h2>Xin chào <%= provider.username %>!</h2>
-  <div class="mb-4">
-    <a href="/provider/add-room" class="btn btn-success">+ Thêm phòng mới</a>
-    <a href="/provider/edit-profile" class="btn btn-primary ms-2">Chỉnh sửa thông tin</a>
-    <a href="/provider/reviews" class="btn btn-info ms-2">Xem đánh giá</a>
-    <a href="/provider/bookings" class="btn btn-warning ms-2">Quản lý đơn</a>
-    <a href="/provider/report" class="btn btn-warning ms-2">Quản lý đơn</a>
-    <a href="/logout" class="btn btn-outline-danger ms-2">Đăng xuất</a>
-  </div>
-
+<%- include('../partials/header-provider') %>
   <!-- 🔔 Thông báo sau khi xóa hoặc sửa -->
   <% if (typeof success !=="undefined" && success) { %>
     <div class="alert alert-success alert-dismissible fade show" role="alert">

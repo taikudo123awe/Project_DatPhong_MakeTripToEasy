@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const customerController = require('../controllers/customerController');
 const { ensureCustomerLoggedIn } = require('../middlewares/authMiddleware');
+const validateUpdateProfile = require('../middlewares/validateUpdateProfile');
 
 // Bước 1: Xem lịch sử phòng đã đặt
 router.get('/history', ensureCustomerLoggedIn, customerController.showBookingHistory);
@@ -13,14 +14,14 @@ router.post('/payment', ensureCustomerLoggedIn, customerController.showPaymentPa
 router.post('/confirm-payment', ensureCustomerLoggedIn, customerController.confirmPayment);
 
 // Hiển thị form chỉnh sửa
-router.get('/update', customerController.showEditProfile);
-router.post('/update', ensureCustomerLoggedIn, customerController.updateProfile);
+router.get('/update',ensureCustomerLoggedIn ,customerController.showEditProfile);
+router.post('/update', ensureCustomerLoggedIn,  validateUpdateProfile, customerController.updateProfile);
 
 // router.get('/booking-status', customerController.showBookingStatus);
 
-router.get('/history-dashboard', customerController.viewBookingHistory);
+router.get('/history-dashboard', ensureCustomerLoggedIn,customerController.viewBookingHistory);
 
-router.get('/history-detail/:id', customerController.viewBookingDetail);
+router.get('/history-detail/:id', ensureCustomerLoggedIn,customerController.viewBookingDetail);
 
 
 module.exports = router;

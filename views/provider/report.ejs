@@ -3,42 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <title>Báo cáo thống kê</title>
+
+  <!-- Bootstrap -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="/css/report.css">
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body>
-  <div class="container report-container">
-    <h2 class="mb-4">📊 Báo cáo thống kê</h2>
+<body class="bg-light">
+  <div class="container report-container py-4">
+    <h2 class="mb-4 fw-bold text-primary">📊 Báo cáo thống kê</h2>
 
-    <div class="summary-box mb-4">
-      <h3>Hôm nay</h3>
+    <div class="summary-box card p-3 shadow-sm mb-4">
+      <h3 class="fw-semibold mb-3">Hôm nay</h3>
       <p>Phòng đặt: <strong><%= totalPaidBookings %></strong></p>
       <p>Phòng trống: <strong><%= availableRooms %></strong></p>
       <p>Doanh thu: <strong><%= totalRevenueToday.toLocaleString() %> VNĐ</strong></p>
     </div>
 
-    <div class="tabs">
-      <span><strong>Thời gian:</strong></span>
-      <a href="?type=week" class="<%= type === 'week' ? 'active' : '' %>">Tuần</a>
+    <div class="tabs mb-4">
+      <span class="fw-semibold">Thời gian:</span>
       <a href="?type=month" class="<%= type === 'month' ? 'active' : '' %>">Tháng</a>
       <a href="?type=year" class="<%= type === 'year' ? 'active' : '' %>">Năm</a>
+      <a href="?type=all" class="<%= type === 'all' ? 'active' : '' %>">Tất cả năm</a>
     </div>
 
-    <div class="chart-section">
-      <h5><strong>Doanh thu theo thời gian</strong></h5>
-      <canvas id="revenueChart"></canvas>
+    <div class="chart-section mb-5">
+      <h5 class="fw-bold">Doanh thu theo thời gian</h5>
+      <canvas id="revenueChart" height="120"></canvas>
     </div>
 
-    <div class="chart-section">
-      <h5><strong>Doanh thu theo từng phòng</strong></h5>
-      <canvas id="roomRevenueChart"></canvas>
+    <div class="chart-section mb-5">
+      <h5 class="fw-bold">Doanh thu theo từng phòng</h5>
+      <canvas id="roomRevenueChart" height="120"></canvas>
     </div>
 
-    <div class="chart-section">
-      <h5><strong>Tình trạng phòng</strong></h5>
-      <canvas id="roomStatusChart"></canvas>
+    <div class="chart-section mb-5">
+      <h5 class="fw-bold">Tình trạng phòng</h5>
+      <canvas id="roomStatusChart" height="120"></canvas>
     </div>
   </div>
 
@@ -46,9 +50,10 @@
     window.reportData = {
       revenueData: <%- JSON.stringify(revenueData) %>,
       roomRevenue: <%- JSON.stringify(roomRevenue) %>,
-      roomStatus: <%- JSON.stringify(roomStatus) %>,
+      roomStatus: <%- JSON.stringify(roomStatus) %>
     };
   </script>
-  <script src="/js/report.js"></script>
+
+  <script src="/javascript/report.js"></script>
 </body>
 </html>

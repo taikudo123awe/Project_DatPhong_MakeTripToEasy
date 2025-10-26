@@ -130,9 +130,13 @@ exports.showEditProfile = async (req, res) => {
     const customer = await Customer.findByPk(customerSession.customerId);
     if (!customer) return res.status(404).send('Customer not found');
 
-    // ✅ truyền biến success để EJS dùng
     const success = req.query.success === '1';
-    res.render('customer/update', { customer, success });
+
+    res.render('customer/update', { 
+      customer, 
+      success,
+      error: null        // ✅ thêm dòng này để tránh undefined trong EJS
+    });
   } catch (err) {
     console.error('showEditProfile error:', err);
     res.status(500).send('Server error');
@@ -245,9 +249,10 @@ exports.viewBookingHistory = async (req, res) => {
 
     const statuses = [
       { label: 'Tất cả', value: 'all' },
-      { label: 'Đã đặt', value: 'Đang chờ' },
-      { label: 'Đã thanh toán', value: 'invoice:Đã thanh toán' },
-      { label: 'Chưa thanh toán', value: 'invoice:Chưa thanh toán' },
+      { label: 'Chờ nhận phòng', value: 'Chờ nhận' },
+      { label: 'Đang sử dụng', value: 'Đang sử dụng' },
+      { label: 'Đã hoàn thành', value: 'Đã hoàn thành' },
+      { label: 'Đã hoàn thành', value: 'invoice:Đã thanh toán' },
       { label: 'Đã hủy', value: 'Đã hủy' }
     ];
 
