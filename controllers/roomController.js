@@ -42,8 +42,8 @@ exports.getRoomsForHome = async (req, res) => {
       const avgRating =
         reviewCount > 0
           ? (
-              reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
-            ).toFixed(1)
+            reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
+          ).toFixed(1)
           : null;
       return {
         ...room.toJSON(),
@@ -98,6 +98,7 @@ exports.createRoom = async (req, res) => {
       district,
       ward,
       capacity,
+      availableRooms,
       price,
       amenities,
       description,
@@ -114,6 +115,8 @@ exports.createRoom = async (req, res) => {
     if (!customAddress?.trim()) errors.push("Vui lòng nhập tên đường/số nhà.");
     if (!capacity || isNaN(capacity) || capacity < 1)
       errors.push("Sức chứa phải ≥ 1.");
+    if (!availableRooms || isNaN(availableRooms) || availableRooms < 1)
+      errors.push("Số lượng phòng hiện có phải ≥ 1.");
     if (!price || isNaN(price) || price <= 0)
       errors.push("Giá phòng phải là số > 0.");
     if (!amenities?.trim()) errors.push("Vui lòng nhập tiện ích của phòng.");
@@ -163,6 +166,7 @@ exports.createRoom = async (req, res) => {
       fullAddress,
       addressId,
       capacity,
+      availableRooms,//thêm sức chứa
       price,
       amenities,
       description,
@@ -185,7 +189,7 @@ exports.createRoom = async (req, res) => {
 // ===========================
 exports.getRoomDetail = async (req, res) => {
   const roomId = req.params.roomId;
-  const { checkInDate, checkOutDate, numberOfGuests } = req.query;
+  const { checkInDate, checkOutDate, numberOfGuests, numRooms } = req.query;
 
   try {
     const room = await Room.findOne({
@@ -207,7 +211,8 @@ exports.getRoomDetail = async (req, res) => {
       room,
       checkInDate: checkInDate || "",
       checkOutDate: checkOutDate || "",
-      numberOfGuests: numberOfGuests || ""
+      numberOfGuests: numberOfGuests || "",
+      quantity: numRooms || ""
     });
   } catch (err) {
     console.error("❌ Lỗi khi tải thông tin phòng:", err);
@@ -372,21 +377,21 @@ exports.searchRooms = async (req, res) => {
             [Op.and]: [
               city
                 ? sequelize.where(
-                    sequelize.fn("LOWER", sequelize.col("address.city")),
-                    { [Op.like]: `%${city.toLowerCase()}%` }
-                  )
+                  sequelize.fn("LOWER", sequelize.col("address.city")),
+                  { [Op.like]: `%${city.toLowerCase()}%` }
+                )
                 : null,
               district
                 ? sequelize.where(
-                    sequelize.fn("LOWER", sequelize.col("address.district")),
-                    { [Op.like]: `%${district.toLowerCase()}%` }
-                  )
+                  sequelize.fn("LOWER", sequelize.col("address.district")),
+                  { [Op.like]: `%${district.toLowerCase()}%` }
+                )
                 : null,
               ward
                 ? sequelize.where(
-                    sequelize.fn("LOWER", sequelize.col("address.ward")),
-                    { [Op.like]: `%${ward.toLowerCase()}%` }
-                  )
+                  sequelize.fn("LOWER", sequelize.col("address.ward")),
+                  { [Op.like]: `%${ward.toLowerCase()}%` }
+                )
                 : null,
             ].filter(Boolean), // lọc null để tránh lỗi
           },
@@ -405,8 +410,8 @@ exports.searchRooms = async (req, res) => {
         dateRange:
           checkInDate && checkOutDate
             ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate
-                .toISOString()
-                .slice(0, 10)}`
+              .toISOString()
+              .slice(0, 10)}`
             : null,
       });
     }
@@ -415,7 +420,7 @@ exports.searchRooms = async (req, res) => {
       checkInDate,
       checkOutDate,
       numGuests,
-      numRooms
+      numRooms,
     });
 
     //lưu dữ liệu tìm kiếm 
@@ -435,7 +440,8 @@ exports.searchRooms = async (req, res) => {
         checkInDate && checkOutDate
           ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate.toISOString().slice(0, 10)}`
           : null,
-      searchParams
+      searchParams,
+      quantity: numRooms,
     });
   } catch (err) {
     console.error("❌ Lỗi khi tìm kiếm phòng:", err);

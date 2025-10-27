@@ -127,9 +127,39 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // 🏠 Cập nhật fullAddress (VD: “12 Nguyễn Trãi, Phường 5, Quận 3, TP.HCM”)
   function updateFullAddress() {
-    const full = `${customAddressInput.value.trim()}, ${wardHidden.value}, ${
-      districtHidden.value
-    }, ${cityHidden.value}`;
+    const full = `${customAddressInput.value.trim()}, ${wardHidden.value}, ${districtHidden.value
+      }, ${cityHidden.value}`;
     fullAddressInput.value = full;
   }
 });
+
+let adults = 2;
+let rooms = 1;
+
+function changeGuests(type, delta) {
+  if (type === 'adults') {
+    adults = Math.max(1, adults + delta);
+    document.getElementById("adultsCount").innerText = adults;
+  } else if (type === 'rooms') {
+    rooms = Math.max(1, rooms + delta);
+    document.getElementById("roomsCount").innerText = rooms;
+  }
+}
+
+function closeGuests() {
+  // Cập nhật phần hiển thị
+  document.getElementById("guestSummary").value = `${adults} người lớn · ${rooms} phòng`;
+
+  // ✅ Ghi lại vào input ẩn để gửi form
+  document.getElementById("hiddenGuests").value = adults;
+  document.getElementById("hiddenRooms").value = rooms;
+
+  // Ẩn menu chọn
+  document.getElementById("guestOptions").style.display = "none";
+}
+
+// Hiện/ẩn dropdown
+document.getElementById("guestSummary").addEventListener("click", () => {
+  const dropdown = document.getElementById("guestOptions");
+  dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+})
