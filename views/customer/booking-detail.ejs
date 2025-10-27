@@ -1,0 +1,99 @@
+<%- include('../partials/header') %>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  .detail-card { margin-bottom: 1.5rem; }
+  .info-label { font-weight: 600; color: #6c757d; min-width: 150px; display: inline-block;}
+  .status-badge { font-size: 1em; padding: 0.5em 0.8em; }
+</style>
+
+<main class="container mt-4 mb-5">
+  <a href="/customer/history" class="btn btn-outline-secondary mb-3">&larr; Quay lại Phiếu đặt phòng</a>
+
+  <h2>Chi tiết Phiếu đặt phòng #<%= booking.bookingId %></h2>
+
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card detail-card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <i class="fas fa-calendar-alt me-2"></i> Thông tin Đặt phòng
+        </div>
+        <div class="card-body">
+          <p><span class="info-label">Trạng thái phiếu:</span>
+             <% if (booking.status === 'Chờ nhận phòng') { %> <span class="badge bg-secondary status-badge"><%= booking.status %></span> <% } %>
+             <% if (booking.status === 'Đang sử dụng') { %> <span class="badge bg-info status-badge"><%= booking.status %></span> <% } %>
+             <% if (booking.status === 'Đã hủy') { %> <span class="badge bg-danger status-badge"><%= booking.status %></span> <% } %>
+             <% if (booking.status === 'Đã hoàn thành') { %> <span class="badge bg-success status-badge"><%= booking.status %></span> <% } %>
+          </p>
+          <p><span class="info-label">Ngày đặt:</span> <%= new Date(booking.bookingDate).toLocaleDateString('vi-VN') %></p>
+          <p><span class="info-label">Ngày nhận phòng:</span> <%= new Date(booking.checkInDate).toLocaleDateString('vi-VN') %></p>
+          <p><span class="info-label">Ngày trả phòng:</span> <%= new Date(booking.checkOutDate).toLocaleDateString('vi-VN') %></p>
+          <p><span class="info-label">Số khách:</span> <%= booking.numberOfGuests %></p>
+          <p><span class="info-label">Tổng tiền:</span> <strong class="text-danger"><%= booking.totalAmount.toLocaleString() %> VND</strong></p>
+        </div>
+      </div>
+
+      <div class="card detail-card shadow-sm">
+        <div class="card-header bg-success text-white">
+           <i class="fas fa-file-invoice-dollar me-2"></i> Thông tin Hóa đơn
+        </div>
+         <div class="card-body">
+           <% if (booking.Invoice) { %>
+             <p><span class="info-label">Trạng thái HĐ:</span>
+                <% if (booking.Invoice.status === 'Chờ thanh toán') { %> <span class="badge bg-warning text-dark status-badge"><%= booking.Invoice.status %></span> <% } %>
+                <% if (booking.Invoice.status === 'Đã thanh toán') { %> <span class="badge bg-success status-badge"><%= booking.Invoice.status %></span> <% } %>
+             </p>
+             <p><span class="info-label">Ngày tạo HĐ:</span> <%= new Date(booking.Invoice.invoiceDate).toLocaleDateString('vi-VN') %></p>
+             <p><span class="info-label">Số tiền HĐ:</span> <strong class="text-danger"><%= booking.Invoice.amount.toLocaleString() %> VND</strong></p>
+             <% if (booking.Invoice.status === 'Chờ thanh toán') { %>
+                <form action="/customer/payment" method="POST" class="mt-2">
+                    <input type="hidden" name="invoiceIds" value="<%= booking.Invoice.invoiceId %>">
+                    <button type="submit" class="btn btn-warning">Thanh toán ngay</button>
+                </form>
+             <% } %>
+           <% } else { %>
+             <p class="text-muted">Chưa có hóa đơn nào được tạo cho phiếu đặt phòng này.</p>
+           <% } %>
+         </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card detail-card shadow-sm">
+        <div class="card-header bg-info text-white">
+           <i class="fas fa-door-open me-2"></i> Thông tin Phòng
+        </div>
+         <div class="card-body">
+            <% if(booking.Room) { %>
+                <p><span class="info-label">Tên phòng:</span> <strong><%= booking.Room.roomName %></strong></p>
+                <p><span class="info-label">Địa chỉ:</span> <%= booking.Room.fullAddress %></p>
+                <p><span class="info-label">Sức chứa:</span> <%= booking.Room.capacity %> người</p>
+                <p><span class="info-label">Giá / đêm:</span> <%= booking.Room.price.toLocaleString() %> VND</p>
+                <p><span class="info-label">Tiện ích:</span> <%= booking.Room.amenities %></p>
+                <p><span class="info-label">Mô tả:</span> <%= booking.Room.description %></p>
+            <% } else { %>
+                <p class="text-danger">Thông tin phòng không còn tồn tại.</p>
+            <% } %>
+         </div>
+      </div>
+
+       <% if(booking.Room && booking.Room.Provider) { %>
+        <div class="card detail-card shadow-sm mt-3">
+             <div class="card-header bg-secondary text-white">
+               <i class="fas fa-user-tie me-2"></i> Thông tin Nhà cung cấp
+            </div>
+             <div class="card-body">
+                <p><span class="info-label">Tên NCC:</span> <%= booking.Room.Provider.providerName %></p>
+                <p><span class="info-label">Email:</span> <%= booking.Room.Provider.email %></p>
+                <p><span class="info-label">Số điện thoại:</span> <%= booking.Room.Provider.phoneNumber %></p>
+             </div>
+        </div>
+       <% } %>
+    </div>
+  </div>
+
+</main>
+
+<%- include('../partials/footer') %>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script> ```
+

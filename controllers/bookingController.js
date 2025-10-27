@@ -9,63 +9,72 @@ const Provider = require('../models/Provider'); // Cần Provider để kiểm t
 
 // SỬA LẠI HÀM NÀY: Lấy tất cả booking và gom nhóm
 exports.listAllBookings = async (req, res) => {
-    try {
-      const providerId = req.session.provider.id;
-  
-      const allBookings = await Booking.findAll({
-        include: [
-          {
-            model: Room,
-            where: { providerId: providerId }, // Chỉ lấy phòng của provider này
-            required: true,
-            attributes: ['roomName'] // Chỉ cần tên phòng
-          },
-          {
-            model: Customer,
-            attributes: ['fullName', 'phoneNumber']
-          },
-          {
-            model: Invoice, // Include Invoice để lấy trạng thái
-            attributes: ['status'], // Chỉ cần trạng thái hóa đơn
-            required: false // LEFT JOIN, vì đơn chờ/hủy chưa có hóa đơn
-          }
-        ],
-        order: [
-          // Ưu tiên trạng thái: Chờ -> Đang sử dụng -> Đã hủy
-          sequelize.literal(`CASE Booking.status WHEN 'Chờ nhận phòng' THEN 1 WHEN 'Đang sử dụng' THEN 2 WHEN 'Đã hủy' THEN 3 ELSE 4 END`),
-          ['checkInDate', 'ASC'] // Sau đó sắp xếp theo ngày nhận phòng
-        ]
-      });
-  
-      // Gom nhóm bookings theo trạng thái
-      const groupedBookings = {
-        pending: [],
-        inUse: [],
-        cancelled: []
-      };
-  
-      allBookings.forEach(booking => {
-        if (booking.status === 'Chờ nhận phòng') {
-          groupedBookings.pending.push(booking);
-        } else if (booking.status === 'Đang sử dụng') {
-          groupedBookings.inUse.push(booking);
-        } else if (booking.status === 'Đã hủy') {
-          groupedBookings.cancelled.push(booking);
+  try {
+    const providerId = req.session.provider.id;
+
+    // Lấy tất cả booking
+    const allBookings = await Booking.findAll({
+      include: [
+        {
+          model: Room,
+          where: { providerId: providerId },
+          required: true,
+          attributes: ['roomName']
+        },
+        {
+          model: Customer,
+          attributes: ['fullName', 'phoneNumber']
+        },
+        {
+          model: Invoice,
+          attributes: ['status'],
+          required: false
         }
-        // Bỏ qua các trạng thái khác nếu có
-      });
-  
-      res.render('provider/bookings', {
-        pendingBookings: groupedBookings.pending,
-        inUseBookings: groupedBookings.inUse,
-        cancelledBookings: groupedBookings.cancelled
-      });
-  
-    } catch (err) {
-      console.error('Lỗi khi lấy danh sách đặt phòng:', err);
-      res.status(500).send('Lỗi máy chủ');
-    }
-  };
+      ],
+      order: [
+        // Sửa lại thứ tự sắp xếp
+        sequelize.literal(`CASE Booking.status 
+          WHEN 'Chờ nhận phòng' THEN 1 
+          WHEN 'Đang sử dụng' THEN 2 
+          WHEN 'Đã hoàn thành' THEN 3  
+          WHEN 'Đã hủy' THEN 4 
+          ELSE 5 END`),
+        ['checkInDate', 'ASC']
+      ]
+    });
+
+    // Gom nhóm bookings
+    const groupedBookings = {
+      pending: [],
+      inUse: [],
+      completed: [], // <-- THÊM MỚI
+      cancelled: []
+    };
+
+    allBookings.forEach(booking => {
+      if (booking.status === 'Chờ nhận phòng') {
+        groupedBookings.pending.push(booking);
+      } else if (booking.status === 'Đang sử dụng') {
+        groupedBookings.inUse.push(booking);
+      } else if (booking.status === 'Đã hoàn thành') { // <-- THÊM MỚI
+        groupedBookings.completed.push(booking);
+      } else if (booking.status === 'Đã hủy') {
+        groupedBookings.cancelled.push(booking);
+      }
+    });
+
+    res.render('provider/bookings', {
+      pendingBookings: groupedBookings.pending,
+      inUseBookings: groupedBookings.inUse,
+      completedBookings: groupedBookings.completed, // <-- TRUYỀN BIẾN MỚI
+      cancelledBookings: groupedBookings.cancelled
+    });
+
+  } catch (err) {
+    console.error('Lỗi khi lấy danh sách đặt phòng:', err);
+    res.status(500).send('Lỗi máy chủ');
+  }
+};
 // Hiển thị chi tiết
 exports.showBookingDetails = async (req, res) => {
   try {
@@ -171,16 +180,25 @@ exports.cancelBooking = async (req, res) => {
 // Hiển thị form đặt phòng cho khách
 exports.showBookingForm = async (req, res) => {
   const roomId = req.params.roomId;
+  const { checkInDate, checkOutDate, numberOfGuests } = req.query; // 👈 lấy dữ liệu từ URL query
+
   try {
     const room = await Room.findByPk(roomId);
     if (!room) return res.status(404).send("Không tìm thấy phòng");
 
-    res.render("customer/booking", { room });
+    // Render view, truyền thêm dữ liệu đã chọn (nếu có)
+    res.render("customer/booking", {
+      room,
+      checkInDate: checkInDate || "",
+      checkOutDate: checkOutDate || "",
+      numberOfGuests: numberOfGuests || "",
+    });
   } catch (err) {
     console.error("❌ Lỗi hiển thị form đặt phòng:", err);
     res.status(500).send("Lỗi máy chủ");
   }
 };
+
 
 // Xử lý khi khách đặt phòng
 exports.handleBooking = async (req, res) => {
@@ -192,7 +210,27 @@ exports.handleBooking = async (req, res) => {
     const room = await Room.findByPk(roomId);
     if (!room) return res.status(404).send("Không tìm thấy phòng");
 
-    const totalAmount = room.price; // hoặc tính theo ngày ở, số khách,...
+    // --- TÍNH TOÁN SỐ ĐÊM VÀ TỔNG TIỀN ---
+    const date1 = new Date(checkInDate);
+    const date2 = new Date(checkOutDate);
+
+    // Kiểm tra ngày hợp lệ (ngày trả phòng phải sau ngày nhận phòng)
+    if (isNaN(date1) || isNaN(date2) || date1 >= date2) {
+       // Nên có validate ở client-side, nhưng thêm ở đây để an toàn
+      console.error("❌ Ngày nhận/trả phòng không hợp lệ:", checkInDate, checkOutDate);
+      // Có thể render lại trang đặt phòng với lỗi
+      return res.status(400).send("Ngày nhận phòng hoặc trả phòng không hợp lệ.");
+    }
+
+    // Tính số mili giây chênh lệch
+    const timeDifference = date2.getTime() - date1.getTime();
+
+    // Chuyển đổi mili giây sang số ngày (số đêm)
+    const numberOfNights = Math.ceil(timeDifference / (1000 * 3600 * 24)); // 1000ms * 60s * 60m * 24h
+
+    // Tính tổng tiền
+    const totalAmount = room.price * numberOfNights;
+    // --- KẾT THÚC TÍNH TOÁN ---
 
     await Booking.create({
       bookingDate: new Date(),
@@ -201,14 +239,17 @@ exports.handleBooking = async (req, res) => {
       numberOfGuests,
       customerId,
       roomId,
-      totalAmount,
+      totalAmount, // Sử dụng totalAmount đã tính
       status: "Chờ nhận phòng"
     });
 
-    res.redirect("/customer/bookings"); // Hoặc redirect ra trang cảm ơn / xác nhận
+    // Chuyển hướng đến trang lịch sử/phiếu đặt phòng sau khi đặt thành công
+    res.redirect("/customer/history");
+
   } catch (err) {
     console.error("❌ Lỗi khi đặt phòng:", err);
-    res.status(500).send("Đặt phòng thất bại");
+    // Có thể render lại trang đặt phòng với lỗi
+    res.status(500).send("Đặt phòng thất bại. Vui lòng thử lại.");
   }
 };
 
@@ -227,5 +268,42 @@ exports.listCustomerBookings = async (req, res) => {
   } catch (err) {
     console.error("❌ Lỗi khi lấy danh sách booking của khách:", err);
     res.status(500).send("Lỗi máy chủ");
+  }
+};
+
+// Khách hàng hủy đặt phòng (chỉ khi đang "Chờ nhận phòng")
+exports.cancelBookingByCustomer = async (req, res) => {
+  try {
+    const { bookingId } = req.body;
+    const customerId = req.session.customer?.customerId;
+
+    if (!customerId) {
+      return res.redirect('/customer/login');
+    }
+
+    // Tìm booking của khách hàng đang "Chờ nhận phòng"
+    const booking = await Booking.findOne({
+      where: { bookingId, customerId, status: 'Chờ nhận phòng' },
+    });
+
+    if (!booking) {
+      req.session.error = 'Không thể hủy đơn này.';
+      return res.redirect('/customer/history-dashboard');
+    }
+
+    // Cập nhật trạng thái booking
+    await booking.update({ status: 'Đã hủy' });
+
+    // Cập nhật hóa đơn (nếu có)
+    await Invoice.update(
+      { status: 'Đã hủy' },
+      { where: { bookingId: booking.bookingId } }
+    );
+
+    req.session.success = 'Đã hủy đặt phòng thành công.';
+    res.redirect('/customer/history-dashboard');
+  } catch (err) {
+    console.error('❌ Lỗi khi khách hủy đặt phòng:', err);
+    res.status(500).send('Lỗi máy chủ');
   }
 };

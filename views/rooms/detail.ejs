@@ -1,160 +1,194 @@
 <%- include('../partials/header') %>
+  <link rel="stylesheet" href="/css/detail.css" />
 
-<main class="container py-5">
-  <div class="card shadow-lg border-0 overflow-hidden">
-    <div class="row g-0">
-      <!-- Hình ảnh phòng (hỗ trợ nhiều ảnh) -->
-      <div class="col-md-6 position-relative">
-        <% if (room.image) { const imgs=room.image.split(";").filter(i=>
-        i.trim() !== ""); %>
-        <div id="roomCarousel" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-inner">
-            <% imgs.forEach((img, index)=> { %>
-            <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
-              <img
-                src="/<%= img %>"
-                class="d-block w-100"
-                alt="Room Image <%= index + 1 %>"
-                style="height: 100%; object-fit: cover"
-              />
+  <main class="container-fluid p-0">
+    <div class="card border-0 rounded-0">
+      <div class="row g-0">
+        <!-- PHẦN ẢNH PHÒNG -->
+        <div class="col-md-6 p-0">
+          <% if (room.image) { const imgs=room.image.split(";").filter(i=>
+            i.trim() !== ""); const total = imgs.length; %>
+            <div class="image-gallery">
+              <!-- ẢNH CHÍNH -->
+              <div class="main-image" onclick="openLightbox(0)">
+                <img src="/<%= imgs[0] %>" alt="Main Image" loading="lazy" />
+              </div>
+
+              <!-- ẢNH PHỤ -->
+              <div class="sub-images">
+                <% imgs.slice(1, 5).forEach((img, index)=> { %> <% if (index===3 && total> 5) { %>
+                    <div class="sub-image more-overlay" data-index="<%= index + 1 %>" data-text="+<%= total - 4 %> ảnh">
+                      <img src="/<%= img %>" alt="More Images" />
+                    </div>
+                    <% } else { %>
+                      <div class="sub-image" onclick="openLightbox(1)">
+                        <img src="/<%= img %>" alt="Sub Image" loading="lazy" />
+                      </div>
+                      <% } %>
+                        <% }) %>
+              </div>
             </div>
-            <% }) %>
-          </div>
-
-          <!-- Nút điều hướng -->
-          <% if (imgs.length> 1) { %>
-          <button
-            class="carousel-control-prev"
-            type="button"
-            data-bs-target="#roomCarousel"
-            data-bs-slide="prev"
-          >
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Trước</span>
-          </button>
-          <button
-            class="carousel-control-next"
-            type="button"
-            data-bs-target="#roomCarousel"
-            data-bs-slide="next"
-          >
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Tiếp</span>
-          </button>
-          <% } %>
-        </div>
-        <% } else { %>
-        <div class="text-center p-5 bg-light text-muted">
-          <i class="fa-solid fa-image fa-3x mb-2"></i>
-          <p>Phòng này chưa có hình ảnh.</p>
-        </div>
-        <% } %>
-      </div>
-
-      <!-- Thông tin chi tiết -->
-      <div class="col-md-6 p-4 p-md-5 bg-light">
-        <h2 class="text-uppercase fw-bold text-primary mb-4">
-          <i class="fa-solid fa-bed me-2"></i>
-          <%= room.roomName %>
-        </h2>
-
-        <ul class="list-unstyled mb-4">
-          <li class="mb-2">
-            <i class="fa-solid fa-location-dot text-danger me-2"></i>
-            <strong>Địa chỉ:</strong>
-            <%= room.fullAddress %>
-          </li>
-          <li class="mb-2">
-            <i class="fa-solid fa-user-group text-success me-2"></i>
-            <strong>Sức chứa:</strong>
-            <%= room.capacity %> người
-          </li>
-          <li class="mb-2">
-            <i class="fa-solid fa-coins text-warning me-2"></i>
-            <strong>Giá:</strong>
-            <%= room.price.toLocaleString() %> VND / đêm
-          </li>
-          <li class="mb-2">
-            <i class="fa-solid fa-wifi text-info me-2"></i>
-            <strong>Tiện ích:</strong>
-            <%= room.amenities %>
-          </li>
-        </ul>
-
-        <div class="mb-4">
-          <h5 class="fw-bold text-secondary mb-2">
-            <i class="fa-solid fa-info-circle me-2"></i> Mô tả
-          </h5>
-          <p class="text-muted" style="line-height: 1.6">
-            <%= room.description %>
-          </p>
+            <% } else { %>
+              <div class="text-center p-5 bg-light text-muted">
+                <i class="fa-solid fa-image fa-3x mb-2"></i>
+                <p>Phòng này chưa có hình ảnh.</p>
+              </div>
+              <% } %>
         </div>
 
-        <hr />
+        <!-- THÔNG TIN PHÒNG -->
+        <div class="col-md-6 p-4 p-md-5 bg-light">
+          <h2 class="text-uppercase fw-bold text-primary mb-4">
+            <i class="fa-solid fa-bed me-2"></i>
+            <%= room.roomName %>
+          </h2>
 
-        <div class="mb-4">
-          <h5 class="fw-bold text-secondary mb-3">
-            <i class="fa-solid fa-user-tie me-2"></i> Nhà cung cấp
-          </h5>
-          <div class="ps-2">
-            <p class="mb-1">
-              <strong>Tên:</strong>
-              <%=room.Provider?.providerName %>
-            </p>
-            <p class="mb-1">
-              <strong>Email:</strong>
-              <%=room.Provider?.email%>
-            </p>
-            <p class="mb-0">
-              <strong>SĐT:</strong>
-              <%= room.Provider?.phoneNumber %>
+          <ul class="list-unstyled mb-4">
+            <li>
+              <i class="fa-solid fa-location-dot text-danger me-2"></i><strong>Địa chỉ:</strong>
+              <%= room.fullAddress %>
+            </li>
+            <li>
+              <i class="fa-solid fa-user-group text-success me-2"></i><strong>Sức chứa:</strong>
+              <%= room.capacity %> người
+            </li>
+            <li>
+              <i class="fa-solid fa-coins text-warning me-2"></i><strong>Giá:</strong>
+              <%= room.price.toLocaleString() %> VND / đêm
+            </li>
+            <li>
+              <i class="fa-solid fa-wifi text-info me-2"></i><strong>Tiện ích:</strong>
+              <%= room.amenities %>
+            </li>
+          </ul>
+
+          <div class="mb-4">
+            <h5 class="fw-bold text-secondary">
+              <i class="fa-solid fa-info-circle me-2"></i>Mô tả
+            </h5>
+            <p class="text-muted">
+              <%= room.description %>
             </p>
           </div>
-        </div>
 
-        <div class="d-flex gap-3 mt-4">
-          <a href="/" class="btn btn-outline-secondary px-4">
-            <i class="fa-solid fa-arrow-left me-2"></i> Quay lại
-          </a>
-          <a
-            href="/customer/bookings/<%= room.roomId %>"
-            class="btn btn-primary px-4"
-          >
-            <i class="fa-solid fa-calendar-check me-2"></i> Đặt phòng ngay
-          </a>
+          <!-- Thông tin chi tiết -->
+          <div class="col-md-6 p-4 p-md-5 bg-light">
+            <h2 class="text-uppercase fw-bold text-primary mb-4">
+              <i class="fa-solid fa-bed me-2"></i>
+              <%= room.roomName %>
+            </h2>
+
+            <div class="mb-4">
+              <h5 class="fw-bold text-secondary">
+                <i class="fa-solid fa-user-tie me-2"></i>Nhà cung cấp
+              </h5>
+              <p><strong>Tên:</strong>
+                <%= room.Provider?.providerName %>
+              </p>
+              <p><strong>Email:</strong>
+                <%= room.Provider?.email %>
+              </p>
+              <p><strong>SĐT:</strong>
+                <%= room.Provider?.phoneNumber %>
+              </p>
+            </div>
+
+            <!-- PHẦN HIỂN THỊ ĐÁNH GIÁ PHÒNG -->
+            <div class="mt-4">
+              <h5 class="fw-bold text-secondary mb-3">
+                <i class="fa-solid fa-comments me-2"></i>Đánh giá từ khách hàng
+              </h5>
+
+              <% if (room.Reviews && room.Reviews.length> 0) { %>
+                <!-- ⭐ Trung bình số sao -->
+                <% const avgRating=( room.Reviews.reduce((sum, r)=> sum + r.rating,
+                  0) / room.Reviews.length ).toFixed(1); %>
+                  <p>
+                    <strong>⭐ Trung bình:</strong>
+                    <span class="text-warning fw-bold">
+                      <%= avgRating %>
+                    </span> / 5 (<%= room.Reviews.length %> lượt đánh giá)
+                  </p>
+
+                  <!-- Danh sách đánh giá -->
+                  <div class="list-group shadow-sm">
+                    <% room.Reviews.forEach(r=> { %>
+                      <div class="list-group-item border-0 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <strong>
+                              <i class="fa-solid fa-user me-2"></i>
+                              <%= r.Customer ? r.Customer.fullName : 'Người dùng ẩn danh' %>
+                            </strong>
+                            <span class="text-warning ms-2">⭐ <%= r.rating %>/5</span>
+                          </div>
+                          <small class="text-muted">
+                            <%= new Date(r.reviewDate).toLocaleDateString('vi-VN') %>
+                          </small>
+                        </div>
+                        <p class="mt-2 mb-0 text-secondary">
+                          <%= r.comment %>
+                        </p>
+                      </div>
+                      <% }) %>
+                  </div>
+                  <% } else { %>
+                    <p class="text-muted">Phòng này hiện chưa có đánh giá nào.</p>
+                    <% } %>
+            </div>
+            <div class="d-flex gap-3 mt-4">
+              <a href="/" class="btn btn-outline-secondary px-4">
+                <i class="fa-solid fa-arrow-left me-2"></i> Quay lại
+              </a>
+              <a href="/customer/bookings/<%= room.roomId %>?checkInDate=<%= checkInDate %>&checkOutDate=<%= checkOutDate %>&numberOfGuests=<%= numberOfGuests %>"
+                class="btn btn-primary px-4">
+                <i class="fa-solid fa-calendar-check me-2"></i> Đặt phòng ngay
+              </a>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+  </main>
+  <!-- ===== LIGHTBOX FULL MÀN HÌNH ===== -->
+  <div id="lightbox" class="lightbox">
+    <span class="close-btn" onclick="closeLightbox()">&times;</span>
+    <img id="lightbox-img" src="" alt="Phóng to ảnh" />
+    <button class="prev-btn" onclick="changeImage(-1)">&#10094;</button>
+    <button class="next-btn" onclick="changeImage(1)">&#10095;</button>
   </div>
-</main>
 
-<%- include('../partials/footer') %>
+  <!-- Dữ liệu ảnh dạng JSON -->
+  <script id="room-data" type="application/json">
+  <%- JSON.stringify(room.image.split(";").filter(i => i.trim() !== "")) %>
+</script>
 
-<style>
-  .object-fit-cover {
-    object-fit: cover;
-    height: 100%;
-  }
+  <!-- File JS riêng -->
+  <script src="/javascript/detail.js"></script>
+  <%- include('../partials/footer') %>
+    <style>
+      .object-fit-cover {
+        object-fit: cover;
+        height: 100%;
+      }
 
-  .card {
-    border-radius: 18px;
-  }
+      .card {
+        border-radius: 18px;
+      }
 
-  .btn-primary {
-    background-color: #8b7d6b;
-    border: none;
-  }
+      .btn-primary {
+        background-color: #8b7d6b;
+        border: none;
+      }
 
-  .btn-primary:hover {
-    background-color: #a68f6a;
-  }
+      .btn-primary:hover {
+        background-color: #a68f6a;
+      }
 
-  .btn-outline-secondary:hover {
-    color: #fff;
-    background-color: #6c757d;
-  }
+      .btn-outline-secondary:hover {
+        color: #fff;
+        background-color: #6c757d;
+      }
 
-  .text-primary {
-    color: #8b7d6b !important;
-  }
-</style>
+      .text-primary {
+        color: #8b7d6b !important;
+      }
+    </style>

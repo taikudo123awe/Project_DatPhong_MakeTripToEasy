@@ -1,47 +1,56 @@
 <%- include('partials/header') %>
 
-<div class="container mt-4">
-  <h2 class="text-center mb-4">Kết quả tìm kiếm phòng</h2>
-      <!-- 🔙 Nút quay lại trang chủ -->
-  <div class="text-center mb-4">
-    <a href="/" class="btn btn-outline-secondary">
-      ⬅️ Quay lại trang chủ
-    </a>
-  </div>
-
-  <!-- Nếu không có phòng -->
-  <% if (rooms.length === 0) { %>
-    <div class="alert alert-warning text-center">
-      Không tìm thấy phòng trống phù hợp với yêu cầu của bạn.
-    </div>
+  <div class="container mt-4">
+    <h2 class="text-center mb-4">Kết quả tìm kiếm phòng</h2>
     <!-- 🔙 Nút quay lại trang chủ -->
     <div class="text-center mb-4">
-        <a href="/" class="btn btn-outline-secondary">
+      <a href="/" class="btn btn-outline-secondary">
         ⬅️ Quay lại trang chủ
+      </a>
+    </div>
+
+    <!-- Nếu không có phòng -->
+    <% if (rooms.length===0) { %>
+      <div class="alert alert-warning text-center">
+        Không tìm thấy phòng trống phù hợp với yêu cầu của bạn.
+      </div>
+      <!-- 🔙 Nút quay lại trang chủ -->
+      <div class="text-center mb-4">
+        <a href="/" class="btn btn-outline-secondary">
+          ⬅️ Quay lại trang chủ
         </a>
-    </div>
+      </div>
 
-  <% } else { %>
-    <div class="row">
-      <% rooms.forEach(room => { %>
-        <div class="col-md-4 mb-4">
-          <div class="card h-100 shadow-sm">
-            <img src="<%= room.image || '/default-room.jpg' %>" class="card-img-top"
-                 alt="<%= room.roomName %>" style="height:200px;object-fit:cover;">
-            <div class="card-body">
-              <h5 class="card-title text-primary"><%= room.roomName %></h5>
-              <p><strong>Địa điểm:</strong> 
-                <%= room.address ? room.address.city : 'Không rõ' %>
-              </p>
-              <p><strong>Sức chứa:</strong> <%= room.capacity %> người</p>
-              <p><strong>Giá:</strong> <%= room.price.toLocaleString() %> VND / đêm</p>
-              <a href="/rooms/<%= room.roomId %>" class="btn btn-primary">Đặt phòng</a>
+      <% } else { %>
+        <div class="row">
+          <% rooms.forEach(room=> { %>
+            <div class="col-md-4 mb-4">
+              <div class="card h-100 shadow-sm">
+                <img src="<%= room.image || '/default-room.jpg' %>" class="card-img-top" alt="<%= room.roomName %>"
+                  style="height:200px;object-fit:cover;">
+                <div class="card-body">
+                  <h5 class="card-title text-primary">
+                    <%= room.roomName %>
+                  </h5>
+                  <p><strong>Địa điểm:</strong>
+                    <%= room.address ? room.address.city : 'Không rõ' %>
+                  </p>
+                  <p><strong>Sức chứa:</strong>
+                    <%= room.capacity %> người
+                  </p>
+                  <p><strong>Giá:</strong>
+                    <%= room.price.toLocaleString() %> VND / đêm
+                  </p>
+                  <a href="/rooms/<%= room.roomId %>?checkInDate=<%= encodeURIComponent(searchParams.checkInDate) %>&checkOutDate=<%= encodeURIComponent(searchParams.checkOutDate) %>&numberOfGuests=<%= searchParams.numGuests %>"
+                    class="btn btn-primary">
+                    Đặt phòng nhanh
+                  </a>
+                </div>
+              </div>
             </div>
-          </div>
+            <% }) %>
         </div>
-      <% }) %>
-    </div>
-  <% } %>
-</div>
+        <% } %>
+  </div>
 
-<%- include('partials/footer') %>
+  <%- include('partials/footer') %>

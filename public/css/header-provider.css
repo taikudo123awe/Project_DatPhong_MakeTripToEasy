@@ -1,0 +1,103 @@
+/* ====== HEADER ====== */
+.header {
+  background: linear-gradient(90deg, #fafafa, #f5f5f0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Logo + thương hiệu */
+.header .logo {
+  height: 50px;
+  transition: transform 0.3s ease;
+}
+.header .logo:hover {
+  transform: scale(1.1);
+}
+
+.header .brand-name {
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #8b7d6b;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.03);
+  text-decoration: none;
+}
+.header .brand-name:hover {
+  color: #d4af37;
+}
+
+/* ====== NAVIGATION ====== */
+.nav-link {
+  color: #8b7d6b !important;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 6px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #d4af37 !important;
+  background-color: rgba(212, 175, 55, 0.08);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 5px;
+  left: 50%;
+  background-color: #d4af37;
+  transform: translateX(-50%);
+  transition: width 0.3s ease;
+}
+.nav-link:hover::after {
+  width: 60%;
+}
+
+/* ====== NAVBAR TOGGLER ====== */
+.navbar-toggler {
+  border: none;
+  color: #8b7d6b;
+}
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%28139, 125, 107, 0.8%29' stroke-width='2' stroke-linecap='round' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* ====== DROPDOWN ====== */
+.dropdown-menu {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 8px 0;
+}
+.dropdown-item {
+  color: #8b7d6b;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+.dropdown-item:hover {
+  background-color: rgba(212, 175, 55, 0.12);
+  color: #d4af37;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 767px) {
+  .header .brand-name {
+    font-size: 1.3rem;
+  }
+  .nav-link {
+    display: block;
+    text-align: center;
+    padding: 12px;
+  }
+  .nav-link::after {
+    display: none;
+  }
+  .dropdown-menu {
+    box-shadow: none;
+  }
+}

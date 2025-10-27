@@ -1,32 +1,74 @@
 <%- include('../partials/header') %>
 
-<main class="container py-5">
-  <div class="card p-4 shadow-lg">
-    <h2 class="text-primary mb-4">
-      <i class="fa-solid fa-calendar-check me-2"></i> Đặt phòng: <%= room.roomName %>
-    </h2>
+  <main class="container py-5">
+    <div class="card p-4 shadow-lg">
+      <h2 class="text-primary mb-4">
+        <i class="fa-solid fa-calendar-check me-2"></i> Đặt phòng: <%= room.roomName %>
+      </h2>
 
-    <form action="/customer/bookings/<%= room.roomId %>" method="POST">
-      <div class="mb-3">
-        <label for="checkInDate" class="form-label">Ngày nhận phòng</label>
-        <input type="date" id="checkInDate" name="checkInDate" class="form-control" required>
-      </div>
+      <form action="/customer/bookings/<%= room.roomId %>" method="POST">
+        <% if (checkInDate && checkOutDate && numberOfGuests) { %>
+          <!-- Nếu người dùng đã chọn từ trước thì hiển thị sẵn -->
+          <div class="mb-3">
+            <p><strong>Ngày nhận phòng:</strong>
+              <%= checkInDate %>
+            </p>
+            <input type="hidden" name="checkInDate" value="<%= checkInDate %>">
+          </div>
 
-      <div class="mb-3">
-        <label for="checkOutDate" class="form-label">Ngày trả phòng</label>
-        <input type="date" id="checkOutDate" name="checkOutDate" class="form-control" required>
-      </div>
+          <div class="mb-3">
+            <p><strong>Ngày trả phòng:</strong>
+              <%= checkOutDate %>
+            </p>
+            <input type="hidden" name="checkOutDate" value="<%= checkOutDate %>">
+          </div>
 
-      <div class="mb-3">
-        <label for="numberOfGuests" class="form-label">Số lượng khách</label>
-        <input type="number" id="numberOfGuests" name="numberOfGuests" class="form-control" min="1" required>
-      </div>
+          <div class="mb-3">
+            <p><strong>Số lượng khách:</strong>
+              <%= numberOfGuests %>
+            </p>
+            <input type="hidden" name="numberOfGuests" value="<%= numberOfGuests %>">
+          </div>
+          <% } else { %>
+            <!-- Nếu chưa có thì cho nhập -->
+            <!-- <div class="mb-3">
+              <label for="checkInDate" class="form-label">Ngày nhận phòng</label>
+              <input type="date" id="checkInDate" name="checkInDate" class="form-control" required>
+            </div>
 
-      <button type="submit" class="btn btn-primary">
-        <i class="fa-solid fa-check me-2"></i> Xác nhận đặt phòng
-      </button>
-    </form>
-  </div>
-</main>
+            <div class="mb-3">
+              <label for="checkOutDate" class="form-label">Ngày trả phòng</label>
+              <input type="date" id="checkOutDate" name="checkOutDate" class="form-control" required>
+            </div> -->
+            <div class="mb-3">
+              <label class="form-label">Ngày nhận - trả phòng</label>
+              <input type="text" id="dateRange" class="form-control" readonly placeholder="Chọn ngày">
+              <!-- Ẩn 2 input thật để controller vẫn nhận đúng -->
+              <input type="hidden" name="checkInDate" id="checkInDate">
+              <input type="hidden" name="checkOutDate" id="checkOutDate">
+            </div>
 
-<%- include('../partials/footer') %>
+
+            <div class="mb-3">
+              <label for="numberOfGuests" class="form-label">Số lượng khách</label>
+              <input type="number" id="numberOfGuests" name="numberOfGuests" class="form-control" min="1" required>
+            </div>
+            <% } %>
+
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-check me-2"></i> Xác nhận đặt phòng
+              </button>
+      </form>
+
+    </div>
+  </main>
+
+  <!-- Thêm CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+  <!-- Thêm JS (cần jQuery và moment.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <!-- js cho phần chọn ngày tháng -->
+  <script src="/javascript/dateRangePicker.js"></script>
+  <%- include('../partials/footer') %>
