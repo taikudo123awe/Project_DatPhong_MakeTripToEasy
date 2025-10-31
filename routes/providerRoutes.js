@@ -6,6 +6,10 @@ const providerController = require("../controllers/providerController");
 const validateProvider = require("../middlewares/validateProvider");
 const reviewController = require("../controllers/reviewController");
 const bookingController = require("../controllers/bookingController"); //Quan ly dat phong
+const {
+  validateAddRoom,
+  validateEditRoom,
+} = require("../middlewares/validateRoom");
 // --- THÊM CẤU HÌNH MULTER ---
 const multer = require("multer");
 const path = require("path");
@@ -62,6 +66,7 @@ router.post(
   "/add-room",
   ensureProviderLoggedIn,
   uploadRoom.array("images", 10),
+  validateAddRoom, // ✅ THÊM DÒNG NÀY
   roomController.createRoom
 );
 
@@ -75,6 +80,7 @@ router.post(
   "/edit-room/:roomId",
   ensureProviderLoggedIn,
   uploadRoom.array("images", 10),
+  validateEditRoom, // ✅ THÊM DÒNG NÀY
   roomController.updateRoom
 );
 

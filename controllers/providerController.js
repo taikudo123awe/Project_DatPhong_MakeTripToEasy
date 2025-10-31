@@ -44,20 +44,20 @@ exports.showEditProfileForm = async (req, res) => {
 
     // Tìm thông tin thanh toán ĐẦU TIÊN
     const paymentInfo = await PaymentInfo.findOne({
-      where: { providerId }
+      where: { providerId },
     });
 
     if (!provider) {
-      return res.status(404).send('Không tìm thấy nhà cung cấp.');
+      return res.status(404).send("Không tìm thấy nhà cung cấp.");
     }
 
-    res.render('provider/edit-profile', {
+    res.render("provider/edit-profile", {
       provider,
-      paymentInfo // Gửi paymentInfo (có thể là null)
+      paymentInfo, // Gửi paymentInfo (có thể là null)
     });
   } catch (err) {
-    console.error('❌ Lỗi khi lấy thông tin provider:', err);
-    res.status(500).send('Lỗi khi tải trang chỉnh sửa');
+    console.error("❌ Lỗi khi lấy thông tin provider:", err);
+    res.status(500).send("Lỗi khi tải trang chỉnh sửa");
   }
 };
 
