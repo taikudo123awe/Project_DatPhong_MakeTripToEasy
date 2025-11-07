@@ -6,7 +6,7 @@ const validateSearch = require('../middlewares/validateSearch');
 // Tìm kiếm phòng
 router.get('/search', validateSearch, roomController.searchRooms);
 // Danh sách tất cả phòng đã duyệt
-router.get("/", roomController.getAllRooms);
+router.get("/", roomController.listRoomsByCity);
 // Chi tiết phòng
 router.get("/:roomId", roomController.getRoomDetail);
 

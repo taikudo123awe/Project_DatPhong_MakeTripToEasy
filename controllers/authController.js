@@ -113,11 +113,11 @@ exports.loginCustomer = async (req, res) => {
     // --- THÊM KIỂM TRA STATUS ---
     if (account.status === 'locked') {
       return res.render('customer/login', { error: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.' });
-  }
-  if (account.status === 'deleted') {
-       return res.render('customer/login', { error: 'Tài khoản không tồn tại.' });
-  }
-  // --- KẾT THÚC KIỂM TRA ---
+    }
+    if (account.status === 'deleted') {
+      return res.render('customer/login', { error: 'Tài khoản không tồn tại.' });
+    }
+    // --- KẾT THÚC KIỂM TRA ---
     // 🔹 So sánh mật khẩu nhập vào với mật khẩu mã hoá trong DB
     const isMatch = await bcrypt.compare(password, account.password);
     if (!isMatch) {
@@ -153,7 +153,7 @@ exports.loginCustomer = async (req, res) => {
     });
   }
 };
-  // Đăng xuất Customer
+// Đăng xuất Customer
 exports.logoutCustomer = (req, res) => {
   if (!req.session) return res.redirect('/');
   req.session.destroy(err => {
@@ -190,11 +190,11 @@ exports.loginProvider = async (req, res) => {
     // --- THÊM KIỂM TRA STATUS ---
     if (account.status === 'locked') {
       return res.render('provider/login', { error: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.', success: null });
-  }
-  if (account.status === 'deleted') {
-       return res.render('provider/login', { error: 'Tài khoản không tồn tại.', success: null });
-  }
-  // --- KẾT THÚC KIỂM TRA ---
+    }
+    if (account.status === 'deleted') {
+      return res.render('provider/login', { error: 'Tài khoản không tồn tại.', success: null });
+    }
+    // --- KẾT THÚC KIỂM TRA ---
     const isMatch = await bcrypt.compare(password, account.password);
     if (!isMatch) {
       return res.render('provider/login', {
@@ -247,7 +247,7 @@ exports.showAdminLoginForm = (req, res) => {
 exports.loginAdmin = async (req, res) => {
   const { username, password } = req.body; // username ở đây là số điện thoại
 
-  console.log(">>> req.body:", req.body); // Debug
+  console.log(">>> req.body:", req.body);
 
   try {
     // Tìm admin theo số điện thoại
@@ -255,7 +255,6 @@ exports.loginAdmin = async (req, res) => {
 
     if (!admin) {
       return res.render('admin/login', {
-        // error: 'Số điện thoại không tồn tại!',
         error: 'Sai tài khoản hoặc mật khẩu!',
         success: null
       });
@@ -268,6 +267,7 @@ exports.loginAdmin = async (req, res) => {
         role: 0 // Admin
       }
     });
+
 
     if (!account) {
       return res.render('admin/login', {

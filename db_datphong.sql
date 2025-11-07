@@ -1,13 +1,11 @@
 
-
 CREATE TABLE `Account` (
   `accountId` int(11) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` int(11) NOT NULL,
-  `status` varchar(20) DEFAULT NULL
+  `status` varchar(20) DEFAULT 'active'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-
 
 --
 -- Cấu trúc bảng cho bảng `Address`
@@ -20,7 +18,7 @@ CREATE TABLE `Address` (
   `ward` varchar(58) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
-
+--
 -- Cấu trúc bảng cho bảng `Admin`
 --
 
@@ -32,14 +30,8 @@ CREATE TABLE `Admin` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
--- Đang đổ dữ liệu cho bảng `Admin`
+-- Cấu trúc bảng cho bảng `Booking`
 --
-
-INSERT INTO `Admin` (`adminId`, `email`, `phoneNumber`, `accountId`) VALUES
-(1, 'admin@example.com', '0909000000', 1);
-
--- --------------------------------------------------------
-
 
 CREATE TABLE `Booking` (
   `bookingId` int(11) NOT NULL,
@@ -50,10 +42,10 @@ CREATE TABLE `Booking` (
   `totalAmount` float DEFAULT NULL,
   `numberOfGuests` int(11) DEFAULT NULL,
   `customerId` int(11) DEFAULT NULL,
-  `roomId` int(11) DEFAULT NULL
+  `roomId` int(11) DEFAULT NULL,
+  `quantity` int(11) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
---
 -- Cấu trúc bảng cho bảng `Customer`
 --
 
@@ -67,7 +59,6 @@ CREATE TABLE `Customer` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
---
 -- Cấu trúc bảng cho bảng `Feedback`
 --
 
@@ -79,7 +70,6 @@ CREATE TABLE `Feedback` (
   `feedbackDate` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
---
 --
 -- Cấu trúc bảng cho bảng `Invoice`
 --
@@ -94,8 +84,6 @@ CREATE TABLE `Invoice` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
-
---
 -- Cấu trúc bảng cho bảng `PaymentInfo`
 --
 
@@ -108,24 +96,19 @@ CREATE TABLE `PaymentInfo` (
   `providerId` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
---
-
---
 -- Cấu trúc bảng cho bảng `Provider`
 --
 
 CREATE TABLE `Provider` (
   `providerId` int(11) NOT NULL,
-  `providerName` varchar(50) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
+  `providerName` varchar(50) NOT NULL,
+  `email` varchar(255) NOT NULL,
   `identityNumber` varchar(12) NOT NULL,
-  `phoneNumber` varchar(15) DEFAULT NULL,
+  `phoneNumber` varchar(15) NOT NULL,
   `taxCode` varchar(20) DEFAULT NULL,
   `accountId` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
-
 --
--- Đang đổ dữ liệu cho bảng `Provider`
 -- Cấu trúc bảng cho bảng `Review`
 --
 
@@ -138,32 +121,42 @@ CREATE TABLE `Review` (
   `reviewDate` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
---
 -- Cấu trúc bảng cho bảng `Room`
 --
 
 CREATE TABLE `Room` (
   `roomId` int(11) NOT NULL,
-  `roomName` varchar(255) DEFAULT NULL,
+  `roomName` varchar(255) NOT NULL,
   `capacity` int(11) DEFAULT NULL,
   `price` float DEFAULT NULL,
   `amenities` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `image` text DEFAULT NULL,
   `fullAddress` varchar(255) DEFAULT NULL,
-  `status` varchar(30) DEFAULT NULL,
+  `status` varchar(30) DEFAULT 'Hoạt động',
   `postedAt` datetime DEFAULT NULL,
-  `approvalStatus` varchar(30) DEFAULT NULL,
+  `approvalStatus` varchar(30) DEFAULT 'Chờ duyệt',
   `providerId` int(11) DEFAULT NULL,
-  `addressId` int(11) DEFAULT NULL
+  `addressId` int(11) DEFAULT NULL,
+  `availableRooms` int(11) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
+-- Chỉ mục cho các bảng đã đổ
+--
 
 --
 -- Chỉ mục cho bảng `Account`
 --
 ALTER TABLE `Account`
-  ADD PRIMARY KEY (`accountId`);
+  ADD PRIMARY KEY (`accountId`),
+  ADD UNIQUE KEY `username` (`username`);
+
+--
+-- Chỉ mục cho bảng `account`
+--
+ALTER TABLE `account`
+  ADD PRIMARY KEY (`accountId`),
+  ADD UNIQUE KEY `username` (`username`);
 
 --
 -- Chỉ mục cho bảng `Address`
@@ -248,13 +241,19 @@ ALTER TABLE `Room`
 -- AUTO_INCREMENT cho bảng `Account`
 --
 ALTER TABLE `Account`
-  MODIFY `accountId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `accountId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+
+--
+-- AUTO_INCREMENT cho bảng `account`
+--
+ALTER TABLE `account`
+  MODIFY `accountId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT cho bảng `Address`
 --
 ALTER TABLE `Address`
-  MODIFY `addressId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `addressId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT cho bảng `Admin`
@@ -266,49 +265,49 @@ ALTER TABLE `Admin`
 -- AUTO_INCREMENT cho bảng `Booking`
 --
 ALTER TABLE `Booking`
-  MODIFY `bookingId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `bookingId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
 -- AUTO_INCREMENT cho bảng `Customer`
 --
 ALTER TABLE `Customer`
-  MODIFY `customerId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `customerId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT cho bảng `Feedback`
 --
 ALTER TABLE `Feedback`
-  MODIFY `feedbackId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `feedbackId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT cho bảng `Invoice`
 --
 ALTER TABLE `Invoice`
-  MODIFY `invoiceId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `invoiceId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT cho bảng `PaymentInfo`
 --
 ALTER TABLE `PaymentInfo`
-  MODIFY `paymentInfoId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `paymentInfoId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT cho bảng `Provider`
 --
 ALTER TABLE `Provider`
-  MODIFY `providerId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `providerId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT cho bảng `Review`
 --
 ALTER TABLE `Review`
-  MODIFY `reviewId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `reviewId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT cho bảng `Room`
 --
 ALTER TABLE `Room`
-  MODIFY `roomId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `roomId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
 -- Ràng buộc đối với các bảng kết xuất
@@ -354,6 +353,12 @@ ALTER TABLE `PaymentInfo`
   ADD CONSTRAINT `PaymentInfo_ibfk_1` FOREIGN KEY (`providerId`) REFERENCES `Provider` (`providerId`);
 
 --
+-- Ràng buộc cho bảng `Provider`
+--
+ALTER TABLE `Provider`
+  ADD CONSTRAINT `Provider_ibfk_1` FOREIGN KEY (`accountId`) REFERENCES `Account` (`accountId`) ON DELETE NO ACTION ON UPDATE CASCADE;
+
+--
 -- Ràng buộc cho bảng `Review`
 --
 ALTER TABLE `Review`
@@ -364,8 +369,8 @@ ALTER TABLE `Review`
 -- Ràng buộc cho bảng `Room`
 --
 ALTER TABLE `Room`
-  ADD CONSTRAINT `Room_ibfk_1` FOREIGN KEY (`providerId`) REFERENCES `Provider` (`providerId`),
-  ADD CONSTRAINT `Room_ibfk_2` FOREIGN KEY (`addressId`) REFERENCES `Address` (`addressId`);
+  ADD CONSTRAINT `Room_ibfk_2` FOREIGN KEY (`addressId`) REFERENCES `Address` (`addressId`),
+  ADD CONSTRAINT `Room_ibfk_3` FOREIGN KEY (`providerId`) REFERENCES `Provider` (`providerId`) ON DELETE NO ACTION ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

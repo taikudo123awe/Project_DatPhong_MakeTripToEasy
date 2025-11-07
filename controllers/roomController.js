@@ -6,6 +6,7 @@ const Address = require("../models/Address");
 const sequelize = require("../config/database");
 const Review = require("../models/Review");
 const Customer = require("../models/Customer");
+
 exports.getAllRooms = async (req, res) => {
   try {
     const rooms = await Room.findAll({
@@ -13,7 +14,7 @@ exports.getAllRooms = async (req, res) => {
       include: { model: Provider, as: "Provider" },
       order: [["postedAt", "DESC"]],
     });
-    res.render("rooms/list", { rooms });
+    res.render("list", { rooms });
   } catch (err) {
     console.error("❌ Lỗi khi tải danh sách phòng:", err);
     res.status(500).send("Lỗi khi tải danh sách phòng");
@@ -26,25 +27,21 @@ exports.getAllRooms = async (req, res) => {
 exports.getRoomsForHome = async (req, res) => {
   try {
     const rooms = await Room.findAll({
-      where: { approvalStatus: "Đã duyệt" },
+      where: { approvalStatus: 'Đã duyệt' },
       include: [
-        { model: Provider, as: "Provider" },
-        { model: Review }, // thêm đánh giá
+        { model: Provider, as: 'Provider', attributes: ['providerName'], required: false },
+        { model: Review, attributes: ['rating'], required: false },
+        { model: Address, as: 'address', attributes: ['city', 'district', 'ward'], required: false },
       ],
-      order: [["postedAt", "DESC"]],
-      limit: 8,
+      order: [['postedAt', 'DESC']],
+      limit: 4,
     });
 
-    // ✅ Tính trung bình sao và số lượt đánh giá cho mỗi phòng
-    const roomsWithRating = rooms.map((room) => {
+    const roomsWithComputed = rooms.map((room) => {
       const reviews = room.Reviews || [];
       const reviewCount = reviews.length;
-      const avgRating =
-        reviewCount > 0
-          ? (
-            reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount
-          ).toFixed(1)
-          : null;
+      const avgRating = reviewCount > 0 ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount).toFixed(1) : null;
+
       return {
         ...room.toJSON(),
         avgRating,
@@ -52,12 +49,13 @@ exports.getRoomsForHome = async (req, res) => {
       };
     });
 
-    res.render("home", { rooms: roomsWithRating });
+    res.render('home', { rooms: roomsWithComputed });
   } catch (err) {
-    console.error("❌ Lỗi khi tải trang chủ:", err);
-    res.status(500).send("Lỗi khi tải trang chủ");
+    console.error('❌ Lỗi khi tải trang chủ:', err);
+    res.status(500).send('Lỗi khi tải trang chủ');
   }
 };
+
 // ===========================
 // Hiển thị form thêm phòng
 // ===========================
@@ -448,3 +446,36 @@ exports.searchRooms = async (req, res) => {
     res.status(500).send("Lỗi khi tìm kiếm phòng.");
   }
 };
+
+// lấy phòng theo thành phố
+exports.listRoomsByCity = async (req, res) => {
+  try {
+    const { city, checkInDate, checkOutDate, numGuests } = req.query;
+
+    const whereAddress = city
+      ? {
+          city: {
+            [Op.like]: `%${city}%`,
+          },
+        }
+      : {};
+
+    const rooms = await Room.findAll({
+      where: { approvalStatus: 'Đã duyệt' },
+      include: [
+        { model: Address, as: 'address', attributes: ['city', 'district', 'ward'], where: whereAddress, required: !!city, },
+        { model: Provider, as: 'Provider', attributes: ['providerName'], required: false },
+        { model: Review, attributes: ['rating'], required: false },
+      ],
+      order: [['postedAt', 'DESC']],
+    });
+
+    const searchParams = { city, checkInDate, checkOutDate, numGuests };
+
+    res.render('list', { rooms, city, searchParams });
+  } catch (err) {
+    console.error('❌ Lỗi khi lấy danh sách phòng:', err);
+    res.status(500).send('Lỗi khi lấy danh sách phòng');
+  }
+};
+
