@@ -26,7 +26,10 @@ exports.getAllRooms = async (req, res) => {
 // ===========================
 exports.getRoomsForHome = async (req, res) => {
   try {
-    const rooms = await Room.findAll({
+    // ==============================
+    // 🔹 1. Lấy danh sách phòng nổi bật
+    // ==============================
+    const featuredRooms = await Room.findAll({
       where: { approvalStatus: 'Đã duyệt' },
       include: [
         { model: Provider, as: 'Provider', attributes: ['providerName'], required: false },
@@ -37,10 +40,14 @@ exports.getRoomsForHome = async (req, res) => {
       limit: 4,
     });
 
-    const roomsWithComputed = rooms.map((room) => {
+    // Tính trung bình sao và số lượt đánh giá
+    const roomsWithComputed = featuredRooms.map((room) => {
       const reviews = room.Reviews || [];
       const reviewCount = reviews.length;
-      const avgRating = reviewCount > 0 ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount).toFixed(1) : null;
+      const avgRating =
+        reviewCount > 0
+          ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount).toFixed(1)
+          : "4.5";
 
       return {
         ...room.toJSON(),
@@ -49,12 +56,53 @@ exports.getRoomsForHome = async (req, res) => {
       };
     });
 
-    res.render('home', { rooms: roomsWithComputed });
+    // ==============================
+    // 🔹 2. Lấy danh sách ưu đãi cuối tuần (ngẫu nhiên)
+    // ==============================
+    const weekendRooms = await Room.findAll({
+      where: { approvalStatus: 'Đã duyệt' },
+      include: [
+        { model: Address, as: 'address', attributes: ['city', 'district'], required: false },
+        { model: Review, attributes: ['rating'], required: false },
+      ],
+      limit: 4,
+      order: sequelize.random(), // lấy ngẫu nhiên 4 phòng
+    });
+
+    const weekendDeals = weekendRooms.map((room) => {
+      const reviews = room.Reviews || [];
+      const reviewCount = reviews.length;
+      const avgRating =
+        reviewCount > 0
+          ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount).toFixed(1)
+          : "4.5";
+
+      // Tạo giảm giá ảo 10–40%
+      const discountPercent = Math.floor(Math.random() * 30) + 10;
+      const oldPrice = Math.round(room.price * (1 + discountPercent / 100));
+
+      return {
+        ...room.toJSON(),
+        avgRating,
+        reviewCount,
+        oldPrice,
+        discountPercent,
+      };
+    });
+
+    // ==============================
+    // 🔹 3. Render ra trang home
+    // ==============================
+    res.render('home', {
+      rooms: roomsWithComputed,
+      weekendDeals, // thêm dữ liệu ưu đãi vào home.ejs
+    });
   } catch (err) {
     console.error('❌ Lỗi khi tải trang chủ:', err);
     res.status(500).send('Lỗi khi tải trang chủ');
   }
 };
+
 
 // ===========================
 // Hiển thị form thêm phòng
@@ -454,10 +502,10 @@ exports.listRoomsByCity = async (req, res) => {
 
     const whereAddress = city
       ? {
-          city: {
-            [Op.like]: `%${city}%`,
-          },
-        }
+        city: {
+          [Op.like]: `%${city}%`,
+        },
+      }
       : {};
 
     const rooms = await Room.findAll({
@@ -478,4 +526,40 @@ exports.listRoomsByCity = async (req, res) => {
     res.status(500).send('Lỗi khi lấy danh sách phòng');
   }
 };
+//lấy phòng ưu đãi
+exports.getWeekendDeals = async (req, res) => {
+  try {
+    const rooms = await Room.findAll({
+      where: { approvalStatus: "Đã duyệt" },
+      include: [
+        { model: Address, as: "address", attributes: ["city", "district"], required: false },
+        { model: Review, attributes: ["rating"], required: false },
+      ],
+      limit: 4,
+      order: sequelize.random(), // lấy ngẫu nhiên 4 phòng
+    });
 
+    // Tính rating trung bình và tạo giá giảm ảo
+    const weekendDeals = rooms.map(room => {
+      const reviews = room.Reviews || [];
+      const avgRating = reviews.length
+        ? (reviews.reduce((a, r) => a + (r.rating || 0), 0) / reviews.length).toFixed(1)
+        : null;
+
+      const discountPercent = Math.floor(Math.random() * 30) + 10; // 10–40%
+      const oldPrice = Math.round(room.price * (1 + discountPercent / 100));
+
+      return {
+        ...room.toJSON(),
+        avgRating,
+        oldPrice,
+        discountPercent,
+      };
+    });
+
+    res.render("weekend-deals", { weekendDeals });
+  } catch (err) {
+    console.error("❌ Lỗi khi lấy ưu đãi cuối tuần:", err);
+    res.status(500).send("Lỗi khi tải ưu đãi cuối tuần");
+  }
+};

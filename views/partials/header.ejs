@@ -351,6 +351,140 @@
             transform: translateX(5px);
         }
 
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-radius: 12px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .badge.bg-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+
+        /* ==== Các địa danh du lịch nổi tiếng ==== */
+        .place-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .place-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .place-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 12px;
+            transition: filter 0.3s ease;
+        }
+
+        .place-card:hover img {
+            filter: brightness(1.05);
+        }
+
+        /* Tên địa danh và thành phố hiển thị dưới ảnh */
+        .place-info {
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .place-info h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0c4da2;
+            margin-bottom: 4px;
+        }
+
+        .place-info p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin: 0;
+        }
+
+        /* ==== ƯU ĐÃI CUỐI TUẦN ==== */
+        .weekend-section h2 {
+            color: #0c4da2;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .weekend-section p {
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+
+        .deal-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .deal-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .deal-card img {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .deal-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .deal-card .card-body {
+            padding: 15px 18px;
+        }
+
+        .deal-card h6 {
+            color: #0c4da2;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .deal-card p {
+            margin: 0;
+        }
+
+        .deal-card .badge {
+            font-size: 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .deal-card .badge.bg-success {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+        }
+
+        .deal-card .badge.bg-info {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        }
+
+        .deal-card .text-danger {
+            font-size: 0.9rem;
+        }
+
+        .deal-card strong {
+            color: #0c4da2;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .hero-title {
@@ -363,6 +497,14 @@
 
             .search-container {
                 padding: 1.5rem;
+            }
+
+            .place-card img {
+                height: 140px;
+            }
+
+            .deal-card img {
+                height: 160px;
             }
         }
 
@@ -404,7 +546,8 @@
                         <a class="nav-link" href="/rooms"><i class="fas fa-bed"></i> Phòng</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/provider/dashboard"><i class="fas fa-hotel"></i> Đăng chỗ nghĩ của quý vị</a>
+                        <a class="nav-link" href="/provider/dashboard"><i class="fas fa-hotel"></i> Đăng chỗ nghĩ của
+                            quý vị</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/contact"><i class="fas fa-envelope"></i> Liên hệ</a>
@@ -416,16 +559,19 @@
                                 Xin chào, <%= customer.fullName %>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="customerMenu">
-                                <li><a class="dropdown-item" href="/customer/profile"><i class="fas fa-user"></i> Thông tin cá nhân</a></li>
-                                <li><a class="dropdown-item" href="/customer/history-dashboard"><i class="fas fa-calendar-check"></i> Phiếu đặt phòng</a></li>
-                                <li><a class="dropdown-item" href="/customer/logout"><i class="fas fa-sign-out"></i> Đăng xuất</a></li>
+                                <li><a class="dropdown-item" href="/customer/profile"><i class="fas fa-user"></i> Thông
+                                        tin cá nhân</a></li>
+                                <li><a class="dropdown-item" href="/customer/history-dashboard"><i
+                                            class="fas fa-calendar-check"></i> Phiếu đặt phòng</a></li>
+                                <li><a class="dropdown-item" href="/customer/logout"><i class="fas fa-sign-out"></i>
+                                        Đăng xuất</a></li>
                             </ul>
                         </li>
                         <% } else { %>
                             <li class="nav-item">
                                 <a class="nav-link" href="/customer/login"><i class="fas fa-sign-in"></i> Đăng nhập</a>
                             </li>
-                        <% } %>
+                            <% } %>
                 </ul>
             </div>
         </nav>

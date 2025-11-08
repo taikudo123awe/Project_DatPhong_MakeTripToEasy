@@ -1,4 +1,4 @@
-    <%- include('partials/header') %>
+<%- include('partials/header') %>
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container text-center">
@@ -26,12 +26,9 @@
             <p style="color: var(--text-gray);">Các lựa chọn phổ biến nhất cho du khách tại Việt Nam</p>
 
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-5 g-3">
-                <% const destinations=[ { 
-                    city: 'Hồ Chí Minh' ,image: 'images/hochiminh.jpeg' }, { 
-                    city: 'Đà Nẵng' , image: 'images/danang.jpeg' }, { 
-                    city: 'Hà Nội' , image: 'images/hanoi.jpeg' }, { 
-                    city: 'Vũng Tàu' ,image: 'images/vungtau.jpeg' }, { 
-                    city: 'Đà Lạt' ,image: 'images/dalat.jpeg' }, ]; %>
+                <% const destinations=[ { city: 'Hồ Chí Minh' ,image: 'images/hochiminh.jpeg' }, { city: 'Đà Nẵng' ,
+                    image: 'images/danang.jpeg' }, { city: 'Hà Nội' , image: 'images/hanoi.jpeg' }, { city: 'Vũng Tàu'
+                    ,image: 'images/vungtau.jpeg' }, { city: 'Đà Lạt' ,image: 'images/dalat.jpeg' }, ]; %>
 
                     <% destinations.forEach(dest=> { %>
                         <div class="col">
@@ -48,7 +45,7 @@
                                 </div>
                             </a>
                         </div>
-                    <% }) %>
+                        <% }) %>
             </div>
         </section>
 
@@ -100,10 +97,10 @@
                                         <span>
                                             <% if (room.address) { %>
                                                 <%= room.address.district ? room.address.district + ', ' : '' %>
-                                                <%= room.address.city || '' %>
-                                            <% } else { %> 
-                                                Không rõ
-                                            <% } %>
+                                                    <%= room.address.city || '' %>
+                                                        <% } else { %>
+                                                            Không rõ
+                                                            <% } %>
                                         </span>
                                     </div>
                                 </div>
@@ -120,9 +117,144 @@
                         </div>
                     </div>
                     <% }) %>
-                    <% } else { %>
-                        <div class="text-center text-muted">Không có phòng nào để hiển thị</div>
-                    <% } %>
+                        <% } else { %>
+                            <div class="text-center text-muted">Không có phòng nào để hiển thị</div>
+                            <% } %>
         </div>
+        <!-- Các địa danh du lịch nổi tiếng -->
+        <section class="container my-5">
+            <h2 style="color: var(--primary-blue); font-weight: 700;">
+                <i class="fas fa-map-marked-alt text-primary"></i> Các địa danh du lịch nổi tiếng
+            </h2>
+            <p class="text-muted mb-4">Khám phá những điểm đến biểu tượng trải dài từ Bắc vào Nam Việt Nam</p>
+
+            <div class="row g-4 justify-content-center">
+                <!-- Vịnh Hạ Long -->
+                <div class="col-6 col-md-4 col-lg-2">
+                    <a href="/rooms?city=Quảng Ninh" class="text-decoration-none">
+                        <div class="place-card">
+                            <img src="/images/halong.jpeg" alt="Vịnh Hạ Long">
+                        </div>
+                        <div class="place-info">
+                            <h5>Vịnh Hạ Long</h5>
+                            <p>Quảng Ninh</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Động Phong Nha -->
+                <div class="col-6 col-md-4 col-lg-2">
+                    <a href="/rooms?city=Quảng Bình" class="text-decoration-none">
+                        <div class="place-card">
+                            <img src="/images/phongnha.jpeg" alt="Động Phong Nha - Kẻ Bàng">
+                        </div>
+                        <div class="place-info">
+                            <h5>Phong Nha - Kẻ Bàng</h5>
+                            <p>Quảng Bình</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Cố đô Huế -->
+                <div class="col-6 col-md-4 col-lg-2">
+                    <a href="/rooms?city=Thừa Thiên Huế" class="text-decoration-none">
+                        <div class="place-card">
+                            <img src="/images/hue.jpeg" alt="Cố đô Huế">
+                        </div>
+                        <div class="place-info">
+                            <h5>Cố đô Huế</h5>
+                            <p>Thừa Thiên Huế</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Bà Nà Hills -->
+                <div class="col-6 col-md-4 col-lg-2">
+                    <a href="/rooms?city=Đà Nẵng" class="text-decoration-none">
+                        <div class="place-card">
+                            <img src="/images/banahill.jpeg" alt="Bà Nà Hills">
+                        </div>
+                        <div class="place-info">
+                            <h5>Bà Nà Hills</h5>
+                            <p>Đà Nẵng</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Vinpearl Phú Quốc -->
+                <div class="col-6 col-md-4 col-lg-2">
+                    <a href="/rooms?city=Kiên Giang" class="text-decoration-none">
+                        <div class="place-card">
+                            <img src="/images/vinpearlphuquoc.jpeg" alt="Vinpearl Phú Quốc">
+                        </div>
+                        <div class="place-info">
+                            <h5>Vinpearl Phú Quốc</h5>
+                            <p>Kiên Giang</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Nhà thờ Đức Bà -->
+                <div class="col-6 col-md-4 col-lg-2">
+                    <a href="/rooms?city=Hồ Chí Minh" class="text-decoration-none">
+                        <div class="place-card">
+                            <img src="/images/nhathoducba.jpeg" alt="Nhà thờ Đức Bà">
+                        </div>
+                        <div class="place-info">
+                            <h5>Nhà thờ Đức Bà</h5>
+                            <p>TP. Hồ Chí Minh</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ƯU ĐÃI CUỐI TUẦN -->
+        <section class="container my-5 weekend-section">
+            <h2><i class="fa-solid fa-gift"></i> Ưu đãi cho cuối tuần</h2>
+            <p>
+                Tiết kiệm cho chỗ nghỉ từ ngày
+                <%= new Date().getDate() + 1 %> tháng <%= new Date().getMonth() + 1 %> –
+                        ngày <%= new Date().getDate() + 3 %> tháng <%= new Date().getMonth() + 1 %>
+            </p>
+
+            <div class="row">
+                <% weekendDeals.forEach(deal=> { %>
+                    <div class="col-md-3 mb-4">
+                        <div class="deal-card">
+                            <img src="<%= deal.image.split(';')[0] %>" alt="<%= deal.roomName %>">
+                            <div class="card-body">
+                                <h6>
+                                    <%= deal.roomName %>
+                                </h6>
+                                <p class="text-muted small mb-1">
+                                    <%= deal.address?.city || 'Không rõ' %>, Việt Nam
+                                </p>
+
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-info text-white me-2">
+                                        <%= deal.avgRating %>
+                                    </span>
+                                    <small class="text-muted">
+                                        <%= deal.reviewCount %> đánh giá
+                                    </small>
+                                </div>
+
+                                <span class="badge bg-success mb-2">Ưu đãi <%= deal.discountPercent %>%</span>
+
+                                <p class="mb-1">
+                                    <span class="text-decoration-line-through text-danger me-2">
+                                        VND <%= deal.oldPrice.toLocaleString() %>
+                                    </span>
+                                    <strong>VND <%= deal.price.toLocaleString() %></strong>
+                                </p>
+                                <small class="text-muted">2 đêm</small>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </section>
     </main>
     <%- include('partials/footer') %>
