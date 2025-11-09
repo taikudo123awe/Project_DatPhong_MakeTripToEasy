@@ -92,7 +92,7 @@ exports.getDashboard = async (req, res) => {
     try {
         const admin = req.session.admin;
 
-        const [totalRooms, pendingRooms,totalCustomers, totalProviders] = await Promise.all([
+        const [totalRooms, pendingRooms, totalCustomers, totalProviders] = await Promise.all([
             Room.count(),
             Room.count({ where: { approvalStatus: 'Chờ duyệt' } }),
             // Đếm Customer (role=2) đang active

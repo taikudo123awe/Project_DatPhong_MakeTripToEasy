@@ -1,12 +1,16 @@
+// const { Op } = require("sequelize");
+// const Invoice = require("../models/Invoice");
+// const Booking = require("../models/Booking");
+// const Room = require("../models/Room");
+// const Provider = require("../models/Provider");
+// const PaymentInfo = require("../models/PaymentInfo");
+// const Customer = require("../models/Customer");
+// const Review = require("../models/Review");
+// const sequelize = require("../config/database");
+
+const { Invoice, Booking, Room, Provider, PaymentInfo, Customer, Review, sequelize } = require("../models");
 const { Op } = require("sequelize");
-const Invoice = require("../models/Invoice");
-const Booking = require("../models/Booking");
-const Room = require("../models/Room");
-const Provider = require("../models/Provider");
-const PaymentInfo = require("../models/PaymentInfo");
-const Customer = require("../models/Customer");
-const Review = require("../models/Review");
-const sequelize = require("../config/database");
+
 
 // Lấy tất cả booking/invoice và gom nhóm theo trạng thái
 exports.showBookingsByStatus = async (req, res) => {
@@ -277,7 +281,6 @@ exports.viewBookingHistory = async (req, res) => {
         },
         {
           model: Invoice,
-          as: "invoice",
           required: false, // có thể null
         },
       ],
@@ -312,7 +315,7 @@ exports.viewBookingDetail = async (req, res) => {
     const booking = await Booking.findByPk(bookingId, {
       include: [
         { model: Room, include: [Provider] },
-        { model: Invoice, as: "invoice" },
+        { model: Invoice, },
       ],
     });
 

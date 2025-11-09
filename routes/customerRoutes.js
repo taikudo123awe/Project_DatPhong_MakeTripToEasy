@@ -32,13 +32,7 @@ router.post(
 // Hiển thị form chỉnh sửa
 router.get('/update',ensureCustomerLoggedIn ,customerController.showEditProfile);
 router.post('/update', ensureCustomerLoggedIn,  validateUpdateProfile, customerController.updateProfile);
-
-router.get(
-  "/booking/:bookingId",
-  ensureCustomerLoggedIn,
-  customerController.showCustomerBookingDetail
-);
-
+router.get("/booking/:bookingId", ensureCustomerLoggedIn, customerController.showCustomerBookingDetail);
 router.get('/history-dashboard', ensureCustomerLoggedIn,customerController.viewBookingHistory);
 router.get('/history-detail/:id', ensureCustomerLoggedIn,customerController.viewBookingDetail);
 // Hủy phòng

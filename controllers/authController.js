@@ -145,7 +145,9 @@ exports.loginCustomer = async (req, res) => {
       email: customer.email
     };
     // Điều hướng đến trang danh sách phòng cho khách
-    return res.redirect('/');
+    const redirectTo = req.session.returnTo || '/';
+    delete req.session.returnTo; // xoá để tránh redirect lặp
+    return res.redirect(redirectTo);
   } catch (err) {
     console.error('❌ Lỗi đăng nhập customer:', err);
     return res.render('customer/login', {
@@ -153,6 +155,7 @@ exports.loginCustomer = async (req, res) => {
     });
   }
 };
+
 // Đăng xuất Customer
 exports.logoutCustomer = (req, res) => {
   if (!req.session) return res.redirect('/');

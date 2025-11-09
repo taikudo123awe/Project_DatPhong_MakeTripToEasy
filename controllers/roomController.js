@@ -1,11 +1,12 @@
-const { Op } = require("sequelize");
+const { Op, fn, col, literal } = require("sequelize");
+const sequelize = require("../config/database");
 const Room = require("../models/Room");
 const Provider = require("../models/Provider");
 const Booking = require("../models/Booking");
 const Address = require("../models/Address");
-const sequelize = require("../config/database");
 const Review = require("../models/Review");
 const Customer = require("../models/Customer");
+const { getBookedRoomIds, buildRoomFilters, getRoomTypes, getAvailableRooms } = require("../utils/roomHelpers");
 
 exports.getAllRooms = async (req, res) => {
   try {
@@ -14,7 +15,16 @@ exports.getAllRooms = async (req, res) => {
       include: { model: Provider, as: "Provider" },
       order: [["postedAt", "DESC"]],
     });
-    res.render("list", { rooms });
+    const [roomTypes] = await sequelize.query(`
+      SELECT rt.typeId, rt.typeName, COUNT(r.roomId) AS roomCount
+      FROM RoomType rt
+      JOIN Room r ON r.typeId = rt.typeId
+      GROUP BY rt.typeId, rt.typeName
+      ORDER BY roomCount DESC
+      LIMIT 8;
+    `);
+
+    res.render("list", { rooms, roomTypes, });
   } catch (err) {
     console.error("❌ Lỗi khi tải danh sách phòng:", err);
     res.status(500).send("Lỗi khi tải danh sách phòng");
@@ -375,7 +385,6 @@ exports.deleteRoom = async (req, res) => {
   }
 };
 
-//Tìm kiếm phòng
 exports.searchRooms = async (req, res) => {
   try {
     const validated = req.validatedSearch || {};
@@ -387,90 +396,19 @@ exports.searchRooms = async (req, res) => {
     const numGuests = validated.numGuests || 1;
     const numRooms = validated.numRooms || 1;
 
-    // B1: Tìm danh sách phòng đã bị đặt trùng khoảng ngày
-    let bookedRoomIds = [];
-    if (checkInDate && checkOutDate) {
-      const overlappingBookings = await Booking.findAll({
-        where: {
-          [Op.and]: [
-            { checkInDate: { [Op.lt]: checkOutDate } },
-            { checkOutDate: { [Op.gt]: checkInDate } },
-            { status: { [Op.ne]: 'Đã hủy' } } // Chỉ lấy các booking chưa hủy
-          ],
-        },
-        attributes: ["roomId"],
-      });
-      bookedRoomIds = overlappingBookings.map((b) => b.roomId);
-    }
+    // 1️⃣ Lấy danh sách phòng đã bị đặt
+    const bookedRoomIds = await getBookedRoomIds(checkInDate, checkOutDate);
 
-    // B2: Lấy danh sách phòng trống
-    const availableRooms = await Room.findAll({
-      where: {
-        [Op.and]: [
-          bookedRoomIds.length > 0
-            ? { roomId: { [Op.notIn]: bookedRoomIds } }
-            : {},
-          { approvalStatus: "Đã duyệt" },
-          { status: "Hoạt động" },
-          { capacity: { [Op.gte]: numGuests } }, // chỉ lấy phòng có đủ sức chứa
-        ],
-      },
-      include: [
-        {
-          model: Address,
-          as: "address",
-          where: {
-            [Op.and]: [
-              city
-                ? sequelize.where(
-                  sequelize.fn("LOWER", sequelize.col("address.city")),
-                  { [Op.like]: `%${city.toLowerCase()}%` }
-                )
-                : null,
-              district
-                ? sequelize.where(
-                  sequelize.fn("LOWER", sequelize.col("address.district")),
-                  { [Op.like]: `%${district.toLowerCase()}%` }
-                )
-                : null,
-              ward
-                ? sequelize.where(
-                  sequelize.fn("LOWER", sequelize.col("address.ward")),
-                  { [Op.like]: `%${ward.toLowerCase()}%` }
-                )
-                : null,
-            ].filter(Boolean), // lọc null để tránh lỗi
-          },
-          attributes: ["city", "district", "ward"],
-        },
-      ],
+    // 2️⃣ Tạo điều kiện lọc phòng
+    const whereConditions = buildRoomFilters(req, bookedRoomIds, validated);
 
-      order: [["postedAt", "DESC"]],
-    });
+    // 3️⃣ Truy vấn danh sách phòng
+    const availableRooms = await getAvailableRooms( whereConditions, city, district, ward, Room, Address, sequelize, Op );
+    
+    // 4️⃣ Lấy loại phòng
+    const roomTypes = await getRoomTypes();
 
-    // B3: Nếu không có phòng phù hợp
-    if (!availableRooms || availableRooms.length === 0) {
-      return res.render("list", {
-        rooms: [],
-        keyword: city || district || ward,
-        dateRange:
-          checkInDate && checkOutDate
-            ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate
-              .toISOString()
-              .slice(0, 10)}`
-            : null,
-      });
-    }
-
-    console.log("✅ searchParams:", {
-      checkInDate,
-      checkOutDate,
-      numGuests,
-      numRooms,
-    });
-
-    //lưu dữ liệu tìm kiếm 
-    // Truyền thêm thông tin tìm kiếm để hiển thị / dùng lại ở trang đặt phòng
+    // 5️⃣ Dữ liệu tìm kiếm
     const searchParams = {
       checkInDate: checkInDate ? checkInDate.toISOString().slice(0, 10) : "",
       checkOutDate: checkOutDate ? checkOutDate.toISOString().slice(0, 10) : "",
@@ -478,16 +416,18 @@ exports.searchRooms = async (req, res) => {
       numRooms,
     };
 
-    // B4: Render danh sách phòng
+    // 6️⃣ Render kết quả
     res.render("list", {
       rooms: availableRooms,
-      keyword: city || district || ward,
-      dateRange:
-        checkInDate && checkOutDate
-          ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate.toISOString().slice(0, 10)}`
-          : null,
+      roomTypes,
       searchParams,
+      keyword: city || district || ward,
       quantity: numRooms,
+      filters: {
+        typeIds: req.query.typeId,
+        priceRange: parseInt(req.query.priceRange) || null,
+        capacity: parseInt(req.query.capacity) || null,
+      },
     });
   } catch (err) {
     console.error("❌ Lỗi khi tìm kiếm phòng:", err);
@@ -520,7 +460,16 @@ exports.listRoomsByCity = async (req, res) => {
 
     const searchParams = { city, checkInDate, checkOutDate, numGuests };
 
-    res.render('list', { rooms, city, searchParams });
+    const [roomTypes] = await sequelize.query(`
+      SELECT rt.typeId, rt.typeName, COUNT(r.roomId) AS roomCount
+      FROM RoomType rt
+      JOIN Room r ON r.typeId = rt.typeId
+      GROUP BY rt.typeId, rt.typeName
+      ORDER BY roomCount DESC
+      LIMIT 8;
+    `);
+
+    res.render('list', { rooms, city, searchParams, roomTypes, filters: { typeIds: req.query.typeId, priceRange: parseInt(req.query.priceRange) || null, capacity: parseInt(req.query.capacity) || null, }, });
   } catch (err) {
     console.error('❌ Lỗi khi lấy danh sách phòng:', err);
     res.status(500).send('Lỗi khi lấy danh sách phòng');
@@ -563,3 +512,4 @@ exports.getWeekendDeals = async (req, res) => {
     res.status(500).send("Lỗi khi tải ưu đãi cuối tuần");
   }
 };
+

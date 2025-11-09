@@ -1,5 +1,5 @@
-<div class="container mt-4 mb-4 p-4 shadow-sm rounded-3" style="background: #fffbea; border: 2px solid #ffcc00;">
-  <form action="/rooms/search" method="get" class="row g-2 align-items-center">
+<div class="container search-bar">
+  <form action="/rooms/search" method="get" class="row g-3 align-items-end">
 
     <!-- Cột 1: Địa điểm -->
     <!-- Thành phố -->
@@ -72,9 +72,10 @@
 
     <!-- Cột 4: Nút tìm kiếm -->
     <div class="col-md-1 d-grid">
-      <button class="btn btn-primary h-100 mt-3 mt-md-4" type="submit">Tìm</button>
+      <button class="btn btn-primary btn-search h-80 mt-1 mt-md-4" type="submit">
+        <i class="fa-solid fa-magnifying-glass me-1"></i>
+      </button>
     </div>
-
   </form>
 </div>
 
@@ -85,3 +86,4 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
