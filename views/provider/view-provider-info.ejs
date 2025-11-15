@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hồ sơ doanh nghiệp</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: linear-gradient(135deg, #0284c7, #0ea5e9);
+        font-family: "Segoe UI", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .container-box {
+        width: 100%;
+        max-width: 1200px;
+        background: #ffffff;
+        padding: 50px 60px;
+        border-radius: 26px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
+      }
+      .setup-title {
+        text-align: center;
+        margin-bottom: 35px;
+      }
+      .setup-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 12px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #0284c7, #0ea5e9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 18px rgba(2, 132, 199, 0.25);
+      }
+      .setup-icon i {
+        font-size: 2.4rem;
+        color: #ffffff;
+      }
+      .setup-title h2 {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 4px;
+      }
+      .setup-subtitle {
+        font-size: 1rem;
+        color: #64748b;
+      }
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 8px;
+      }
+      .section-box {
+        background: #f8fafc;
+        border-radius: 18px;
+        padding: 18px 20px;
+        margin-bottom: 18px;
+        border: 1px solid #e2e8f0;
+      }
+      .badge-amenity {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #e0f2fe;
+        color: #0369a1;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin: 0 6px 6px 0;
+      }
+      .rule-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+        font-size: 0.96rem;
+        color: #334155;
+      }
+      .rule-item i {
+        margin-right: 8px;
+      }
+      .time-row {
+        display: flex;
+        justify-content: space-between;
+        max-width: 420px;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .time-pill {
+        background: #e0f2fe;
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-size: 0.95rem;
+        color: #0f172a;
+        font-weight: 600;
+      }
+      .logo-box {
+        text-align: center;
+      }
+      .logo-img {
+        max-width: 220px;
+        max-height: 160px;
+        object-fit: contain;
+        border-radius: 18px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        padding: 8px;
+      }
+      .btn-edit {
+        background: linear-gradient(135deg, #0284c7, #0ea5e9);
+        border: none;
+        color: #fff;
+        padding: 10px 22px;
+        border-radius: 12px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+        text-decoration: none;
+      }
+      .btn-edit:hover {
+        color: #fff;
+        opacity: 0.95;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-box">
+      <div class="setup-title">
+        <div class="setup-icon">
+          <i class="fas fa-building"></i>
+        </div>
+        <h2>Hồ sơ doanh nghiệp</h2>
+        <p class="setup-subtitle">
+          Thông tin tổng quan về cơ sở lưu trú của bạn
+        </p>
+      </div>
+
+      <% if (success) { %>
+      <div class="alert alert-success text-center fw-bold"><%= success %></div>
+      <% } %> <% const info = providerInfo || {}; %> <% const popular =
+      (info.popularAmenities || '') .split(',') .map(a => a.trim()) .filter(a =>
+      a.length > 0); %>
+
+      <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+          <div class="section-box">
+            <div class="section-title">
+              <i class="fas fa-hotel me-2 text-primary"></i> Tên doanh nghiệp
+            </div>
+            <p class="fs-5 fw-semibold mb-0">
+              <%= info.businessName || 'Chưa cập nhật' %>
+            </p>
+          </div>
+
+          <div class="section-box">
+            <div class="section-title">
+              <i class="fas fa-location-dot me-2 text-danger"></i> Địa chỉ kinh
+              doanh
+            </div>
+            <p class="mb-0">
+              <%= info.businessAddress || 'Chưa cập nhật địa chỉ' %>
+            </p>
+          </div>
+        </div>
+
+        <div class="col-md-4 logo-box">
+          <div class="section-title mb-2">Logo doanh nghiệp</div>
+          <% if (info.profileImage) { %>
+          <img src="/<%= info.profileImage %>" alt="Logo" class="logo-img" />
+          <% } else { %>
+          <div class="section-box">
+            <p class="mb-0 text-muted">Chưa tải lên logo.</p>
+          </div>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <div class="section-title">
+          <i class="fas fa-align-left me-2 text-secondary"></i> Mô tả doanh
+          nghiệp
+        </div>
+        <p class="mb-0" style="white-space: pre-line">
+          <%= info.description || 'Chưa có mô tả.' %>
+        </p>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="section-box">
+            <div class="section-title">
+              <i class="fas fa-star me-2 text-warning"></i> Tiện ích nổi bật
+            </div>
+            <% if (popular.length > 0) { %> <% popular.forEach(a => { %>
+            <span class="badge-amenity"><%= a %></span>
+            <% }) %> <% } else { %>
+            <p class="mb-0 text-muted">Chưa chọn tiện ích nổi bật.</p>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="section-box">
+            <div class="section-title">
+              <i class="fas fa-clipboard-list me-2 text-success"></i> Quy tắc
+              chung
+            </div>
+
+            <div class="rule-item">
+              <% if (info.allowSmoking) { %>
+              <i class="fas fa-check-circle text-success"></i>
+              <% } else { %>
+              <i class="fas fa-times-circle text-danger"></i>
+              <% } %>
+              <span>Được phép hút thuốc</span>
+            </div>
+
+            <div class="rule-item">
+              <% if (info.allowChildren) { %>
+              <i class="fas fa-check-circle text-success"></i>
+              <% } else { %>
+              <i class="fas fa-times-circle text-danger"></i>
+              <% } %>
+              <span>Cho phép trẻ em</span>
+            </div>
+
+            <div class="rule-item">
+              <% if (info.allowEvents) { %>
+              <i class="fas fa-check-circle text-success"></i>
+              <% } else { %>
+              <i class="fas fa-times-circle text-danger"></i>
+              <% } %>
+              <span>Cho phép tổ chức sự kiện</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <div class="section-title">
+          <i class="fas fa-clock me-2 text-primary"></i> Thời gian nhận & trả
+          phòng
+        </div>
+        <div class="mb-2 fw-semibold">Nhận phòng</div>
+        <div class="time-row mb-3">
+          <div class="time-pill">Từ: <%= info.checkinFrom || '—' %></div>
+          <div class="time-pill">Đến: <%= info.checkinTo || '—' %></div>
+        </div>
+
+        <div class="mb-2 fw-semibold">Trả phòng</div>
+        <div class="time-row">
+          <div class="time-pill">Từ: <%= info.checkoutFrom || '—' %></div>
+          <div class="time-pill">Đến: <%= info.checkoutTo || '—' %></div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end mt-4">
+        <a href="/provider/profile/edit" class="btn-edit">
+          <i class="fas fa-pen-to-square me-1"></i> Chỉnh sửa hồ sơ
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

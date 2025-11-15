@@ -6,18 +6,142 @@ const Address = require("../models/Address");
 const sequelize = require("../config/database");
 const Review = require("../models/Review");
 const Customer = require("../models/Customer");
-
+const RoomType = require("../models/RoomType");
+const Amenity = require("../models/Amenity");
+const RoomName = require("../models/RoomName");
+const ProviderInfo = require("../models/ProviderInfo");
 exports.getAllRooms = async (req, res) => {
   try {
     const rooms = await Room.findAll({
-      where: { approvalStatus: "Đã duyệt" },
-      include: { model: Provider, as: "Provider" },
+      include: [
+        { model: Provider, as: "Provider", attributes: ["providerName"] },
+        { model: RoomType, as: "RoomType", attributes: ["typeName"] },
+        {
+          model: Address,
+          as: "Address",
+          attributes: ["city", "district", "ward"],
+        },
+      ],
       order: [["postedAt", "DESC"]],
     });
-    res.render("list", { rooms });
+
+    res.render("provider/room-list", { rooms });
   } catch (err) {
     console.error("❌ Lỗi khi tải danh sách phòng:", err);
     res.status(500).send("Lỗi khi tải danh sách phòng");
+  }
+};
+
+// ===========================
+// Lấy danh sách phòng cho trang chủ
+// ===========================
+exports.getRoomsForHome = async (req, res) => {
+  try {
+    const featuredRooms = await Room.findAll({
+      where: { approvalStatus: "Đã duyệt" },
+      include: [
+        { model: Provider, as: "Provider", attributes: ["providerName"] },
+        {
+          model: Review,
+          as: "Reviews",
+          attributes: ["rating"],
+          required: false,
+        },
+        {
+          model: Address,
+          as: "Address",
+          attributes: ["city", "district", "ward"],
+        },
+        { model: RoomType, as: "RoomType" },
+        { model: Amenity, as: "Amenities", through: { attributes: [] } },
+      ],
+      order: [["postedAt", "DESC"]],
+      limit: 4,
+    });
+
+    // tính trung bình rating
+    const roomsWithComputed = featuredRooms.map((room) => {
+      const reviews = room.Reviews || [];
+      const reviewCount = reviews.length;
+      const avgRating =
+        reviewCount > 0
+          ? (
+              reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount
+            ).toFixed(1)
+          : "4.5";
+      return { ...room.toJSON(), avgRating, reviewCount };
+    });
+
+    // chọn ngẫu nhiên 4 phòng để làm ưu đãi
+    const weekendRooms = await Room.findAll({
+      where: { approvalStatus: "Đã duyệt" },
+      include: [
+        { model: Address, as: "Address", attributes: ["city", "district"] },
+        {
+          model: Review,
+          as: "Reviews",
+          attributes: ["rating"],
+          required: false,
+        },
+      ],
+      order: sequelize.random(),
+      limit: 4,
+    });
+
+    const weekendDeals = weekendRooms.map((room) => {
+      const reviews = room.Reviews || [];
+      const avgRating =
+        reviews.length > 0
+          ? (
+              reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
+              reviews.length
+            ).toFixed(1)
+          : "4.5";
+      const discountPercent = Math.floor(Math.random() * 30) + 10;
+      const oldPrice = Math.round(room.price * (1 + discountPercent / 100));
+      return { ...room.toJSON(), avgRating, oldPrice, discountPercent };
+    });
+
+    res.render("home", { rooms: roomsWithComputed, weekendDeals });
+  } catch (err) {
+    console.error("❌ Lỗi khi tải trang chủ:", err);
+    res.status(500).send("Lỗi khi tải trang chủ");
+  }
+};
+// ===========================
+// Chi tiết phòng
+// ===========================
+exports.getRoomDetail = async (req, res) => {
+  const roomId = req.params.roomId;
+  const { checkInDate, checkOutDate, numberOfGuests, numRooms } = req.query;
+
+  try {
+    const room = await Room.findOne({
+      where: { roomId, approvalStatus: "Đã duyệt" },
+      include: [
+        { model: Provider, as: "Provider" },
+        { model: RoomType, as: "RoomType" },
+        { model: Amenity, as: "Amenities", through: { attributes: [] } },
+        {
+          model: Review,
+          as: "Reviews",
+          include: [{ model: Customer, attributes: ["fullName"] }],
+        },
+      ],
+    });
+
+    if (!room) return res.status(404).send("Không tìm thấy phòng.");
+
+    res.render("rooms/detail", {
+      room,
+      checkInDate: checkInDate || "",
+      checkOutDate: checkOutDate || "",
+      numberOfGuests: numberOfGuests || "",
+      quantity: numRooms || "",
+    });
+  } catch (err) {
+    console.error("❌ Lỗi khi tải thông tin phòng:", err);
+    res.status(500).send("Lỗi khi tải thông tin phòng");
   }
 };
 
@@ -30,13 +154,23 @@ exports.getRoomsForHome = async (req, res) => {
     // 🔹 1. Lấy danh sách phòng nổi bật
     // ==============================
     const featuredRooms = await Room.findAll({
-      where: { approvalStatus: 'Đã duyệt' },
+      where: { approvalStatus: "Đã duyệt" },
       include: [
-        { model: Provider, as: 'Provider', attributes: ['providerName'], required: false },
-        { model: Review, attributes: ['rating'], required: false },
-        { model: Address, as: 'address', attributes: ['city', 'district', 'ward'], required: false },
+        {
+          model: Provider,
+          as: "Provider",
+          attributes: ["providerName"],
+          required: false,
+        },
+        { model: Review, attributes: ["rating"], required: false },
+        {
+          model: Address,
+          as: "address",
+          attributes: ["city", "district", "ward"],
+          required: false,
+        },
       ],
-      order: [['postedAt', 'DESC']],
+      order: [["postedAt", "DESC"]],
       limit: 4,
     });
 
@@ -46,7 +180,9 @@ exports.getRoomsForHome = async (req, res) => {
       const reviewCount = reviews.length;
       const avgRating =
         reviewCount > 0
-          ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount).toFixed(1)
+          ? (
+              reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount
+            ).toFixed(1)
           : "4.5";
 
       return {
@@ -60,10 +196,15 @@ exports.getRoomsForHome = async (req, res) => {
     // 🔹 2. Lấy danh sách ưu đãi cuối tuần (ngẫu nhiên)
     // ==============================
     const weekendRooms = await Room.findAll({
-      where: { approvalStatus: 'Đã duyệt' },
+      where: { approvalStatus: "Đã duyệt" },
       include: [
-        { model: Address, as: 'address', attributes: ['city', 'district'], required: false },
-        { model: Review, attributes: ['rating'], required: false },
+        {
+          model: Address,
+          as: "address",
+          attributes: ["city", "district"],
+          required: false,
+        },
+        { model: Review, attributes: ["rating"], required: false },
       ],
       limit: 4,
       order: sequelize.random(), // lấy ngẫu nhiên 4 phòng
@@ -74,7 +215,9 @@ exports.getRoomsForHome = async (req, res) => {
       const reviewCount = reviews.length;
       const avgRating =
         reviewCount > 0
-          ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount).toFixed(1)
+          ? (
+              reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount
+            ).toFixed(1)
           : "4.5";
 
       // Tạo giảm giá ảo 10–40%
@@ -93,34 +236,61 @@ exports.getRoomsForHome = async (req, res) => {
     // ==============================
     // 🔹 3. Render ra trang home
     // ==============================
-    res.render('home', {
+    res.render("home", {
       rooms: roomsWithComputed,
       weekendDeals, // thêm dữ liệu ưu đãi vào home.ejs
     });
   } catch (err) {
-    console.error('❌ Lỗi khi tải trang chủ:', err);
-    res.status(500).send('Lỗi khi tải trang chủ');
+    console.error("❌ Lỗi khi tải trang chủ:", err);
+    res.status(500).send("Lỗi khi tải trang chủ");
   }
 };
 
-
+// ===========================
+// Hiển thị form thêm phòng
+// ===========================
 // ===========================
 // Hiển thị form thêm phòng
 // ===========================
 exports.showAddRoomForm = async (req, res) => {
   try {
-    const addresses = await Address.findAll({
+    const providerId = req.session.provider?.id;
+    if (!providerId) return res.redirect("/provider/login");
+
+    // 🔹 Lấy thông tin hồ sơ NCC (ProviderInfo)
+    const providerInfo = await ProviderInfo.findOne({
+      where: { providerId },
+    });
+
+    // 🔹 Lấy loại phòng + tên phòng
+    const [roomTypes, roomNames] = await Promise.all([
+      RoomType.findAll(),
+      RoomName.findAll(),
+    ]);
+
+    // 🔹 Lấy tiện ích và gom nhóm
+    const amenities = await Amenity.findAll({
       order: [
-        ["city", "ASC"],
-        ["district", "ASC"],
-        ["ward", "ASC"],
+        ["category", "ASC"],
+        ["amenityName", "ASC"],
       ],
     });
 
+    const groupedAmenities = {};
+    amenities.forEach((a) => {
+      if (!groupedAmenities[a.category]) groupedAmenities[a.category] = [];
+      groupedAmenities[a.category].push(a);
+    });
+
     res.render("provider/add-room", {
-      error: null,
+      error: {},
+      form: {},
       success: null,
-      addresses, // ✅ phải có dòng này
+      roomTypes,
+      roomNames,
+      groupedAmenities,
+      providerInfo, // ⭐ Gửi đúng ProviderInfo để EJS dùng
+      layout: false,
     });
   } catch (err) {
     console.error("❌ Lỗi khi tải form thêm phòng:", err);
@@ -132,100 +302,134 @@ exports.showAddRoomForm = async (req, res) => {
 // Thêm phòng mới
 // ===========================
 exports.createRoom = async (req, res) => {
+  if (req.validationErrors && Object.keys(req.validationErrors).length > 0) {
+    const providerId = req.session.provider?.id;
+    const providerInfo = await ProviderInfo.findOne({ where: { providerId } });
+
+    const [roomTypes, roomNames, amenities] = await Promise.all([
+      RoomType.findAll(),
+      RoomName.findAll(),
+      Amenity.findAll({
+        order: [
+          ["category", "ASC"],
+          ["amenityName", "ASC"],
+        ],
+      }),
+    ]);
+
+    const groupedAmenities = {};
+    amenities.forEach((a) => {
+      if (!groupedAmenities[a.category]) groupedAmenities[a.category] = [];
+      groupedAmenities[a.category].push(a);
+    });
+
+    return res.render("provider/add-room", {
+      error: req.validationErrors,
+      form: req.body,
+      success: null,
+      roomTypes,
+      roomNames,
+      groupedAmenities,
+      providerInfo, // ⭐ MUST HAVE
+      layout: false,
+    });
+  }
+
+  const t = await sequelize.transaction();
   try {
     const providerId = req.session.provider?.id;
     if (!providerId)
       throw new Error("Provider chưa đăng nhập hoặc session đã hết hạn.");
 
     const {
-      roomName,
-      customAddress, // tên đường / số nhà
+      roomNameId,
+      customAddress,
       city,
       district,
       ward,
       capacity,
       availableRooms,
       price,
-      amenities,
       description,
+      roomTypeId,
+      amenities = [],
     } = req.body;
 
-    console.log("📦 Dữ liệu nhận từ form:", req.body);
-    const errors = [];
+    // Lấy thông tin loại tên phòng và loại phòng
+    const selectedRoomName = await RoomName.findByPk(roomNameId);
+    if (!selectedRoomName) throw new Error("Vui lòng chọn tên phòng hợp lệ.");
 
-    // --- Validate dữ liệu cơ bản ---
-    if (!roomName?.trim()) errors.push("Tên phòng không được để trống.");
-    if (!city) errors.push("Vui lòng chọn thành phố.");
-    if (!district) errors.push("Vui lòng chọn quận/huyện.");
-    if (!ward) errors.push("Vui lòng chọn phường/xã.");
-    if (!customAddress?.trim()) errors.push("Vui lòng nhập tên đường/số nhà.");
-    if (!capacity || isNaN(capacity) || capacity < 1)
-      errors.push("Sức chứa phải ≥ 1.");
-    if (!availableRooms || isNaN(availableRooms) || availableRooms < 1)
-      errors.push("Số lượng phòng hiện có phải ≥ 1.");
-    if (!price || isNaN(price) || price <= 0)
-      errors.push("Giá phòng phải là số > 0.");
-    if (!amenities?.trim()) errors.push("Vui lòng nhập tiện ích của phòng.");
-    if (!description?.trim()) errors.push("Vui lòng nhập mô tả phòng.");
+    const roomType = await RoomType.findByPk(roomTypeId);
+    if (!roomType) throw new Error("Không tìm thấy loại phòng đã chọn.");
 
-    // --- Xử lý ảnh upload ---
-    let imagePaths = [];
-    if (!req.files || req.files.length === 0) {
-      errors.push("Vui lòng tải lên ít nhất 1 ảnh phòng.");
-    } else {
-      const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
-      req.files.forEach((file) => {
-        if (allowedTypes.includes(file.mimetype)) {
-          imagePaths.push(file.path.replace(/^public[\\/]/, ""));
-        }
-      });
-    }
-
-    // --- Nếu có lỗi thì render lại form ---
-    if (errors.length > 0) {
-      return res.render("provider/add-room", {
-        error: errors.join("<br>"),
-        success: null,
-        addresses: [], // bỏ dùng addresses tĩnh
-      });
-    }
-
-    // --- Tạo hoặc lấy Address tương ứng ---
-    let address = await Address.findOne({
-      where: { city, district, ward },
-    });
-
-    if (!address) {
-      address = await Address.create({ city, district, ward });
-      console.log("🆕 Tạo Address mới:", address.addressId);
-    } else {
-      console.log("✅ Dùng Address có sẵn:", address.addressId);
-    }
-
-    const addressId = address.addressId;
-    const fullAddress = `${customAddress}, ${ward}, ${district}, ${city}`;
+    // Ảnh
+    const allowed = ["image/jpeg", "image/png", "image/jpg"];
+    const imagePaths = (req.files || [])
+      .filter((f) => allowed.includes(f.mimetype))
+      .map((f) => f.path.replace(/^public[\\/]/, ""));
     const imageString = imagePaths.join(";");
 
-    // --- Tạo phòng mới ---
-    await Room.create({
-      roomName,
-      fullAddress,
-      addressId,
-      capacity,
-      availableRooms,//thêm sức chứa
-      price,
-      amenities,
-      description,
-      image: imageString,
-      providerId,
-      status: "Hoạt động",
-      approvalStatus: "Chờ duyệt",
-      postedAt: new Date(),
-    });
+    // Địa chỉ
+    let address = await Address.findOne({ where: { city, district, ward } });
+    if (!address) {
+      address = await Address.create(
+        { city, district, ward },
+        { transaction: t }
+      );
+    }
+
+    const fullAddress = `${customAddress}, ${ward}, ${district}, ${city}`;
+
+    // 1️⃣ Tạo phòng TRONG transaction
+    const room = await Room.create(
+      {
+        roomNameId,
+        roomName: selectedRoomName.roomName,
+        fullAddress,
+        capacity,
+        availableRooms,
+        price,
+        description,
+        image: imageString,
+        providerId,
+        addressId: address.addressId,
+        roomTypeId,
+        roomTypeName: roomType.typeName,
+        status: "Hoạt động",
+        approvalStatus: "Chờ duyệt",
+        postedAt: new Date(),
+      },
+      { transaction: t }
+    );
+
+    console.log("🆕 Room ID mới tạo:", room.roomId);
+
+    // 2️⃣ Commit transaction sớm — đảm bảo roomId đã có trong DB
+    await t.commit();
+
+    // 3️⃣ Sau commit, xử lý tiện ích
+    let amenityList = Array.isArray(amenities) ? amenities : [amenities];
+    amenityList = amenityList.filter((id) => id && !isNaN(id));
+
+    if (amenityList.length > 0) {
+      const validAmenities = await Amenity.findAll({
+        where: { amenityId: amenityList },
+        attributes: ["amenityId"],
+      });
+
+      const validIds = validAmenities.map((a) => a.amenityId);
+      if (validIds.length > 0) {
+        await room.setAmenities(validIds); // ✅ chạy ngoài transaction
+        console.log(
+          `✅ Gắn ${validIds.length} tiện ích cho phòng ${room.roomId}`
+        );
+      }
+    }
 
     req.session.success = "✅ Phòng đã được thêm thành công!";
     res.redirect("/provider/dashboard");
   } catch (err) {
+    if (!t.finished) await t.rollback();
     console.error("❌ Lỗi khi thêm phòng:", err);
     res.status(500).send("Lỗi khi thêm phòng: " + err.message);
   }
@@ -258,7 +462,7 @@ exports.getRoomDetail = async (req, res) => {
       checkInDate: checkInDate || "",
       checkOutDate: checkOutDate || "",
       numberOfGuests: numberOfGuests || "",
-      quantity: numRooms || ""
+      quantity: numRooms || "",
     });
   } catch (err) {
     console.error("❌ Lỗi khi tải thông tin phòng:", err);
@@ -266,18 +470,54 @@ exports.getRoomDetail = async (req, res) => {
   }
 };
 
-
 // ===========================
 // Hiển thị form chỉnh sửa
 // ===========================
 exports.showEditRoomForm = async (req, res) => {
   try {
     const roomId = req.params.roomId;
-    const room = await Room.findByPk(roomId);
-    if (!room) return res.status(404).send("Không tìm thấy phòng.");
-    res.render("provider/edit-room", { room, error: null });
+    const providerId = req.session.provider?.id;
+
+    const room = await Room.findByPk(roomId, {
+      include: [
+        { model: Address, as: "address" },
+        { model: Amenity, as: "Amenities" },
+        { model: RoomType, as: "RoomType" },
+      ],
+    });
+
+    const providerInfo = await ProviderInfo.findOne({
+      where: { providerId },
+    });
+
+    const roomTypes = await RoomType.findAll();
+    const roomNames = await RoomName.findAll();
+
+    const amenities = await Amenity.findAll({
+      order: [
+        ["category", "ASC"],
+        ["amenityName", "ASC"],
+      ],
+    });
+
+    const groupedAmenities = {};
+    amenities.forEach((a) => {
+      if (!groupedAmenities[a.category]) groupedAmenities[a.category] = [];
+      groupedAmenities[a.category].push(a);
+    });
+
+    res.render("provider/edit-room", {
+      room,
+      providerInfo, // ⭐ thêm
+      roomTypes,
+      roomNames,
+      groupedAmenities,
+      error: {},
+      success: null,
+      form: {},
+    });
   } catch (err) {
-    console.error("❌ Lỗi khi tải form chỉnh sửa:", err);
+    console.error("❌ Lỗi khi tải form chỉnh sửa phòng:", err);
     res.status(500).send("Lỗi khi tải form chỉnh sửa phòng.");
   }
 };
@@ -286,14 +526,36 @@ exports.showEditRoomForm = async (req, res) => {
 // Cập nhật phòng
 // ===========================
 exports.updateRoom = async (req, res) => {
+  console.log("🔧 validateEditRoom:", req.validationErrors);
+
+  if (req.validationErrors && Object.keys(req.validationErrors).length > 0) {
+    // ... (render lại form như bạn đang làm)
+    return;
+  }
+
   try {
     const roomId = req.params.roomId;
-    const { roomName, fullAddress, capacity, price, amenities, description } =
-      req.body;
+    const {
+      roomNameId, // nếu dùng
+      roomTypeId, // 🔹 lấy từ form
+      capacity,
+      price,
+      description,
+      customAddress,
+      city,
+      district,
+      ward,
+      amenities = [],
+    } = req.body;
 
+    // (Optional) kiểm tra roomType tồn tại
+    if (!roomTypeId || isNaN(roomTypeId)) {
+      throw new Error("Loại phòng không hợp lệ.");
+    }
+
+    // Ảnh mới (giữ nguyên logic cũ)
     let image = null;
     if (req.files?.length > 0) {
-      // Nếu upload nhiều ảnh thì nối chuỗi
       const allowed = ["image/jpeg", "image/png", "image/jpg"];
       const validImages = req.files
         .filter((f) => allowed.includes(f.mimetype))
@@ -301,43 +563,45 @@ exports.updateRoom = async (req, res) => {
       image = validImages.join(";");
     }
 
-    // Lấy phòng hiện tại từ DB
-    const room = await Room.findByPk(roomId);
-    if (!room) {
-      req.session.error = "Không tìm thấy phòng cần chỉnh sửa.";
-      return res.redirect("/provider/dashboard");
-    }
+    // Địa chỉ (giữ nguyên)
+    let address = await Address.findOne({ where: { city, district, ward } });
+    if (!address) address = await Address.create({ city, district, ward });
 
-    // ✅ Logic xử lý trạng thái duyệt
-    let approvalStatus = room.approvalStatus;
-    if (room.approvalStatus === "Đã duyệt") {
-      approvalStatus = "Chờ duyệt"; // nếu đã duyệt → chuyển lại chờ duyệt
-    }
-
+    // 🔹 Cập nhật dữ liệu, NHỚ set roomTypeId
     const updateData = {
-      roomName,
-      fullAddress,
       capacity,
       price,
-      amenities,
       description,
-      approvalStatus,
+      fullAddress: `${customAddress}, ${ward}, ${district}, ${city}`,
+      addressId: address.addressId,
+      roomTypeId: Number(roomTypeId), // ✅ QUAN TRỌNG
+      approvalStatus: "Chờ duyệt",
     };
-
     if (image) updateData.image = image;
 
     await Room.update(updateData, { where: { roomId } });
 
-    req.session.success =
-      approvalStatus === "Chờ duyệt"
-        ? "✅ Phòng đã được cập nhật. Trạng thái chuyển lại 'Chờ duyệt' để xem xét."
-        : "✅ Phòng đã được cập nhật (vẫn đang chờ duyệt).";
+    // Log kiểm tra
+    const updatedRoom = await Room.findByPk(roomId, {
+      attributes: ["roomId", "roomTypeId"],
+      include: [{ model: RoomType, as: "RoomType", attributes: ["typeName"] }],
+    });
+    console.log("✅ Room sau khi cập nhật:", {
+      id: updatedRoom.roomId,
+      roomTypeId: updatedRoom.roomTypeId,
+      roomTypeName: updatedRoom.RoomType?.typeName,
+    });
 
+    // Tiện ích (giữ nguyên)
+    const room = await Room.findByPk(roomId);
+    let amenityList = Array.isArray(amenities) ? amenities : [amenities];
+    if (amenityList.length > 0) await room.setAmenities(amenityList);
+
+    req.session.success = "✅ Cập nhật thành công! Phòng sẽ được duyệt lại.";
     res.redirect("/provider/dashboard");
   } catch (err) {
     console.error("❌ Lỗi khi cập nhật phòng:", err);
-    req.session.error = "Đã xảy ra lỗi khi cập nhật phòng.";
-    res.redirect("/provider/dashboard");
+    res.status(500).send("Lỗi khi cập nhật phòng: " + err.message);
   }
 };
 
@@ -395,7 +659,7 @@ exports.searchRooms = async (req, res) => {
           [Op.and]: [
             { checkInDate: { [Op.lt]: checkOutDate } },
             { checkOutDate: { [Op.gt]: checkInDate } },
-            { status: { [Op.ne]: 'Đã hủy' } } // Chỉ lấy các booking chưa hủy
+            { status: { [Op.ne]: "Đã hủy" } }, // Chỉ lấy các booking chưa hủy
           ],
         },
         attributes: ["roomId"],
@@ -423,21 +687,21 @@ exports.searchRooms = async (req, res) => {
             [Op.and]: [
               city
                 ? sequelize.where(
-                  sequelize.fn("LOWER", sequelize.col("address.city")),
-                  { [Op.like]: `%${city.toLowerCase()}%` }
-                )
+                    sequelize.fn("LOWER", sequelize.col("address.city")),
+                    { [Op.like]: `%${city.toLowerCase()}%` }
+                  )
                 : null,
               district
                 ? sequelize.where(
-                  sequelize.fn("LOWER", sequelize.col("address.district")),
-                  { [Op.like]: `%${district.toLowerCase()}%` }
-                )
+                    sequelize.fn("LOWER", sequelize.col("address.district")),
+                    { [Op.like]: `%${district.toLowerCase()}%` }
+                  )
                 : null,
               ward
                 ? sequelize.where(
-                  sequelize.fn("LOWER", sequelize.col("address.ward")),
-                  { [Op.like]: `%${ward.toLowerCase()}%` }
-                )
+                    sequelize.fn("LOWER", sequelize.col("address.ward")),
+                    { [Op.like]: `%${ward.toLowerCase()}%` }
+                  )
                 : null,
             ].filter(Boolean), // lọc null để tránh lỗi
           },
@@ -456,8 +720,8 @@ exports.searchRooms = async (req, res) => {
         dateRange:
           checkInDate && checkOutDate
             ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate
-              .toISOString()
-              .slice(0, 10)}`
+                .toISOString()
+                .slice(0, 10)}`
             : null,
       });
     }
@@ -469,7 +733,7 @@ exports.searchRooms = async (req, res) => {
       numRooms,
     });
 
-    //lưu dữ liệu tìm kiếm 
+    //lưu dữ liệu tìm kiếm
     // Truyền thêm thông tin tìm kiếm để hiển thị / dùng lại ở trang đặt phòng
     const searchParams = {
       checkInDate: checkInDate ? checkInDate.toISOString().slice(0, 10) : "",
@@ -484,7 +748,9 @@ exports.searchRooms = async (req, res) => {
       keyword: city || district || ward,
       dateRange:
         checkInDate && checkOutDate
-          ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate.toISOString().slice(0, 10)}`
+          ? `${checkInDate.toISOString().slice(0, 10)} to ${checkOutDate
+              .toISOString()
+              .slice(0, 10)}`
           : null,
       searchParams,
       quantity: numRooms,
@@ -502,28 +768,39 @@ exports.listRoomsByCity = async (req, res) => {
 
     const whereAddress = city
       ? {
-        city: {
-          [Op.like]: `%${city}%`,
-        },
-      }
+          city: {
+            [Op.like]: `%${city}%`,
+          },
+        }
       : {};
 
     const rooms = await Room.findAll({
-      where: { approvalStatus: 'Đã duyệt' },
+      where: { approvalStatus: "Đã duyệt" },
       include: [
-        { model: Address, as: 'address', attributes: ['city', 'district', 'ward'], where: whereAddress, required: !!city, },
-        { model: Provider, as: 'Provider', attributes: ['providerName'], required: false },
-        { model: Review, attributes: ['rating'], required: false },
+        {
+          model: Address,
+          as: "address",
+          attributes: ["city", "district", "ward"],
+          where: whereAddress,
+          required: !!city,
+        },
+        {
+          model: Provider,
+          as: "Provider",
+          attributes: ["providerName"],
+          required: false,
+        },
+        { model: Review, attributes: ["rating"], required: false },
       ],
-      order: [['postedAt', 'DESC']],
+      order: [["postedAt", "DESC"]],
     });
 
     const searchParams = { city, checkInDate, checkOutDate, numGuests };
 
-    res.render('list', { rooms, city, searchParams });
+    res.render("list", { rooms, city, searchParams });
   } catch (err) {
-    console.error('❌ Lỗi khi lấy danh sách phòng:', err);
-    res.status(500).send('Lỗi khi lấy danh sách phòng');
+    console.error("❌ Lỗi khi lấy danh sách phòng:", err);
+    res.status(500).send("Lỗi khi lấy danh sách phòng");
   }
 };
 //lấy phòng ưu đãi
@@ -532,7 +809,12 @@ exports.getWeekendDeals = async (req, res) => {
     const rooms = await Room.findAll({
       where: { approvalStatus: "Đã duyệt" },
       include: [
-        { model: Address, as: "address", attributes: ["city", "district"], required: false },
+        {
+          model: Address,
+          as: "address",
+          attributes: ["city", "district"],
+          required: false,
+        },
         { model: Review, attributes: ["rating"], required: false },
       ],
       limit: 4,
@@ -540,10 +822,12 @@ exports.getWeekendDeals = async (req, res) => {
     });
 
     // Tính rating trung bình và tạo giá giảm ảo
-    const weekendDeals = rooms.map(room => {
+    const weekendDeals = rooms.map((room) => {
       const reviews = room.Reviews || [];
       const avgRating = reviews.length
-        ? (reviews.reduce((a, r) => a + (r.rating || 0), 0) / reviews.length).toFixed(1)
+        ? (
+            reviews.reduce((a, r) => a + (r.rating || 0), 0) / reviews.length
+          ).toFixed(1)
         : null;
 
       const discountPercent = Math.floor(Math.random() * 30) + 10; // 10–40%
