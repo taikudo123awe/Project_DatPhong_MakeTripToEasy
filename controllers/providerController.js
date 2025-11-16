@@ -401,3 +401,125 @@ function groupAmenities(list) {
   });
   return grouped;
 }
+exports.showEditProviderInfo = async (req, res) => {
+  try {
+    const providerId = req.session.provider.id;
+
+    const providerInfo = await ProviderInfo.findOne({
+      where: { providerId },
+      include: [{ model: Address, as: "Address" }],
+    });
+
+    const amenities = await Amenity.findAll({
+      order: [
+        ["category", "ASC"],
+        ["amenityName", "ASC"],
+      ],
+    });
+
+    const groupedAmenities = {};
+    amenities.forEach((a) => {
+      if (!groupedAmenities[a.category]) groupedAmenities[a.category] = [];
+      groupedAmenities[a.category].push(a);
+    });
+
+    res.render("provider/edit-provider-info", {
+      providerInfo,
+      groupedAmenities,
+      errors: {},
+      formData: {},
+      success: null,
+    });
+  } catch (err) {
+    console.error("❌ Lỗi showEditProviderInfo:", err);
+    res.status(500).send("Không thể tải form chỉnh sửa.");
+  }
+};
+exports.updateProviderInfo = async (req, res) => {
+  try {
+    const providerId = req.session.provider.id;
+    const info = req.providerInfo; // dữ liệu cũ từ middleware
+
+    if (!info) {
+      return res.redirect("/provider/setup-profile");
+    }
+
+    const {
+      businessName,
+      city,
+      district,
+      ward,
+      customAddress,
+      description,
+      popularAmenities,
+      allowSmoking,
+      allowChildren,
+      allowEvents,
+      checkinFrom,
+      checkinTo,
+      checkoutFrom,
+      checkoutTo,
+    } = req.body;
+
+    // =====================================
+    // ⚡ 1) UPDATE Address
+    // =====================================
+    await Address.update(
+      {
+        city,
+        district,
+        ward,
+      },
+      { where: { addressId: info.addressId } }
+    );
+
+    // =====================================
+    // ⚡ 2) xử lý tiện ích
+    // =====================================
+    const amenitiesString = Array.isArray(popularAmenities)
+      ? popularAmenities.join("; ")
+      : popularAmenities || "";
+
+    // =====================================
+    // ⚡ 3) xử lý logo
+    // =====================================
+
+    let logoPath = info.profileImage; // giữ logo cũ
+
+    if (req.file) {
+      logoPath = req.file.path.replace(/^public[\\/]/, "");
+    }
+
+    // =====================================
+    // ⚡ 4) Gộp địa chỉ đầy đủ
+    // =====================================
+    const businessAddress = `${customAddress}, ${ward}, ${district}, ${city}`;
+
+    // =====================================
+    // ⚡ 5) UPDATE ProviderInfo
+    // =====================================
+    await ProviderInfo.update(
+      {
+        businessName,
+        businessAddress,
+        description,
+        popularAmenities: amenitiesString,
+        allowSmoking: allowSmoking ? 1 : 0,
+        allowChildren: allowChildren ? 1 : 0,
+        allowEvents: allowEvents ? 1 : 0,
+        checkinFrom,
+        checkinTo,
+        checkoutFrom,
+        checkoutTo,
+        profileImage: logoPath,
+      },
+      { where: { infoId: info.infoId } }
+    );
+
+    req.session.success = "Cập nhật hồ sơ thành công!";
+    res.redirect("/provider/profile");
+  } catch (err) {
+    console.error("❌ Lỗi updateProviderInfo:", err);
+    res.status(500).send("Không thể cập nhật hồ sơ.");
+  }
+};

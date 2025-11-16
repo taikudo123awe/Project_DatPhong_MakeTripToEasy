@@ -7,8 +7,8 @@ const validateProvider = require("../middlewares/validateProvider");
 const reviewController = require("../controllers/reviewController");
 const bookingController = require("../controllers/bookingController"); //Quan ly dat phong
 const validateSetupProfile = require("../middlewares/validateSetupProfile");
-const ProviderInfo = require("../models/ProviderInfo");
-const Address = require("../models/Address");
+const validateEditProviderInfo = require("../middlewares/validateEditProviderInfo");
+
 const {
   validateAddRoom,
   validateEditRoom,
@@ -188,6 +188,19 @@ router.get(
   "/profile",
   ensureProviderLoggedIn,
   providerController.viewProviderInfo
+);
+
+router.get(
+  "/profile/edit-info",
+  ensureProviderLoggedIn,
+  providerController.showEditProviderInfo
+);
+router.post(
+  "/profile/edit-info",
+  ensureProviderLoggedIn,
+  upload.single("logoImage"),
+  validateEditProviderInfo, // ✔️ dùng middleware gộp
+  providerController.updateProviderInfo
 );
 
 // Hiển thị form đăng ký
