@@ -8,8 +8,8 @@ const Customer = require("../models/Customer");
 const Review = require("../models/Review");
 const sequelize = require("../config/database");
 
-const vnpay = require('../config/vnpay'); // <-- THÊM "THƯ VIỆN" VNPAY
-const moment = require('moment'); // <-- THÊM MOMENT
+const vnpay = require("../config/vnpay"); // <-- THÊM "THƯ VIỆN" VNPAY
+const moment = require("moment"); // <-- THÊM MOMENT
 // Lấy tất cả booking/invoice và gom nhóm theo trạng thái
 exports.showBookingsByStatus = async (req, res) => {
   try {
@@ -25,6 +25,7 @@ exports.showBookingsByStatus = async (req, res) => {
         },
         {
           model: Invoice,
+          as: "invoice",
           required: false, // LEFT JOIN
         },
       ],
@@ -142,28 +143,40 @@ exports.createPaymentUrl = async (req, res) => {
   try {
     const { invoiceIds } = req.body;
     const customerId = req.session.customer.customerId;
-    if (!invoiceIds || invoiceIds.length === 0) return res.redirect('/customer/history');
+    if (!invoiceIds || invoiceIds.length === 0)
+      return res.redirect("/customer/history");
     const invoiceIdList = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
 
     const invoices = await Invoice.findAll({
-      where: { invoiceId: { [Op.in]: invoiceIdList }, customerId, status: 'Chờ thanh toán' }
+      where: {
+        invoiceId: { [Op.in]: invoiceIdList },
+        customerId,
+        status: "Chờ thanh toán",
+      },
     });
 
-    if (invoices.length === 0) return res.status(404).send('Không tìm thấy hóa đơn hợp lệ.');
+    if (invoices.length === 0)
+      return res.status(404).send("Không tìm thấy hóa đơn hợp lệ.");
 
     const totalAmount = invoices.reduce((sum, inv) => sum + inv.amount, 0);
-    const ipAddr = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    const vnp_TxnRef = moment().format('HHmmss');
+    const ipAddr = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    const vnp_TxnRef = moment().format("HHmmss");
     const orderInfo = "Thanh toan";
-    
+
     // QUAN TRỌNG: Gửi kèm danh sách ID hóa đơn
     const extraData = JSON.stringify(invoiceIdList);
 
-    const paymentUrl = vnpay.createPaymentUrl(vnp_TxnRef, totalAmount, orderInfo, ipAddr, extraData);
+    const paymentUrl = vnpay.createPaymentUrl(
+      vnp_TxnRef,
+      totalAmount,
+      orderInfo,
+      ipAddr,
+      extraData
+    );
     res.redirect(paymentUrl);
   } catch (err) {
-    console.error('❌ Lỗi tạo URL VNPay:', err);
-    res.status(500).send('Lỗi máy chủ');
+    console.error("❌ Lỗi tạo URL VNPay:", err);
+    res.status(500).send("Lỗi máy chủ");
   }
 };
 // Bước 7 & 8: Xác nhận đã chuyển tiền
@@ -246,47 +259,69 @@ exports.vnpayReturn = async (req, res) => {
 
     let message = "Giao dịch thất bại hoặc chữ ký không hợp lệ.";
 
-    if (isVerified && vnp_Params['vnp_ResponseCode'] === '00') {
+    if (isVerified && vnp_Params["vnp_ResponseCode"] === "00") {
       const t = await sequelize.transaction();
       try {
         // Giải mã lấy invoiceIds từ vnp_OrderInfo
-        const vnp_OrderInfo = decodeURIComponent(vnp_Params['vnp_OrderInfo']);
-        const extraDataEncoded = vnp_OrderInfo.split('|')[1];
-        const invoiceIdList = JSON.parse(Buffer.from(extraDataEncoded, 'base64').toString('utf8'));
+        const vnp_OrderInfo = decodeURIComponent(vnp_Params["vnp_OrderInfo"]);
+        const extraDataEncoded = vnp_OrderInfo.split("|")[1];
+        const invoiceIdList = JSON.parse(
+          Buffer.from(extraDataEncoded, "base64").toString("utf8")
+        );
 
         // Tìm các hóa đơn cần cập nhật
         const invoices = await Invoice.findAll({
-            where: { invoiceId: { [Op.in]: invoiceIdList }, status: 'Chờ thanh toán' }, // Chỉ cập nhật nếu chưa thanh toán
-            attributes: ['bookingId', 'invoiceId'],
-            transaction: t
+          where: {
+            invoiceId: { [Op.in]: invoiceIdList },
+            status: "Chờ thanh toán",
+          }, // Chỉ cập nhật nếu chưa thanh toán
+          attributes: ["bookingId", "invoiceId"],
+          transaction: t,
         });
 
         if (invoices.length > 0) {
-            const bookingIds = invoices.map(inv => inv.bookingId);
-            // Cập nhật Invoice
-            await Invoice.update({ status: 'Đã thanh toán' }, { where: { invoiceId: { [Op.in]: invoiceIdList } }, transaction: t });
-            // Cập nhật Booking
-            await Booking.update({ status: 'Đã hoàn thành' }, { where: { bookingId: { [Op.in]: bookingIds }, status: 'Đang sử dụng' }, transaction: t });
-            
-            await t.commit();
-            message = "Giao dịch thành công! Hóa đơn đã được cập nhật.";
+          const bookingIds = invoices.map((inv) => inv.bookingId);
+          // Cập nhật Invoice
+          await Invoice.update(
+            { status: "Đã thanh toán" },
+            { where: { invoiceId: { [Op.in]: invoiceIdList } }, transaction: t }
+          );
+          // Cập nhật Booking
+          await Booking.update(
+            { status: "Đã hoàn thành" },
+            {
+              where: {
+                bookingId: { [Op.in]: bookingIds },
+                status: "Đang sử dụng",
+              },
+              transaction: t,
+            }
+          );
+
+          await t.commit();
+          message = "Giao dịch thành công! Hóa đơn đã được cập nhật.";
         } else {
-            await t.rollback();
-            message = "Giao dịch thành công, nhưng hóa đơn đã được cập nhật trước đó.";
+          await t.rollback();
+          message =
+            "Giao dịch thành công, nhưng hóa đơn đã được cập nhật trước đó.";
         }
       } catch (dbErr) {
-          await t.rollback();
-          console.error("❌ Lỗi cập nhật DB tại vnpayReturn:", dbErr);
-          message = "Thanh toán thành công nhưng lỗi khi cập nhật hệ thống. Vui lòng liên hệ Admin.";
+        await t.rollback();
+        console.error("❌ Lỗi cập nhật DB tại vnpayReturn:", dbErr);
+        message =
+          "Thanh toán thành công nhưng lỗi khi cập nhật hệ thống. Vui lòng liên hệ Admin.";
       }
     } else if (isVerified) {
-        message = "Giao dịch thất bại. Mã lỗi VNPay: " + vnp_Params['vnp_ResponseCode'];
+      message =
+        "Giao dịch thất bại. Mã lỗi VNPay: " + vnp_Params["vnp_ResponseCode"];
     }
 
-    res.render('customer/payment-return', { message });
+    res.render("customer/payment-return", { message });
   } catch (err) {
-    console.error('❌ Lỗi vnpayReturn:', err);
-    res.render('customer/payment-return', { message: "Đã xảy ra lỗi trong quá trình xử lý." });
+    console.error("❌ Lỗi vnpayReturn:", err);
+    res.render("customer/payment-return", {
+      message: "Đã xảy ra lỗi trong quá trình xử lý.",
+    });
   }
 };
 // THAY THẾ confirmPayment BẰNG HÀM NÀY
@@ -299,28 +334,27 @@ exports.vnpayReturn = async (req, res) => {
 //   console.log("🔥 [IPN START] VNPay đang gọi vào IPN...");
 //   console.log("👉 Query Params nhận được:", JSON.stringify(req.query, null, 2));
 
-
 //   const t = await sequelize.transaction();
 //   try {
 //     let vnp_Params = req.query;
 //     const vnp_SecureHash = vnp_Params['vnp_SecureHash'];
 //     const vnp_ResponseCode = vnp_Params['vnp_ResponseCode'];
 //     const vnp_TxnRef = vnp_Params['vnp_TxnRef'];
-    
+
 //     delete vnp_Params['vnp_SecureHash'];
 //     delete vnp_Params['vnp_SecureHashType'];
 
 //     vnp_Params = sortObject(vnp_Params);
 //     const vnpay = require('../config/vnpay'); // Đảm bảo path đúng
 //     const secretKey = process.env.VNP_HASH_SECRET;
-    
+
 //     // Tự tính lại hash để so sánh
 //     const crypto = require('crypto');
 //     const qs = require('qs');
 //     const signData = qs.stringify(vnp_Params, { encode: false });
 //     const hmac = crypto.createHmac("sha512", secretKey);
 //     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
-    
+
 //     console.log("🔑 Hash tính toán:", signed);
 //     console.log("🔑 Hash từ VNPay:", vnp_SecureHash);
 
@@ -332,10 +366,10 @@ exports.vnpayReturn = async (req, res) => {
 //         // Giải mã extraData
 //         try {
 //              const vnp_OrderInfo = decodeURIComponent(vnp_Params['vnp_OrderInfo']); // Decode trước
-//              // Tùy vào cách VNPay trả về, có thể cần hoặc không cần decodeURIComponent. 
+//              // Tùy vào cách VNPay trả về, có thể cần hoặc không cần decodeURIComponent.
 //              // Hãy xem log "Query Params nhận được" để điều chỉnh nếu cần.
 //              // Nếu vnp_OrderInfo trong log không có ký tự %, có thể bỏ dòng decode trên.
-             
+
 //              const orderInfoParts = vnp_OrderInfo.split('|');
 //              if (orderInfoParts.length < 2) {
 //                  throw new Error("Format vnp_OrderInfo không đúng (thiếu dấu |)");
@@ -343,7 +377,7 @@ exports.vnpayReturn = async (req, res) => {
 //              const extraDataEncoded = orderInfoParts[1];
 //              const extraData = Buffer.from(extraDataEncoded, 'base64').toString('utf8');
 //              const invoiceIdList = JSON.parse(extraData);
-             
+
 //              console.log("📦 Invoice IDs cần thanh toán:", invoiceIdList);
 
 //              const invoices = await Invoice.findAll({
@@ -399,12 +433,12 @@ exports.showEditProfile = async (req, res) => {
     const customer = await Customer.findByPk(customerSession.customerId);
     if (!customer) return res.status(404).send("Customer not found");
 
-    const success = req.query.success === '1';
+    const success = req.query.success === "1";
 
-    res.render('customer/update', { 
+    res.render("customer/update", {
       customer,
       success,
-      error: null
+      error: null,
     });
   } catch (err) {
     console.error("showEditProfile error:", err);
@@ -556,6 +590,7 @@ exports.showCustomerBookingDetail = async (req, res) => {
         },
         {
           model: Invoice, // Lấy thông tin hóa đơn (nếu có)
+          as: "invoice",
           required: false,
         },
       ],
@@ -572,17 +607,17 @@ exports.showCustomerBookingDetail = async (req, res) => {
   }
 };
 function sortObject(obj) {
-	let sorted = {};
-	let str = [];
-	let key;
-	for (key in obj){
-		if (obj.hasOwnProperty(key)) {
-		str.push(encodeURIComponent(key));
-		}
-	}
-	str.sort();
-    for (key = 0; key < str.length; key++) {
-        sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+  let sorted = {};
+  let str = [];
+  let key;
+  for (key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      str.push(encodeURIComponent(key));
     }
-    return sorted;
+  }
+  str.sort();
+  for (key = 0; key < str.length; key++) {
+    sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+  }
+  return sorted;
 }
