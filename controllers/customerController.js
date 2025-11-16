@@ -43,15 +43,9 @@ exports.showBookingsByStatus = async (req, res) => {
     allBookings.forEach((booking) => {
       if (booking.status === "Đã hủy") {
         grouped.cancelled.push(booking);
-      } else if (
-        booking.Invoice &&
-        booking.Invoice.status === "Đã thanh toán"
-      ) {
+      } else if (booking.invoice && booking.invoice.status === "Đã thanh toán") {
         grouped.paid.push(booking); // Lưu cả booking có invoice đã thanh toán
-      } else if (
-        booking.Invoice &&
-        booking.Invoice.status === "Chờ thanh toán"
-      ) {
+      } else if (booking.invoice && booking.invoice.status === "Chờ thanh toán") {
         grouped.unpaid.push(booking); // Lưu cả booking có invoice chờ thanh toán
       }
       // Các trạng thái khác của booking (VD: Đang sử dụng, Chờ nhận phòng mà chưa có Invoice)

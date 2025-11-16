@@ -101,7 +101,7 @@
                 <td><%= booking.Room.roomName %></td>
                 <td><%= booking.Customer.fullName %></td>
                 <td>
-                  <% if (booking.invoice && booking.Invoice.status === 'Đã thanh toán') { %><span class="badge bg-success"><%= booking.invoice.status %></span><% } else { %><span class="badge bg-warning text-dark"><%= booking.invoice ? booking.invoice.status : 'N/A' %></span><% } %>
+                  <% if (booking.invoice && booking.invoice.status === 'Đã thanh toán') { %><span class="badge bg-success"><%= booking.invoice.status %></span><% } else { %><span class="badge bg-warning text-dark"><%= booking.invoice ? booking.invoice.status : 'N/A' %></span><% } %>
                 </td>
                 <td>
                   <a href="/provider/bookings/<%= booking.bookingId %>" class="btn btn-primary btn-sm">Xem chi tiết</a>
