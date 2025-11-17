@@ -14,6 +14,7 @@ const providerRoutes = require("./routes/providerRoutes");
 const customerRoutes = require("./routes/customerRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const setLocals = require('./middlewares/setLocals');
 
 require("./models/associations");
 app.set("view engine", "ejs");
@@ -57,6 +58,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(setLocals);
 app.use("/admin", require("./routes/adminRoutes"));
 app.use("/rooms", roomRoutes);
 app.use("/", homeRoutes);
@@ -68,6 +70,6 @@ app.use("/provider/report", reportRoutes);
 
 sequelize.sync().then(() => {
   app.listen(3000, () =>
-    console.log("🚀 Server running on http://localhost:3000")
+    console.log("Server running on http://localhost:3000")
   );
 });

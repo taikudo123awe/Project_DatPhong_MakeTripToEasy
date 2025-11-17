@@ -1,6 +1,13 @@
 <%- include('partials/header') %>
     <!-- Hero Section -->
     <section class="hero-section">
+        <div class="hero-bg-slideshow">
+            <img src="/images/view-home/dalat.jpeg" class="active">
+            <img src="/images/view-home/fansipan.jpeg">
+            <img src="/images/view-home/sapa.jpeg">
+            <img src="/images/view-home/taxua.jpeg">
+        </div>
+
         <div class="container text-center">
             <h1 class="hero-title">
                 Chào mừng đến với Make Trip To Easy!
@@ -258,3 +265,13 @@
         </section>
     </main>
     <%- include('partials/footer') %>
+    <script>
+        const slides = document.querySelectorAll('.hero-bg-slideshow img');
+        let index = 0;
+
+        setInterval(() => {
+            slides[index].classList.remove('active');
+            index = (index + 1) % slides.length;
+            slides[index].classList.add('active');
+        }, 5000); // 5 giây chuyển ảnh
+    </script>

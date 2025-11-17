@@ -15,3 +15,4 @@ exports.ensureProviderLoggedIn = (req, res, next) => {
   }
   res.redirect('/provider/login');
 };
+

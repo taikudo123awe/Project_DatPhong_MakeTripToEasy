@@ -185,21 +185,36 @@ exports.showBookingForm = async (req, res) => {
     const room = await Room.findByPk(roomId);
     if (!room) return res.status(404).send("Không tìm thấy phòng");
 
+    // Lấy thông tin khách hàng từ session
+    let customer = null;
+    if (req.session.customer && req.session.customer.customerId) {
+      customer = await Customer.findByPk(req.session.customer.customerId);
+    }
+
+    // Nếu chưa đăng nhập thì lưu URL hiện tại để quay lại sau khi login
+    if (!req.session.customer) {
+      req.session.returnTo = req.originalUrl;
+    }
+
     // Render view, truyền thêm dữ liệu đã chọn (nếu có)
     res.render("customer/booking", {
       room,
+      customer,
       checkInDate: checkInDate || "",
       checkOutDate: checkOutDate || "",
       numberOfGuests: numberOfGuests || "",
       quantity: quantity || "",
+      currentUrl: req.originalUrl
     });
+    console.log("📍 currentUrl:", req.originalUrl);
+
   } catch (err) {
     console.error("❌ Lỗi hiển thị form đặt phòng:", err);
     res.status(500).send("Lỗi máy chủ");
   }
 };
 
-// ✅ Xử lý khi khách đặt phòng (hỗ trợ đặt nhiều phòng giống nhau)
+// Xử lý khi khách đặt phòng (hỗ trợ đặt nhiều phòng giống nhau)
 exports.handleBooking = async (req, res) => {
   const { checkInDate, checkOutDate, numberOfGuests, quantity } = req.body;
   const customerId = req.session.customer?.customerId;

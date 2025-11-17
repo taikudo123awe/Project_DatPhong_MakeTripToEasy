@@ -9,7 +9,6 @@ exports.showLoginForm = (req, res) => {
   res.render('provider/login', { error: null, success: null });
 };
 
-
 exports.login = async (req, res) => {
   const { username, password } = req.body;
 
@@ -307,9 +306,9 @@ exports.loginAdmin = async (req, res) => {
   }
 };
 
-
 // ADMIN: Đăng xuất
 exports.logoutAdmin = (req, res) => {
   req.session.admin = null;
   res.redirect('/admin/login');
 };
+

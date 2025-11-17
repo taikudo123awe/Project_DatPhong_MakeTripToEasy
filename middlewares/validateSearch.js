@@ -24,20 +24,15 @@ module.exports = (req, res, next) => {
       return res.status(400).send('❌ Số phòng không được lớn hơn số người.');
     }
 
-    // --- Hàm chuẩn hoá ngày: đổi "/" → "-" để new Date() không lỗi ---
-    const normalizeDate = s => (s ? s.replace(/\//g, '-') : null);
-
-    // --- Kiểm tra định dạng ngày ---
+    // --- Xử lý ngày ---
     let checkInDate = null, checkOutDate = null;
-    if (dateRange) {
-      const cleaned = dateRange.replace(/to|-/g, ' ').trim();
-      const [startStr, endStr] = cleaned.split(/\s+/).filter(Boolean);
-      if (startStr && endStr) {
-        checkInDate  = new Date(normalizeDate(startStr));
-        checkOutDate = new Date(normalizeDate(endStr));
-        if (isNaN(checkInDate) || isNaN(checkOutDate) || checkInDate > checkOutDate) {
-          return res.status(400).send('❌ Khoảng ngày không hợp lệ.');
-        }
+    if (dateRange && dateRange.includes(" to ")) {
+      const [startStr, endStr] = dateRange.split(" to ");
+      checkInDate  = new Date(startStr.trim());
+      checkOutDate = new Date(endStr.trim());
+
+      if (isNaN(checkInDate) || isNaN(checkOutDate) || checkInDate > checkOutDate) {
+        return res.status(400).send('❌ Khoảng ngày không hợp lệ.');
       }
     }
 
@@ -51,6 +46,7 @@ module.exports = (req, res, next) => {
       numGuests,
       numRooms
     };
+    
     next();
   } catch (err) {
     console.error('❌ Lỗi validate tìm kiếm:', err);

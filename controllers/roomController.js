@@ -415,7 +415,7 @@ exports.searchRooms = async (req, res) => {
       numGuests,
       numRooms,
     };
-
+    
     // 6️⃣ Render kết quả
     res.render("list", {
       rooms: availableRooms,
