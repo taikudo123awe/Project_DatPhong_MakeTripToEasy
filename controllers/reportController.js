@@ -112,18 +112,19 @@ else if (type === 'all') {
     // ===== 4️⃣ Doanh thu theo phòng =====
     const roomRevenueRaw = await Invoice.findAll({
       attributes: [
-        'bookingId',
-        [Sequelize.fn('SUM', Sequelize.col('amount')), 'total'],
+        "bookingId",
+        [Sequelize.fn("SUM", Sequelize.col("amount")), "total"],
       ],
       include: [
         {
           model: Booking,
-          attributes: ['roomId'],
-          include: [{ model: Room, attributes: ['roomName'] }],
+          attributes: ["roomId"],
+          as: "booking",
+          include: [{ model: Room, attributes: ["roomName"] }],
         },
       ],
-      where: { status: 'Đã thanh toán' },
-      group: ['Booking.roomId'],
+      where: { status: "Đã thanh toán" },
+      group: ["Booking.roomId"],
     });
 
     const roomRevenue = roomRevenueRaw.map(r => ({
