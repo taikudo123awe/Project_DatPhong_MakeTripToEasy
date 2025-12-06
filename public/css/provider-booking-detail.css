@@ -1,0 +1,104 @@
+/* DASHBOARD WRAPPER */
+.dashboard-container {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.provider-content {
+  padding: 30px 35px !important;
+  margin-left: 260px;
+  width: calc(100% - 260px);
+}
+body {
+  background: #f4f6f9; /* sáng nhưng không trắng */
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Back button */
+.btn-outline-secondary {
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.btn-outline-secondary:hover {
+  background: #e2e6ea;
+}
+
+/* Title */
+h2 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Card general */
+.detail-card {
+  border-radius: 18px;
+  border: 1px solid #e1e5eb; /* nhẹ nhàng */
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 14px 18px;
+  font-weight: 600;
+  border-bottom: none;
+  font-size: 1.1rem;
+}
+
+.card-body {
+  padding: 20px;
+  background: #ffffff;
+}
+
+/* Shadow */
+.shadow-sm {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important;
+}
+
+/* Label trái */
+.info-label {
+  font-weight: 600;
+  color: #5f6c7b;
+  min-width: 150px;
+  display: inline-block;
+}
+
+/* Badge tone */
+.status-badge {
+  font-size: 1em;
+  padding: 0.45em 0.85em;
+  border-radius: 10px;
+}
+
+/* Badge colors */
+.bg-info { background: #0dcaf0 !important; }
+.bg-warning { background: #ffc107 !important; }
+.bg-danger { background: #dc3545 !important; }
+.bg-success { background: #198754 !important; }
+.bg-secondary { background: #6c757d !important; }
+
+/* Money highlight */
+.text-danger {
+  color: #c62828 !important;
+  font-weight: bold;
+}
+
+/* Provider box spacing */
+.mt-3 {
+  margin-top: 1.25rem !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .info-label {
+    min-width: 120px;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  .card-body p {
+    font-size: 0.95rem;
+  }
+}

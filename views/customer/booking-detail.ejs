@@ -37,16 +37,16 @@
            <i class="fas fa-file-invoice-dollar me-2"></i> Thông tin Hóa đơn
         </div>
          <div class="card-body">
-           <% if (booking.invoice) { %>
+           <% if (booking.Invoice) { %>
              <p><span class="info-label">Trạng thái HĐ:</span>
-                <% if (booking.invoice.status === 'Chờ thanh toán') { %> <span class="badge bg-warning text-dark status-badge"><%= booking.invoice.status %></span> <% } %>
-                <% if (booking.invoice.status === 'Đã thanh toán') { %> <span class="badge bg-success status-badge"><%= booking.invoice.status %></span> <% } %>
+                <% if (booking.Invoice.status === 'Chờ thanh toán') { %> <span class="badge bg-warning text-dark status-badge"><%= booking.Invoice.status %></span> <% } %>
+                <% if (booking.Invoice.status === 'Đã thanh toán') { %> <span class="badge bg-success status-badge"><%= booking.Invoice.status %></span> <% } %>
              </p>
-             <p><span class="info-label">Ngày tạo HĐ:</span> <%= new Date(booking.invoice.invoiceDate).toLocaleDateString('vi-VN') %></p>
-             <p><span class="info-label">Số tiền HĐ:</span> <strong class="text-danger"><%= booking.invoice.amount.toLocaleString() %> VND</strong></p>
-             <% if (booking.invoice.status === 'Chờ thanh toán') { %>
+             <p><span class="info-label">Ngày tạo HĐ:</span> <%= new Date(booking.Invoice.Invoice).toLocaleDateString('vi-VN') %></p>
+             <p><span class="info-label">Số tiền HĐ:</span> <strong class="text-danger"><%= booking.Invoice.amount.toLocaleString() %> VND</strong></p>
+             <% if (booking.Invoice.status === 'Chờ thanh toán') { %>
                 <form action="/customer/payment" method="POST" class="mt-2">
-                    <input type="hidden" name="invoiceIds" value="<%= booking.invoice.invoiceId %>">
+                    <input type="hidden" name="invoiceIds" value="<%= booking.Invoice.invoiceId %>">
                     <button type="submit" class="btn btn-warning">Thanh toán ngay</button>
                 </form>
              <% } %>

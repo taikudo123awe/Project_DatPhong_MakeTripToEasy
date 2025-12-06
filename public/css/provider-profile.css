@@ -1,0 +1,190 @@
+/* DASHBOARD WRAPPER */
+.dashboard-container {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.provider-content {
+  padding: 30px 35px !important;
+  margin-left: 260px;
+  width: calc(100% - 260px);
+}
+/***********************************************
+ *  GLOBAL LAYOUT (không override dashboard)
+ ***********************************************/
+body {
+  background: #eef4ff;
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/***********************************************
+ *  FIX CONTAINER TRONG PROVIDER LAYOUT
+ ***********************************************/
+.provider-content {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+  padding: 100px 40px 40px;
+  box-sizing: border-box;
+}
+
+/***********************************************
+ *  PROFILE MAIN CONTAINER
+ ***********************************************/
+.profile-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 40px 50px;
+  border-radius: 26px;
+  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: 40px;
+  border: 1px solid #e5e9f2;
+}
+
+/* LEFT SIDE */
+.left-box {
+  flex: 1.4;
+}
+
+.title-block {
+  margin-bottom: 30px;
+}
+
+.title-block h2 {
+  font-weight: 800;
+  font-size: 2rem;
+  color: #0f172a;
+}
+
+.title-sub {
+  color: #64748b;
+  font-size: 1rem;
+  margin-top: 4px;
+}
+
+/***********************************************
+ *  SECTION BOXES
+ ***********************************************/
+.section {
+  background: #f8fafc;
+  padding: 22px 24px;
+  border-radius: 16px;
+  margin-bottom: 22px;
+  border: 1px solid #e2e8f0;
+  transition: 0.25s ease;
+}
+
+.section:hover {
+  background: #f5faff;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+}
+
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.info-text {
+  font-size: 1.05rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
+/***********************************************
+ *  RIGHT SIDE (LOGO + AMENITIES + RULES)
+ ***********************************************/
+.right-box {
+  flex: 1;
+  background: #f9fbff;
+  padding: 28px;
+  border-radius: 20px;
+  border: 1px solid #d8e0ea;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+  height: fit-content;
+}
+
+.logo-img {
+  width: 100%;
+  max-height: 230px;
+  object-fit: contain;
+  border-radius: 18px;
+  background: white;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 22px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+/***********************************************
+ *  BADGE AMENITIES
+ ***********************************************/
+.badge-amenity {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 12px;
+  font-weight: 600;
+  border: 1px solid #93c5fd;
+  margin: 4px;
+  font-size: 0.95rem;
+  transition: 0.2s ease;
+}
+
+.badge-amenity:hover {
+  background: #bfdbfe;
+  color: #1e3a8a;
+}
+
+/***********************************************
+ *  RULE ITEMS
+ ***********************************************/
+.rule-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.05rem;
+  color: #334155;
+  margin-bottom: 10px;
+  padding: 8px 0;
+}
+
+.rule-item i {
+  font-size: 1.2rem;
+}
+
+/***********************************************
+ *  BUTTON GROUP
+ ***********************************************/
+.btn-group-custom {
+  margin-top: 25px;
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+}
+
+.btn-main {
+  padding: 12px 26px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 8px 22px rgba(14, 165, 233, 0.3);
+  transition: 0.25s ease;
+}
+
+.btn-main:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}

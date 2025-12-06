@@ -34,6 +34,10 @@ exports.login = async (req, res) => {
       accountId: account.accountId,
       providerId: provider.providerId,
       username: account.username,
+
+      // ⭐ THÊM 2 DÒNG DƯỚI — KHÔNG ẢNH HƯỞNG CODE CŨ
+      name: provider.providerName,
+      email: provider.email,
     };
 
     res.redirect("/provider/dashboard");
@@ -237,7 +241,7 @@ exports.loginProvider = async (req, res) => {
     });
 
     req.session.provider = {
-      id: provider.providerId,
+      providerId: provider.providerId,
       name: provider.providerName,
       email: provider.email,
     };

@@ -25,7 +25,6 @@ exports.showBookingsByStatus = async (req, res) => {
         },
         {
           model: Invoice,
-          as: "invoice",
           required: false, // LEFT JOIN
         },
       ],
@@ -43,9 +42,9 @@ exports.showBookingsByStatus = async (req, res) => {
     allBookings.forEach((booking) => {
       if (booking.status === "Đã hủy") {
         grouped.cancelled.push(booking);
-      } else if (booking.invoice && booking.invoice.status === "Đã thanh toán") {
+      } else if (booking.Invoice && booking.Invoice.status === "Đã thanh toán") {
         grouped.paid.push(booking); // Lưu cả booking có invoice đã thanh toán
-      } else if (booking.invoice && booking.invoice.status === "Chờ thanh toán") {
+      } else if (booking.Invoice && booking.Invoice.status === "Chờ thanh toán") {
         grouped.unpaid.push(booking); // Lưu cả booking có invoice chờ thanh toán
       }
       // Các trạng thái khác của booking (VD: Đang sử dụng, Chờ nhận phòng mà chưa có Invoice)
@@ -494,7 +493,6 @@ exports.viewBookingHistory = async (req, res) => {
         },
         {
           model: Invoice,
-          as: "invoice",
           required: false, // có thể null
         },
       ],
@@ -529,7 +527,7 @@ exports.viewBookingDetail = async (req, res) => {
     const booking = await Booking.findByPk(bookingId, {
       include: [
         { model: Room, include: [Provider] },
-        { model: Invoice, as: "invoice" },
+        { model: Invoice },
       ],
     });
 
@@ -583,8 +581,7 @@ exports.showCustomerBookingDetail = async (req, res) => {
           attributes: { exclude: ["accountId"] },
         },
         {
-          model: Invoice, // Lấy thông tin hóa đơn (nếu có)
-          as: "invoice",
+          model: Invoice,
           required: false,
         },
       ],

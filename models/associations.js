@@ -30,38 +30,34 @@ Account.hasOne(Admin, { foreignKey: "accountId" });
 // ==========================
 Provider.hasOne(ProviderInfo, {
   foreignKey: "providerId",
-  as: "ProviderInfo",
 });
 ProviderInfo.belongsTo(Provider, {
   foreignKey: "providerId",
-  as: "Provider",
 });
 ProviderInfo.belongsTo(Address, {
   foreignKey: "addressId",
-  as: "Address",
 });
 Address.hasOne(ProviderInfo, {
   foreignKey: "addressId",
-  as: "ProviderInfo",
 });
 
 // ==========================
 // 🔹 Room & RoomName (mới)
 // ==========================
-Room.belongsTo(RoomName, { foreignKey: "roomNameId", as: "RoomName" });
-RoomName.hasMany(Room, { foreignKey: "roomNameId", as: "Rooms" });
+Room.belongsTo(RoomName, { foreignKey: "roomNameId" });
+RoomName.hasMany(Room, { foreignKey: "roomNameId" });
 
 // ==========================
 // 🔹 Room & RoomType
 // ==========================
-Room.belongsTo(RoomType, { foreignKey: "roomTypeId", as: "RoomType" });
-RoomType.hasMany(Room, { foreignKey: "roomTypeId", as: "Rooms" });
+Room.belongsTo(RoomType, { foreignKey: "roomTypeId"});
+RoomType.hasMany(Room, { foreignKey: "roomTypeId"});
 
 // ==========================
 // 🔹 Room & Address
 // ==========================
-Room.belongsTo(Address, { foreignKey: "addressId", as: "address" });
-Address.hasMany(Room, { foreignKey: "addressId", as: "rooms" });
+Room.belongsTo(Address, { foreignKey: "addressId" });
+Address.hasMany(Room, { foreignKey: "addressId"});
 
 // ==========================
 // 🔹 Room & Provider
@@ -76,13 +72,11 @@ Room.belongsToMany(Amenity, {
   through: RoomAmenity,
   foreignKey: "roomId",
   otherKey: "amenityId",
-  as: "Amenities",
 });
 Amenity.belongsToMany(Room, {
   through: RoomAmenity,
   foreignKey: "amenityId",
   otherKey: "roomId",
-  as: "Rooms",
 });
 
 // ==========================
@@ -97,12 +91,10 @@ Room.hasMany(Booking, { foreignKey: "roomId", onDelete: "CASCADE" });
 Invoice.belongsTo(Booking, {
   foreignKey: "bookingId",
   onDelete: "CASCADE",
-  as: "booking",
 });
 Booking.hasOne(Invoice, {
   foreignKey: "bookingId",
   onDelete: "CASCADE",
-  as: "invoice",
 });
 
 Invoice.belongsTo(Customer, { foreignKey: "customerId", onDelete: "SET NULL" });

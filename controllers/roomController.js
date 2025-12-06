@@ -14,11 +14,10 @@ exports.getAllRooms = async (req, res) => {
   try {
     const rooms = await Room.findAll({
       include: [
-        { model: Provider, as: "Provider", attributes: ["providerName"] },
-        { model: RoomType, as: "RoomType", attributes: ["typeName"] },
+        { model: Provider, attributes: ["providerName"] },
+        { model: RoomType, attributes: ["typeName"] },
         {
           model: Address,
-          as: "Address",
           attributes: ["city", "district", "ward"],
         },
       ],
@@ -40,20 +39,18 @@ exports.getRoomsForHome = async (req, res) => {
     const featuredRooms = await Room.findAll({
       where: { approvalStatus: "Đã duyệt" },
       include: [
-        { model: Provider, as: "Provider", attributes: ["providerName"] },
+        { model: Provider, attributes: ["providerName"] },
         {
           model: Review,
-          as: "Reviews",
           attributes: ["rating"],
           required: false,
         },
         {
           model: Address,
-          as: "Address",
           attributes: ["city", "district", "ward"],
         },
-        { model: RoomType, as: "RoomType" },
-        { model: Amenity, as: "Amenities", through: { attributes: [] } },
+        { model: RoomType},
+        { model: Amenity, through: { attributes: [] } },
       ],
       order: [["postedAt", "DESC"]],
       limit: 4,
@@ -76,10 +73,9 @@ exports.getRoomsForHome = async (req, res) => {
     const weekendRooms = await Room.findAll({
       where: { approvalStatus: "Đã duyệt" },
       include: [
-        { model: Address, as: "Address", attributes: ["city", "district"] },
+        { model: Address,  attributes: ["city", "district"] },
         {
           model: Review,
-          as: "Reviews",
           attributes: ["rating"],
           required: false,
         },
@@ -119,12 +115,11 @@ exports.getRoomDetail = async (req, res) => {
     const room = await Room.findOne({
       where: { roomId, approvalStatus: "Đã duyệt" },
       include: [
-        { model: Provider, as: "Provider" },
-        { model: RoomType, as: "RoomType" },
-        { model: Amenity, as: "Amenities", through: { attributes: [] } },
+        { model: Provider},
+        { model: RoomType },
+        { model: Amenity, through: { attributes: [] } },
         {
           model: Review,
-          as: "Reviews",
           include: [{ model: Customer, attributes: ["fullName"] }],
         },
       ],
@@ -158,14 +153,12 @@ exports.getRoomsForHome = async (req, res) => {
       include: [
         {
           model: Provider,
-          as: "Provider",
           attributes: ["providerName"],
           required: false,
         },
         { model: Review, attributes: ["rating"], required: false },
         {
           model: Address,
-          as: "address",
           attributes: ["city", "district", "ward"],
           required: false,
         },
@@ -200,7 +193,6 @@ exports.getRoomsForHome = async (req, res) => {
       include: [
         {
           model: Address,
-          as: "address",
           attributes: ["city", "district"],
           required: false,
         },
@@ -254,8 +246,11 @@ exports.getRoomsForHome = async (req, res) => {
 // ===========================
 exports.showAddRoomForm = async (req, res) => {
   try {
-    const providerId = req.session.provider?.id;
+    const providerId = req.session.provider?.providerId;
     if (!providerId) return res.redirect("/provider/login");
+
+    // ⭐ Lấy provider từ session để truyền vào EJS
+    const provider = req.session.provider;
 
     // 🔹 Lấy thông tin hồ sơ NCC (ProviderInfo)
     const providerInfo = await ProviderInfo.findOne({
@@ -282,6 +277,7 @@ exports.showAddRoomForm = async (req, res) => {
       groupedAmenities[a.category].push(a);
     });
 
+    // ⭐ Render form
     res.render("provider/add-room", {
       error: {},
       form: {},
@@ -289,7 +285,9 @@ exports.showAddRoomForm = async (req, res) => {
       roomTypes,
       roomNames,
       groupedAmenities,
-      providerInfo, // ⭐ Gửi đúng ProviderInfo để EJS dùng
+      provider, // ✔️ ĐÃ SỬA, BIẾN TỒN TẠI
+      providerInfo,
+      active: "dashboard",
       layout: false,
     });
   } catch (err) {
@@ -297,13 +295,12 @@ exports.showAddRoomForm = async (req, res) => {
     res.status(500).send("Lỗi khi tải form thêm phòng");
   }
 };
-
 // ===========================
 // Thêm phòng mới
 // ===========================
 exports.createRoom = async (req, res) => {
   if (req.validationErrors && Object.keys(req.validationErrors).length > 0) {
-    const providerId = req.session.provider?.id;
+    const providerId = req.session.provider?.providerId;
     const providerInfo = await ProviderInfo.findOne({ where: { providerId } });
 
     const [roomTypes, roomNames, amenities] = await Promise.all([
@@ -337,7 +334,7 @@ exports.createRoom = async (req, res) => {
 
   const t = await sequelize.transaction();
   try {
-    const providerId = req.session.provider?.id;
+    const providerId = req.session.provider?.providerId;
     if (!providerId)
       throw new Error("Provider chưa đăng nhập hoặc session đã hết hạn.");
 
@@ -445,7 +442,7 @@ exports.getRoomDetail = async (req, res) => {
     const room = await Room.findOne({
       where: { roomId, approvalStatus: "Đã duyệt" },
       include: [
-        { model: Provider, as: "Provider" },
+        { model: Provider},
         {
           model: Review,
           include: [{ model: Customer, attributes: ["fullName"] }],
@@ -476,14 +473,13 @@ exports.getRoomDetail = async (req, res) => {
 exports.showEditRoomForm = async (req, res) => {
   try {
     const roomId = req.params.roomId;
-    const providerId = req.session.provider?.id;
+    const providerId = req.session.provider?.providerId;
+
+    // ⭐ Lấy provider từ session
+    const provider = req.session.provider;
 
     const room = await Room.findByPk(roomId, {
-      include: [
-        { model: Address, as: "address" },
-        { model: Amenity, as: "Amenities" },
-        { model: RoomType, as: "RoomType" },
-      ],
+      include: [{ model: Address }, { model: Amenity }, { model: RoomType }],
     });
 
     const providerInfo = await ProviderInfo.findOne({
@@ -515,6 +511,8 @@ exports.showEditRoomForm = async (req, res) => {
       error: {},
       success: null,
       form: {},
+      provider,
+      active: "dashboard",
     });
   } catch (err) {
     console.error("❌ Lỗi khi tải form chỉnh sửa phòng:", err);
@@ -584,7 +582,7 @@ exports.updateRoom = async (req, res) => {
     // Log kiểm tra
     const updatedRoom = await Room.findByPk(roomId, {
       attributes: ["roomId", "roomTypeId"],
-      include: [{ model: RoomType, as: "RoomType", attributes: ["typeName"] }],
+      include: [{ model: RoomType, attributes: ["typeName"] }],
     });
     console.log("✅ Room sau khi cập nhật:", {
       id: updatedRoom.roomId,
@@ -611,7 +609,7 @@ exports.updateRoom = async (req, res) => {
 exports.deleteRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
-    const providerId = req.session.provider?.id;
+    const providerId = req.session.provider?.providerId;
 
     // 1️⃣ Lấy phòng cần xóa
     const room = await Room.findByPk(roomId);
@@ -682,7 +680,6 @@ exports.searchRooms = async (req, res) => {
       include: [
         {
           model: Address,
-          as: "address",
           where: {
             [Op.and]: [
               city
@@ -779,14 +776,12 @@ exports.listRoomsByCity = async (req, res) => {
       include: [
         {
           model: Address,
-          as: "address",
           attributes: ["city", "district", "ward"],
           where: whereAddress,
           required: !!city,
         },
         {
           model: Provider,
-          as: "Provider",
           attributes: ["providerName"],
           required: false,
         },
@@ -811,7 +806,6 @@ exports.getWeekendDeals = async (req, res) => {
       include: [
         {
           model: Address,
-          as: "address",
           attributes: ["city", "district"],
           required: false,
         },

@@ -1,5 +1,5 @@
 /* ===== SIDEBAR MAIN ===== */
-/* .sidebar {
+.sidebar {
   width: 260px;
   height: 100vh;
   background: linear-gradient(180deg, #0284c7 0%, #0ea5e9 40%, white 100%);
@@ -11,19 +11,20 @@
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-} */
+  justify-content: flex-start;
+  gap: 20px;
+  z-index: 1000;
+}
 
-/* ----- TOP BRAND ----- */
-/* .brand-logo-box {
+/* ===== TOP BRAND (THÊM MỚI) ===== */
+.brand-logo-box {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .brand-icon {
   font-size: 42px;
   color: white;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
 .brand-title {
@@ -31,10 +32,10 @@
   color: white;
   font-size: 1.4rem;
   font-weight: 700;
-} */
+}
 
-/* ----- BUSINESS INFO ----- */
-/* .business-info {
+/* ===== BUSINESS INFO ===== */
+.business-info {
   text-align: center;
   margin-bottom: 25px;
 }
@@ -45,7 +46,7 @@
   border-radius: 14px;
   object-fit: cover;
   border: 3px solid white;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
   margin-bottom: 8px;
 }
 
@@ -53,11 +54,11 @@
   width: 85px;
   height: 85px;
   border-radius: 14px;
-  background: rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #f1f5f9;
+  color: white;
   font-size: 28px;
   margin: 0 auto 8px;
 }
@@ -65,15 +66,13 @@
 .business-name {
   color: white;
   font-weight: 600;
-  font-size: 1.05rem;
-} */
+}
 
-/* ----- MENU ----- */
-/* .menu {
+/* ===== MENU ===== */
+.menu {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 10px;
 }
 
 .menu-item {
@@ -84,23 +83,28 @@
   border-radius: 10px;
   text-decoration: none;
   color: #1e293b;
-  background: rgba(255,255,255,0.6);
-  transition: 0.2s;
+  background: rgba(255, 255, 255, 0.6);
   font-weight: 600;
-}
-
-.menu-item i {
-  width: 20px;
-  text-align: center;
+  transition: 0.25s;
 }
 
 .menu-item:hover {
   background: #e0f2fe;
   color: #0369a1;
-} */
+}
 
-/* ----- FOOTER USER ----- */
-/* .sidebar-footer {
+/* ===== ACTIVE MENU ===== */
+.menu-item.active {
+  background: #ffffff;
+  color: #0284c7;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  border-left: 4px solid #0284c7;
+}
+
+/* ===== FOOTER USER ===== */
+.sidebar-footer {
+  margin-top: auto;
   border-top: 1px solid #dbeafe;
   padding-top: 15px;
 }
@@ -114,24 +118,12 @@
   margin-bottom: 12px;
 }
 
-.user-box i {
-  font-size: 24px;
-}
-
 .logout-btn {
-  text-decoration: none;
-  font-weight: 600;
   color: #b91c1c;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  text-decoration: none;
+  font-weight: 700;
 }
 
 .logout-btn:hover {
   color: #7f1d1d;
-} */
-
-/* ----- PUSH CONTENT RIGHT ----- */
-/* body {
-  margin-left: 260px !important;
-} */
+}

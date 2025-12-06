@@ -1,106 +1,132 @@
 <!DOCTYPE html>
 <html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard Nhà cung cấp · Make Trip To Easy</title>
 
-<head>
-  <meta charset="UTF-8" />
-  <title>Trang quản lý nhà cung cấp</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-</head>
+    <link rel="stylesheet" href="/css/provider-sidebar.css" />
+    <link rel="stylesheet" href="/css/provider-dashboard.css" />
 
-<body class="container mt-4">
-  <!-- <h2>Xin chào <%= provider.username %>!</h2>
-  <div class="mb-4">
-    <a href="/provider/add-room" class="btn btn-success">+ Thêm phòng mới</a>
-    <a href="/provider/edit-profile" class="btn btn-primary ms-2">Chỉnh sửa thông tin</a>
-    <a href="/provider/reviews" class="btn btn-info ms-2">Xem đánh giá</a>
-    <a href="/provider/bookings" class="btn btn-warning ms-2">Quản lý đơn</a>
-    <a href="/provider/report" class="btn btn-warning ms-2">Xem báo cáo</a>
-    <a href="/logout" class="btn btn-outline-danger ms-2">Đăng xuất</a>
-  </div> -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  </head>
 
-  <%- include('../partials/header-provider') %>
-    <!-- 🔔 Thông báo sau khi xóa hoặc sửa -->
-    <% if (typeof success !=="undefined" && success) { %>
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        ✅ <%= success %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-      <% } %>
-        <% if (typeof error !=="undefined" && error) { %>
-          <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            ⚠️ <%= error %>
-              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  <body>
+
+  <!-- GỌI HEADER -->
+  <%- include('../partials/header-provider', { providerInfo, provider }) %>
+
+        <h2 class="dashboard-title">📊 Dashboard Nhà cung cấp</h2>
+
+        <!-- STAT CARDS -->
+        <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-bed"></i></div>
+          <div>
+            <div class="stat-label">Tổng phòng</div>
+            <div class="stat-value"><%= providerRooms.length %></div>
           </div>
-          <% } %>
+        </div>
 
-            <h4>📋 Danh sách phòng đã đăng:</h4>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div>
+            <div class="stat-label">Đã duyệt</div>
+            <div class="stat-value">
+              <%= providerRooms.filter(function(r){ return r.approvalStatus ===
+              'Đã duyệt'; }).length %>
+            </div>
+          </div>
+        </div>
 
-            <% if (providerRooms && providerRooms.length> 0) { %>
-              <table class="table table-bordered mt-3 align-middle text-center">
-                <thead class="table-light">
-                  <tr>
-                    <th>#</th>
-                    <th>Tên phòng</th>
-                    <th>Giá (VND)</th>
-                    <th>Trạng thái duyệt</th>
-                    <th>Ngày đăng</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% providerRooms.forEach((room, index)=> { %>
-                    <tr>
-                      <td>
-                        <%= index + 1 %>
-                      </td>
-                      <td>
-                        <%= room.roomName %>
-                      </td>
-                      <td>
-                        <%= room.price.toLocaleString() %>
-                      </td>
-                      <td>
-                        <%= room.approvalStatus %>
-                      </td>
-                      <td>
-                        <%= new Date(room.postedAt).toLocaleDateString('vi-VN') %>
-                      </td>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+          <div>
+            <div class="stat-label">Chờ duyệt</div>
+            <div class="stat-value">
+              <%= providerRooms.filter(function(r){ return r.approvalStatus ===
+              'Chờ duyệt'; }).length %>
+            </div>
+          </div>
+        </div>
 
-                      <!-- 🧩 Cột hành động -->
-                      <td>
-                        <a href="/provider/edit-room/<%= room.roomId %>" class="btn btn-warning btn-sm me-2">
-                          🖋️ Sửa
-                        </a>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fa-solid fa-calendar-check"></i>
+          </div>
+          <div>
+            <div class="stat-label">Tổng booking</div>
+            <div class="stat-value">
+              <%= pendingBookings.length + inUseBookings.length +
+              completedBookings.length + cancelledBookings.length %>
+            </div>
+          </div>
+        </div>
+      </div>
 
-                        <form action="/provider/delete-room/<%= room.roomId %>" method="POST" class="delete-room-form"
-                          data-room-name="<%= room.roomName %>" style="display: inline">
-                          <button type="submit" class="btn btn-danger btn-sm">
-                            ❌ Xóa
-                          </button>
-                        </form>
-                      </td>
-                    </tr>
-                    <% }) %>
-                </tbody>
-              </table>
-              <% } else { %>
-                <p class="text-muted mt-3">Bạn chưa đăng phòng nào.</p>
-                <% } %>
+      <!-- ADD ROOM BUTTON -->
+      <div class="quick-add-box text-end">
+        <a href="/provider/add-room" class="quick-add-btn small-btn">
+          ➕ Thêm phòng mới
+        </a>
+      </div>
 
-                  <script>
-                    // ✅ Xác nhận khi xóa phòng
-                    document.querySelectorAll(".delete-room-form").forEach((form) => {
-                      form.addEventListener("submit", function (e) {
-                        const roomName = this.getAttribute("data-room-name") || "phòng";
-                        const confirmDelete = confirm(
-                          `⚠️ Bạn có chắc chắn muốn xóa "${roomName}" không?\nHành động này không thể hoàn tác!`
-                        );
-                        if (!confirmDelete) e.preventDefault();
-                      });
-                    });
-                  </script>
+      <!-- TABLE -->
+      <% if (providerRooms.length > 0) { %>
+      <div class="table-wrapper">
+        <table class="table custom-table text-center align-middle">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tên phòng</th>
+              <th>Giá</th>
+              <th>Trạng thái</th>
+              <th>Ngày đăng</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
 
-                  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+          <tbody>
+            <% providerRooms.forEach(function(room, index){ %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= room.roomName %></td>
+              <td><%= room.price.toLocaleString() %></td>
+              <td>
+                <span
+                  class="badge <%= room.approvalStatus === 'Chờ duyệt' ? 'badge-pending' : '' %> <%= room.approvalStatus === 'Đã duyệt' ? 'badge-approved' : '' %> <%= room.approvalStatus === 'Từ chối' ? 'badge-rejected' : '' %>"
+                >
+                  <%= room.approvalStatus %>
+                </span>
+              </td>
+              <td>
+                <%= new Date(room.postedAt).toLocaleDateString('vi-VN') %>
+              </td>
 
+              <td>
+                <a
+                  href="/provider/edit-room/<%= room.roomId %>"
+                  class="btn btn-warning btn-sm me-2"
+                  >🖋️</a
+                >
+
+                <form
+                  action="/provider/delete-room/<%= room.roomId %>"
+                  method="POST"
+                  style="display: inline"
+                >
+                  <button class="btn btn-danger btn-sm">❌</button>
+                </form>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <% } else { %>
+          <p class="text-muted mt-3">Bạn chưa đăng phòng nào.</p>
+        <% } %>
+    </div> <!-- END provider-content -->
+  </body>
 </html>

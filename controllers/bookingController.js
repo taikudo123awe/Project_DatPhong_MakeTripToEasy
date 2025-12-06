@@ -6,10 +6,24 @@ const Room = require("../models/Room");
 const Customer = require("../models/Customer");
 const Invoice = require("../models/Invoice");
 
+// ⭐ THÊM: import models
+const Provider = require("../models/Provider");
+const ProviderInfo = require("../models/ProviderInfo");
+// const { act } = require("react");
+
 // SỬA LẠI HÀM NÀY: Lấy tất cả booking và gom nhóm
 exports.listAllBookings = async (req, res) => {
   try {
-    const providerId = req.session.provider.id;
+    const providerId = req.session.provider.providerId;
+    // ⭐ THÊM: LẤY PROVIDER
+    const provider = await Provider.findOne({
+      where: { providerId },
+    });
+
+    // ⭐ THÊM: LẤY PROVIDER INFO
+    const providerInfo = await ProviderInfo.findOne({
+      where: { providerId },
+    });
 
     // Lấy tất cả booking
     const allBookings = await Booking.findAll({
@@ -26,7 +40,6 @@ exports.listAllBookings = async (req, res) => {
         },
         {
           model: Invoice,
-          as: "invoice",
           attributes: ["status"],
           required: false,
         },
@@ -65,10 +78,13 @@ exports.listAllBookings = async (req, res) => {
     });
 
     res.render("provider/bookings", {
+      providerInfo,
+      provider,
       pendingBookings: groupedBookings.pending,
       inUseBookings: groupedBookings.inUse,
       completedBookings: groupedBookings.completed, // <-- TRUYỀN BIẾN MỚI
       cancelledBookings: groupedBookings.cancelled,
+      active: "bookings",
     });
   } catch (err) {
     console.error("Lỗi khi lấy danh sách đặt phòng:", err);
@@ -78,8 +94,18 @@ exports.listAllBookings = async (req, res) => {
 // Hiển thị chi tiết
 exports.showBookingDetails = async (req, res) => {
   try {
-    const providerId = req.session.provider.id;
+    const providerId = req.session.provider.providerId;
     const { bookingId } = req.params;
+
+    // 🔹 Lấy provider
+    const provider = await Provider.findOne({
+      where: { providerId },
+    });
+
+    // 🔹 Lấy providerInfo
+    const providerInfo = await ProviderInfo.findOne({
+      where: { providerId },
+    });
 
     const booking = await Booking.findOne({
       where: { bookingId },
@@ -94,7 +120,6 @@ exports.showBookingDetails = async (req, res) => {
         },
         {
           model: Invoice,
-          as: "invoice", // ⭐ alias rất quan trọng!
           required: false,
         },
       ],
@@ -104,7 +129,12 @@ exports.showBookingDetails = async (req, res) => {
       return res.status(404).send("Không tìm thấy đơn đặt phòng này.");
     }
 
-    res.render("provider/booking-details", { booking });
+    res.render("provider/booking-details", {
+      booking,
+      provider,
+      providerInfo,
+      active: "bookings",
+    });
   } catch (err) {
     console.error("Lỗi khi xem chi tiết:", err);
     res.status(500).send("Lỗi máy chủ");
@@ -115,7 +145,7 @@ exports.showBookingDetails = async (req, res) => {
 exports.confirmCheckIn = async (req, res) => {
   const t = await sequelize.transaction();
   try {
-    const providerId = req.session.provider.id;
+    const providerId = req.session.provider.providerId;
     const { bookingId } = req.body;
 
     const booking = await Booking.findOne({
@@ -162,7 +192,7 @@ exports.confirmCheckIn = async (req, res) => {
 // Hủy đơn
 exports.cancelBooking = async (req, res) => {
   try {
-    const providerId = req.session.provider.id;
+    const providerId = req.session.provider.providerId;
     const { bookingId } = req.body;
 
     const booking = await Booking.findOne({
