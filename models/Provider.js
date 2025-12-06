@@ -1,4 +1,4 @@
-// models/Provider.js
+// 📄 models/Provider.js
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database");
 const Account = require("./Account");
@@ -20,8 +20,9 @@ const Provider = sequelize.define(
       allowNull: false,
     },
     identityNumber: {
-      type: DataTypes.STRING(12), // khớp với cột trong db_datphong.sql
+      type: DataTypes.STRING(12),
       allowNull: false,
+      unique: true, // ✅ tránh trùng CCCD
     },
     phoneNumber: {
       type: DataTypes.STRING(15),
@@ -35,7 +36,7 @@ const Provider = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "Account",
+        model: Account, // ✅ tham chiếu trực tiếp model thay vì string
         key: "accountId",
       },
     },
@@ -46,8 +47,14 @@ const Provider = sequelize.define(
   }
 );
 
-// Quan hệ 1-1 với Account
-Provider.belongsTo(Account, { foreignKey: "accountId" });
-Account.hasOne(Provider, { foreignKey: "accountId" });
+// ✅ Thiết lập quan hệ 1-1 với Account
+Provider.belongsTo(Account, {
+  foreignKey: "accountId",
+  as: "Account", // đặt alias để dễ include
+});
+Account.hasOne(Provider, {
+  foreignKey: "accountId",
+  as: "Provider",
+});
 
 module.exports = Provider;

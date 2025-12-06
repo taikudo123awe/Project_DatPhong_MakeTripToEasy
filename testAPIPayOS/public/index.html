@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo Thanh Toán PayOS</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 50px; }
+    #qr { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>💳 Thanh Toán Phòng Demo (PayOS)</h1>
+
+  <input type="number" id="amount" placeholder="Nhập số tiền..." />
+  <input type="text" id="name" placeholder="Tên khách hàng..." />
+  <button id="payBtn">Tạo mã thanh toán</button>
+
+  <div id="qr"></div>
+
+  <script>
+    document.getElementById("payBtn").addEventListener("click", async () => {
+      const amount = document.getElementById("amount").value;
+      const name = document.getElementById("name").value;
+      const bookingId = Math.floor(Math.random() * 1000000);
+
+      const res = await fetch("/api/payment/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId, amount, customerName: name }),
+      });
+
+      const data = await res.json();
+      document.getElementById("qr").innerHTML = `
+        <p>Quét mã để thanh toán ${amount}₫</p>
+        <img src="${data.qrCode}" width="250" alt="QR PayOS" />
+      `;
+    });
+  </script>
+</body>
+</html>

@@ -7,151 +7,248 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <style>
+      .checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 8px;
+      }
+      .checkbox-grid label {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 6px 10px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .checkbox-grid label:hover {
+        background: #eef5ff;
+      }
+      .checkbox-grid input[type="checkbox"] {
+        margin-right: 6px;
+      }
+    </style>
   </head>
 
   <body class="container py-5">
     <h2 class="text-center mb-4">📋 Đăng thông tin phòng mới</h2>
 
-    <% if (error) { %>
-    <div class="alert alert-danger"><%- error %></div>
-    <% } %>
+    <!-- <% if (error && Object.keys(error).length > 0) { %>
+      <div class="alert alert-danger text-center fw-bold">
+        Vui lòng kiểm tra lại các trường bên dưới.
+      </div>
+    <% } else if (success) { %>
+      <div class="alert alert-success text-center fw-bold"><%= success %></div>
+    <% } %> -->
 
     <form
-      method="POST"
-      action="/provider/add-room"
-      enctype="multipart/form-data"
-      id="addRoomForm"
-      class="card p-4 shadow"
-    >
-      <!-- Tên phòng -->
+        method="POST"
+        action="/provider/add-room"
+        enctype="multipart/form-data"
+        class="card p-4 shadow"
+        novalidate
+      >
+      <!-- 🔹 Tên phòng -->
+<div class="mb-3">
+  <label for="roomNameId" class="form-label">Tên phòng</label>
+  <select
+    id="roomNameId"
+    name="roomNameId"
+    class="form-select <%= error?.roomNameId ? 'is-invalid' : '' %>"
+    required
+  >
+    <option value="">-- Chọn tên phòng --</option>
+    <% (roomNames || []).forEach(n => { %>
+      <option
+        value="<%= n.roomNameId %>"
+        <%= String(form?.roomNameId||'') === String(n.roomNameId) ? 'selected' : '' %>
+      >
+        <%= n.roomName %>
+      </option>
+    <% }) %>
+  </select>
+  <% if (error?.roomNameId) { %>
+    <small class="text-danger"><%= error.roomNameId %></small>
+  <% } %>
+</div>
+
+      <!-- 🔹 Loại phòng -->
       <div class="mb-3">
-        <label for="roomName" class="form-label">Tên phòng</label>
-        <input
-          type="text"
-          class="form-control"
-          id="roomName"
-          name="roomName"
-          placeholder="Nhập tên phòng"
+        <label for="roomTypeId" class="form-label">Loại phòng</label>
+        <select
+          id="roomTypeId"
+          name="roomTypeId"
+          class="form-select <%= error?.roomTypeId ? 'is-invalid' : '' %>"
           required
-        />
+        >
+          <option value="">-- Chọn loại phòng --</option>
+          <% (roomTypes || []).forEach(t => { %>
+            <option
+              value="<%= t.typeId || t.roomTypeId %>"
+              <%= String(form?.roomTypeId||'') === String(t.typeId||t.roomTypeId) ? 'selected' : '' %>
+            >
+              <%= t.typeName %>
+            </option>
+          <% }) %>
+        </select>
+        <% if (error?.roomTypeId) { %>
+          <small class="text-danger"><%= error.roomTypeId %></small>
+        <% } %>
       </div>
 
-      <!-- Địa chỉ phòng -->
+      <!-- 🔹 Địa chỉ -->
       <div class="mb-3">
         <label class="form-label">Địa chỉ phòng</label>
 
-        <div class="row">
-          <div class="col-md-4">
-            <label for="city" class="form-label">Thành phố</label>
-            <select id="city" class="form-select" required>
-              <option value="">-- Chọn thành phố --</option>
-            </select>
-          </div>
-
-          <div class="col-md-4">
-            <label for="district" class="form-label">Quận/Huyện</label>
-            <select id="district" class="form-select" required disabled>
-              <option value="">-- Chọn quận/huyện --</option>
-            </select>
-          </div>
-
-          <div class="col-md-4">
-            <label for="ward" class="form-label">Phường/Xã</label>
-            <select id="ward" class="form-select" required disabled>
-              <option value="">-- Chọn phường/xã --</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="mt-3">
-          <label for="customAddress" class="form-label"
-            >Tên đường / Số nhà</label
-          >
+        <% if (providerInfo && providerInfo.businessAddress) { %>
+          <!-- ⭐ NCC đã có địa chỉ → tự động fill -->
           <input
             type="text"
             class="form-control"
-            id="customAddress"
-            name="customAddress"
-            placeholder="VD: 12 Nguyễn Trãi"
-            required
+            name="fullAddress"
+            value="<%= providerInfo.businessAddress %>"
+            readonly
           />
-        </div>
+          <small class="text-muted">📌 Địa chỉ được lấy từ hồ sơ doanh nghiệp</small>
 
-        <input type="hidden" name="addressId" id="addressId" />
-        <input type="hidden" name="fullAddress" id="fullAddress" />
-        <input type="hidden" name="city" id="cityName" />
-        <input type="hidden" name="district" id="districtName" />
-        <input type="hidden" name="ward" id="wardName" />
+          <input type="hidden" name="city" value="<%= providerInfo.businessAddress.split(', ')[3] %>">
+          <input type="hidden" name="district" value="<%= providerInfo.businessAddress.split(', ')[2] %>">
+          <input type="hidden" name="ward" value="<%= providerInfo.businessAddress.split(', ')[1] %>">
+          <input type="hidden" name="customAddress" value="<%= providerInfo.businessAddress.split(', ')[0] %>">
+
+        <% } else { %>
+
+          <!-- ⭐ NCC chưa có địa chỉ → dùng API -->
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label for="city" class="form-label">Thành phố</label>
+              <select id="city" class="form-select" required>
+                <option value="">-- Chọn thành phố --</option>
+              </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label for="district" class="form-label">Quận/Huyện</label>
+              <select id="district" class="form-select" required disabled>
+                <option value="">-- Chọn quận/huyện --</option>
+              </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label for="ward" class="form-label">Phường/Xã</label>
+              <select id="ward" class="form-select" required disabled>
+                <option value="">-- Chọn phường/xã --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-1">
+            <label for="customAddress" class="form-label">Tên đường / Số nhà</label>
+            <input
+              type="text"
+              id="customAddress"
+              name="customAddress"
+              class="form-control"
+              placeholder="VD: 12 Nguyễn Trãi"
+            />
+          </div>
+
+          <input type="hidden" name="city" id="cityName" />
+          <input type="hidden" name="district" id="districtName" />
+          <input type="hidden" name="ward" id="wardName" />
+
+        <% } %>
       </div>
 
-      <!-- Script xử lý API -->
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <script src="/javascript/addressAPI.js"></script>
-      <script>
-        // cập nhật 3 input ẩn khi chọn địa chỉ
-        document.getElementById("city").addEventListener("change", function () {
-          document.getElementById("cityName").value =
-            this.options[this.selectedIndex].text;
-        });
-        document
-          .getElementById("district")
-          .addEventListener("change", function () {
-            document.getElementById("districtName").value =
-              this.options[this.selectedIndex].text;
-          });
-        document.getElementById("ward").addEventListener("change", function () {
-          document.getElementById("wardName").value =
-            this.options[this.selectedIndex].text;
-        });
-      </script>
-
-      <!-- Sức chứa (Dropdown - chỉ số chẵn) -->
+      <!-- 🔹 Sức chứa -->
       <div class="mb-3">
         <label for="capacity" class="form-label">Sức chứa (người)</label>
-        <select id="capacity" name="capacity" class="form-select" required>
+        <select
+          id="capacity"
+          name="capacity"
+          class="form-select <%= error?.capacity ? 'is-invalid' : '' %>"
+          required
+        >
           <option value="">-- Chọn sức chứa --</option>
           <% for (let i = 2; i <= 20; i += 2) { %>
-          <option value="<%= i %>"><%= i %> người</option>
+            <option value="<%= i %>" <%= String(form?.capacity||'') === String(i) ? 'selected' : '' %>>
+              <%= i %> người
+            </option>
           <% } %>
         </select>
+        <% if (error?.capacity) { %>
+          <small class="text-danger"><%= error.capacity %></small>
+        <% } %>
       </div>
 
+      <!-- 🔹 Giá -->
       <div class="mb-3">
         <label for="price" class="form-label">Giá (VND)</label>
-        <input
+       <input
           type="number"
           id="price"
           name="price"
-          min="1"
-          class="form-control"
+          class="form-control <%= error?.price ? 'is-invalid' : '' %>"
+          value="<%= form?.price || '' %>"
           required
         />
+        <% if (error?.price) { %>
+          <small class="text-danger"><%= error.price %></small>
+        <% } %>
       </div>
 
+      <!-- 🔹 Tiện ích -->
       <div class="mb-3">
-        <label for="amenities" class="form-label">Tiện ích</label>
-        <input
-          type="text"
-          id="amenities"
-          name="amenities"
-          class="form-control"
-          placeholder="VD: Máy lạnh, WiFi, Tủ lạnh..."
-          required
-        />
-      </div>
+  <label class="form-label fw-bold">Tiện ích</label>
 
+  <% const chosen = Array.isArray(form?.amenities)
+        ? form.amenities.map(String)
+        : form?.amenities
+        ? [String(form.amenities)]
+        : []; %>
+
+  <% for (let category in groupedAmenities) { %>
+    <h5 class="mt-3 text-primary fw-bold"><%= category %></h5>
+
+    <div class="checkbox-grid">
+      <% groupedAmenities[category].forEach(a => { 
+           const id = String(a.amenityId); %>
+        <label>
+          <input 
+            type="checkbox" 
+            name="amenities" 
+            value="<%= id %>" 
+            <%= chosen.includes(id) ? 'checked' : '' %>
+          />
+          <%= a.amenityName %>
+        </label>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <% if (error?.amenities) { %>
+    <small class="text-danger d-block"><%= error.amenities %></small>
+  <% } %>
+</div>
+
+
+      <!-- 🔹 Mô tả -->
       <div class="mb-3">
         <label for="description" class="form-label">Mô tả chi tiết</label>
         <textarea
           id="description"
           name="description"
           rows="4"
-          class="form-control"
-          required
+          class="form-control <%= error?.description ? 'is-invalid' : '' %>"
           placeholder="Mô tả về phòng, tiện nghi, không gian..."
-        ></textarea>
+          required
+        ><%= form?.description || '' %></textarea>
+        <% if (error?.description) { %>
+          <small class="text-danger"><%= error.description %></small>
+        <% } %>
       </div>
 
+      <!-- 🔹 Ảnh -->
       <div class="mb-3">
         <label for="images" class="form-label">Ảnh phòng (tối đa 10 ảnh)</label>
         <input
@@ -160,16 +257,18 @@
           name="images"
           multiple
           accept="image/*"
-          class="form-control"
-          required
+          class="form-control <%= error?.image ? 'is-invalid' : '' %>"
+          <%= form ? '' : 'required' %>
         />
+        <% if (error?.image) { %>
+          <small class="text-danger"><%= error.image %></small>
+        <% } %>
       </div>
 
+      <!-- 🔹 Nút -->
       <div class="text-center mt-4">
         <button type="submit" class="btn btn-success px-4">Đăng phòng</button>
-        <a href="/provider/dashboard" class="btn btn-secondary ms-3 px-4"
-          >Hủy</a
-        >
+        <a href="/provider/dashboard" class="btn btn-secondary ms-3 px-4">Hủy</a>
       </div>
     </form>
   </body>

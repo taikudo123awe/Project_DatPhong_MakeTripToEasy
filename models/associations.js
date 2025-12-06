@@ -1,70 +1,123 @@
-// Import tất cả các model
-const Account = require('./Account');
-const Provider = require('./Provider');
-const Room = require('./Room');
-const Customer = require('./Customer');
-const Review = require('./Review');
-const Feedback = require('./Feedback');
-const Admin = require('./Admin');
-const Booking = require('./Booking');
-const Invoice = require('./Invoice');
-const Address = require('./Address');
+// 📄 models/associations.js
 
-// --- Định nghĩa các mối quan hệ mới ---
+const Account = require("./Account");
+const Provider = require("./Provider");
+const ProviderInfo = require("./ProviderInfo");
+const Room = require("./Room");
+const RoomName = require("./RoomName");
+const Customer = require("./Customer");
+const Review = require("./Review");
+const Feedback = require("./Feedback");
+const Admin = require("./Admin");
+const Booking = require("./Booking");
+const Invoice = require("./Invoice");
+const Address = require("./Address");
+const Amenity = require("./Amenity");
+const RoomType = require("./RoomType");
+const RoomAmenity = require("./RoomAmenity");
 
-// Customer <-> Account (1-1)
-Customer.belongsTo(Account, { foreignKey: 'accountId' });
-Account.hasOne(Customer, { foreignKey: 'accountId' });
+// ==========================
+// 🔹 Account & User Entities
+// ==========================
+Customer.belongsTo(Account, { foreignKey: "accountId" });
+Account.hasOne(Customer, { foreignKey: "accountId" });
 
-// Review <-> Customer (1-N)
-Review.belongsTo(Customer, { foreignKey: 'customerId' });
-Customer.hasMany(Review, { foreignKey: 'customerId' });
+Admin.belongsTo(Account, { foreignKey: "accountId" });
+Account.hasOne(Admin, { foreignKey: "accountId" });
 
-// Review <-> Room (1-N)
-Review.belongsTo(Room, { foreignKey: 'roomId' });
-Room.hasMany(Review, { foreignKey: 'roomId' });
+// ==========================
+// 🔹 Provider & ProviderInfo
+// ==========================
+Provider.hasOne(ProviderInfo, {
+  foreignKey: "providerId",
+  as: "ProviderInfo",
+});
+ProviderInfo.belongsTo(Provider, {
+  foreignKey: "providerId",
+  as: "Provider",
+});
+ProviderInfo.belongsTo(Address, {
+  foreignKey: "addressId",
+  as: "Address",
+});
+Address.hasOne(ProviderInfo, {
+  foreignKey: "addressId",
+  as: "ProviderInfo",
+});
 
-// Feedback <-> Provider (1-N)
-Feedback.belongsTo(Provider, { foreignKey: 'providerId' });
-Provider.hasMany(Feedback, { foreignKey: 'providerId' });
+// ==========================
+// 🔹 Room & RoomName (mới)
+// ==========================
+Room.belongsTo(RoomName, { foreignKey: "roomNameId", as: "RoomName" });
+RoomName.hasMany(Room, { foreignKey: "roomNameId", as: "Rooms" });
 
-// Feedback <-> Review (1-1)
-Feedback.belongsTo(Review, { foreignKey: 'reviewId' });
-Review.hasOne(Feedback, { foreignKey: 'reviewId' });
+// ==========================
+// 🔹 Room & RoomType
+// ==========================
+Room.belongsTo(RoomType, { foreignKey: "roomTypeId", as: "RoomType" });
+RoomType.hasMany(Room, { foreignKey: "roomTypeId", as: "Rooms" });
 
-// Admin <-> Account (1-1)
-Admin.belongsTo(Account, { foreignKey: 'accountId' });
-Account.hasOne(Admin, { foreignKey: 'accountId' });
+// ==========================
+// 🔹 Room & Address
+// ==========================
+Room.belongsTo(Address, { foreignKey: "addressId", as: "address" });
+Address.hasMany(Room, { foreignKey: "addressId", as: "rooms" });
 
-// Customer <-> Booking (1-N)
-Booking.belongsTo(Customer, { foreignKey: 'customerId', onDelete: 'CASCADE' });
-Customer.hasMany(Booking, { foreignKey: 'customerId', onDelete: 'CASCADE' });
+// ==========================
+// 🔹 Room & Provider
+// ==========================
+Room.belongsTo(Provider, { foreignKey: "providerId" });
+Provider.hasMany(Room, { foreignKey: "providerId" });
 
-// Room <-> Booking (1-N)
-Booking.belongsTo(Room, { foreignKey: 'roomId', onDelete: 'CASCADE' });
-Room.hasMany(Booking, { foreignKey: 'roomId', onDelete: 'CASCADE' });
+// ==========================
+// 🔹 Room & Amenity (N-N)
+// ==========================
+Room.belongsToMany(Amenity, {
+  through: RoomAmenity,
+  foreignKey: "roomId",
+  otherKey: "amenityId",
+  as: "Amenities",
+});
+Amenity.belongsToMany(Room, {
+  through: RoomAmenity,
+  foreignKey: "amenityId",
+  otherKey: "roomId",
+  as: "Rooms",
+});
 
-// Invoice <-> Booking (N-1)
-Invoice.belongsTo(Booking, { foreignKey: 'bookingId', onDelete: 'CASCADE', as: 'booking' });
-Booking.hasOne(Invoice, { foreignKey: 'bookingId', onDelete: 'CASCADE', as: 'invoice' }); // ✅ thêm as
+// ==========================
+// 🔹 Booking, Invoice, Review
+// ==========================
+Booking.belongsTo(Customer, { foreignKey: "customerId", onDelete: "CASCADE" });
+Customer.hasMany(Booking, { foreignKey: "customerId", onDelete: "CASCADE" });
 
-// Invoice <-> Customer (N-1)
-Invoice.belongsTo(Customer, { foreignKey: 'customerId', onDelete: 'SET NULL' });
-Customer.hasMany(Invoice, { foreignKey: 'customerId', onDelete: 'SET NULL' });
+Booking.belongsTo(Room, { foreignKey: "roomId", onDelete: "CASCADE" });
+Room.hasMany(Booking, { foreignKey: "roomId", onDelete: "CASCADE" });
 
-// Room <-> Provider (N-1)
-Room.belongsTo(Provider, { foreignKey: 'providerId'});
-Provider.hasMany(Room, { foreignKey: 'providerId'});
+Invoice.belongsTo(Booking, {
+  foreignKey: "bookingId",
+  onDelete: "CASCADE",
+  as: "booking",
+});
+Booking.hasOne(Invoice, {
+  foreignKey: "bookingId",
+  onDelete: "CASCADE",
+  as: "invoice",
+});
 
-// Room <-> Address (N-1)
-Room.belongsTo(Address, { foreignKey: 'addressId', as: 'address' });
-Address.hasMany(Room, { foreignKey: 'addressId', as: 'rooms' });
+Invoice.belongsTo(Customer, { foreignKey: "customerId", onDelete: "SET NULL" });
+Customer.hasMany(Invoice, { foreignKey: "customerId", onDelete: "SET NULL" });
 
-// Booking.js
-Booking.hasOne(Invoice, { foreignKey: 'bookingId' });
+Review.belongsTo(Customer, { foreignKey: "customerId" });
+Customer.hasMany(Review, { foreignKey: "customerId" });
 
-// Invoice.js
-Invoice.belongsTo(Booking, { foreignKey: 'bookingId' });
+Review.belongsTo(Room, { foreignKey: "roomId" });
+Room.hasMany(Review, { foreignKey: "roomId" });
 
+Feedback.belongsTo(Provider, { foreignKey: "providerId" });
+Provider.hasMany(Feedback, { foreignKey: "providerId" });
 
-console.log('--- Các liên kết model (Associations) đã được định nghĩa ---');
+Feedback.belongsTo(Review, { foreignKey: "reviewId" });
+Review.hasOne(Feedback, { foreignKey: "reviewId" });
+
+console.log("--- ✅ Các liên kết model (Associations) đã được định nghĩa ---");
