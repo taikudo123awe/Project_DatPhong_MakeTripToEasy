@@ -59,6 +59,14 @@ exports.showRoomReviews = async (req, res) => {
     const providerId = req.session.provider.providerId;
     const { roomId } = req.params;
 
+    // ⭐ Lấy provider từ session
+    const provider = req.session.provider;
+
+    // ⭐ Lấy providerInfo
+    const providerInfo = await ProviderInfo.findOne({
+      where: { providerId },
+    });
+
     const room = await Room.findOne({
       where: {
         roomId,
@@ -82,7 +90,12 @@ exports.showRoomReviews = async (req, res) => {
         .send("Không tìm thấy phòng hoặc bạn không có quyền.");
     }
 
-    res.render("provider/review-details", { room });
+    res.render("provider/review-details", {
+      room,
+      provider,
+      providerInfo,
+      active: "reviews",
+    });
   } catch (err) {
     console.error("Lỗi khi lấy chi tiết đánh giá:", err);
     res.status(500).send("Lỗi máy chủ");
