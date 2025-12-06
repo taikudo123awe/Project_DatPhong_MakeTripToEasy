@@ -10,6 +10,7 @@ const RoomType = require("../models/RoomType");
 const Amenity = require("../models/Amenity");
 const RoomName = require("../models/RoomName");
 const ProviderInfo = require("../models/ProviderInfo");
+const Feedback = require("../models/Feedback");
 exports.getAllRooms = async (req, res) => {
   try {
     const rooms = await Room.findAll({
@@ -115,12 +116,15 @@ exports.getRoomDetail = async (req, res) => {
     const room = await Room.findOne({
       where: { roomId, approvalStatus: "Đã duyệt" },
       include: [
-        { model: Provider},
+        { model: Provider },
         { model: RoomType },
         { model: Amenity, through: { attributes: [] } },
         {
           model: Review,
-          include: [{ model: Customer, attributes: ["fullName"] }],
+          include: [
+            { model: Customer, attributes: ["fullName"] },
+            { model: Feedback }, // ⭐ THÊM DÒNG NÀY
+          ],
         },
       ],
     });
@@ -429,41 +433,6 @@ exports.createRoom = async (req, res) => {
     if (!t.finished) await t.rollback();
     console.error("❌ Lỗi khi thêm phòng:", err);
     res.status(500).send("Lỗi khi thêm phòng: " + err.message);
-  }
-};
-// ===========================
-// Chi tiết phòng
-// ===========================
-exports.getRoomDetail = async (req, res) => {
-  const roomId = req.params.roomId;
-  const { checkInDate, checkOutDate, numberOfGuests, numRooms } = req.query;
-
-  try {
-    const room = await Room.findOne({
-      where: { roomId, approvalStatus: "Đã duyệt" },
-      include: [
-        { model: Provider},
-        {
-          model: Review,
-          include: [{ model: Customer, attributes: ["fullName"] }],
-          order: [["reviewDate", "DESC"]],
-        },
-      ],
-    });
-
-    if (!room) return res.status(404).send("Không tìm thấy phòng.");
-
-    //lấy dữ liệu từ tìm kiếm
-    res.render("rooms/detail", {
-      room,
-      checkInDate: checkInDate || "",
-      checkOutDate: checkOutDate || "",
-      numberOfGuests: numberOfGuests || "",
-      quantity: numRooms || "",
-    });
-  } catch (err) {
-    console.error("❌ Lỗi khi tải thông tin phòng:", err);
-    res.status(500).send("Lỗi khi tải thông tin phòng");
   }
 };
 
