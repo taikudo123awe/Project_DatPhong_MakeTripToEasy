@@ -17,25 +17,20 @@ exports.viewReport = async (req, res) => {
     const providerSession = req.session.provider;
     if (!providerSession) return res.redirect("/provider/login");
 
-    // ⭐ Lấy provider thật từ DB để header hiển thị đúng
+    // Lấy provider thật từ DB để header hiển thị đúng
     const provider = await Provider.findByPk(providerSession.providerId, {
       attributes: ["providerName", "email", "providerId"],
     });
 
-    // ⭐ Debug
-    // console.log(">>> Provider loaded for HEADER:", provider?.providerName);
-
     // Lấy providerInfo
-    // console.log(">>> Query ProviderInfo WHERE providerId =",provider.providerId);
     const providerInfo = await ProviderInfo.findOne({
       where: { providerId: provider.providerId },
     });
-    // console.log(">>> ProviderInfo result =", providerInfo);
 
     const type = req.query.type || "month";
     const now = dayjs().tz("Asia/Ho_Chi_Minh");
 
-    // ===== 1️⃣ Thống kê hôm nay =====
+    // ===== Thống kê hôm nay =====
     const startOfDay = now.startOf("day").toDate();
     const endOfDay = now.endOf("day").toDate();
 
@@ -54,7 +49,7 @@ exports.viewReport = async (req, res) => {
         },
       })) || 0;
 
-    // ===== 2️⃣ Phòng trống hôm nay =====
+    // ===== Phòng trống hôm nay =====
     const totalRooms = await Room.count();
     const bookedRoomIds = await Booking.findAll({
       attributes: ["roomId"],
@@ -66,25 +61,25 @@ exports.viewReport = async (req, res) => {
     });
     const availableRooms = totalRooms - bookedRoomIds.length;
 
-    // ===== 3️⃣ Doanh thu theo thời gian =====
+    // ===== Doanh thu theo thời gian =====
     let groupByFn;
     let whereClause = { status: "Đã thanh toán" };
     let revenueData = [];
 
     if (type === "month" || type === "week") {
-      // 👉 Gom nhóm theo ngày, chỉ lấy các ngày có dữ liệu
+      // Gom nhóm theo ngày, chỉ lấy các ngày có dữ liệu
       groupByFn = Sequelize.fn("DATE", Sequelize.col("invoiceDate"));
       const startOfMonth = now.startOf("month").toDate();
       const endOfMonth = now.endOf("month").toDate();
       whereClause.invoiceDate = { [Op.between]: [startOfMonth, endOfMonth] };
     } else if (type === "year") {
-      // 👉 Gom nhóm theo tháng, vẫn hiển thị đủ 12 tháng
+      // Gom nhóm theo tháng, vẫn hiển thị đủ 12 tháng
       groupByFn = Sequelize.fn("MONTH", Sequelize.col("invoiceDate"));
       const startOfYear = now.startOf("year").toDate();
       const endOfYear = now.endOf("year").toDate();
       whereClause.invoiceDate = { [Op.between]: [startOfYear, endOfYear] };
     } else if (type === "all") {
-      // 👉 Gom nhóm theo năm, hiển thị các năm có dữ liệu
+      // Gom nhóm theo năm, hiển thị các năm có dữ liệu
       groupByFn = Sequelize.fn("YEAR", Sequelize.col("invoiceDate"));
     }
 
@@ -101,13 +96,13 @@ exports.viewReport = async (req, res) => {
 
     // Xử lý kết quả đầu ra
     if (type === "month" || type === "week") {
-      // 🔹 Chỉ những ngày có doanh thu > 0
+      // Chỉ những ngày có doanh thu > 0
       revenueData = revenueDataRaw.map((r) => ({
         time: dayjs(r.dataValues.time).format("YYYY-MM-DD"),
         total: Number(r.dataValues.total),
       }));
     } else if (type === "year") {
-      // 🔹 Vẫn hiển thị 12 tháng, nếu tháng nào không có thì = 0
+      // Vẫn hiển thị 12 tháng, nếu tháng nào không có thì = 0
       const revenueMap = {};
       for (let m = 1; m <= 12; m++) revenueMap[m] = 0;
       revenueDataRaw.forEach((r) => {
@@ -119,14 +114,14 @@ exports.viewReport = async (req, res) => {
         total,
       }));
     } else if (type === "all") {
-      // 🔹 Hiển thị theo năm (chỉ năm có dữ liệu)
+      // Hiển thị theo năm (chỉ năm có dữ liệu)
       revenueData = revenueDataRaw.map((r) => ({
         time: r.dataValues.time,
         total: Number(r.dataValues.total),
       }));
     }
 
-    // ===== 4️⃣ Doanh thu theo phòng =====
+    // ===== Doanh thu theo phòng =====
     const roomRevenueRaw = await Invoice.findAll({
       attributes: [
         "bookingId",
@@ -150,7 +145,7 @@ exports.viewReport = async (req, res) => {
       },
     }));
 
-    // ===== 5️⃣ Tình trạng phòng =====
+    // ===== Tình trạng phòng =====
     const roomStatusRaw = await Booking.findAll({
       attributes: [
         "status",

@@ -15,7 +15,7 @@ const RoomAmenity = sequelize.define(
   },
   {
     tableName: "RoomAmenity",
-    timestamps: false, // ✅ rất quan trọng
+    timestamps: false,
   }
 );
 

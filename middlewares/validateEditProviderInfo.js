@@ -26,7 +26,7 @@ module.exports = async (req, res, next) => {
     checkoutTo,
   } = req.body;
 
-  // ⭐ Load ProviderInfo cũ
+  // Load ProviderInfo cũ
   const providerId = req.session.provider?.id;
 
   req.providerInfo = await ProviderInfo.findOne({
@@ -34,7 +34,7 @@ module.exports = async (req, res, next) => {
     include: [{ model: Address, as: "Address" }],
   });
 
-  // ⭐ Load Amenities
+  // Load Amenities
   const amenities = await Amenity.findAll({
     order: [
       ["category", "ASC"],
@@ -50,25 +50,21 @@ module.exports = async (req, res, next) => {
 
   req.groupedAmenities = groupedAmenities;
 
-  // ⭐ Giải mã entities trước khi validate
+  // Giải mã entities trước khi validate
   const decodedName = decodeEntities(businessName);
   const decodedAddress = decodeEntities(customAddress);
 
-  // ⭐ Regex tiếng Việt chuẩn (không cho ký tự đặc biệt)
+  // Regex tiếng Việt chuẩn (không cho ký tự đặc biệt)
   const nameRegex = /^[A-Za-zÀ-ỹ0-9\s.,'-]+$/;
   const addressRegex = /^[A-Za-zÀ-ỹ0-9\s/.,'-]+$/;
 
-  // =======================================
-  // 🏷 TÊN DOANH NGHIỆP
-  // =======================================
+  // TÊN DOANH NGHIỆP
   if (!decodedName || decodedName.trim().length < 3)
     errors.businessName = "Tên doanh nghiệp phải có ít nhất 3 ký tự.";
   else if (!nameRegex.test(decodedName.trim()))
     errors.businessName = "Tên doanh nghiệp không được chứa ký tự đặc biệt.";
 
-  // =======================================
-  // 🏡 ĐỊA CHỈ
-  // =======================================
+  // ĐỊA CHỈ
   if (!decodedAddress)
     errors.customAddress = "Vui lòng nhập tên đường / số nhà.";
   else if (!addressRegex.test(decodedAddress))
@@ -78,15 +74,11 @@ module.exports = async (req, res, next) => {
   if (!district) errors.district = "Vui lòng chọn quận / huyện.";
   if (!ward) errors.ward = "Vui lòng chọn phường / xã.";
 
-  // =======================================
-  // 📄 MÔ TẢ
-  // =======================================
+  // MÔ TẢ
   if (!description || description.trim().length < 50)
     errors.description = "Mô tả phải có ít nhất 50 ký tự.";
 
-  // =======================================
-  // ⭐ TIỆN ÍCH
-  // =======================================
+  // TIỆN ÍCH
   let normalizedAmenities = Array.isArray(popularAmenities)
     ? popularAmenities
     : popularAmenities
@@ -96,9 +88,7 @@ module.exports = async (req, res, next) => {
   if (normalizedAmenities.length === 0)
     errors.popularAmenities = "Vui lòng chọn ít nhất 1 tiện ích.";
 
-  // =======================================
-  // ⏰ CHECKIN - CHECKOUT
-  // =======================================
+  // CHECKIN - CHECKOUT
   const normalizeTime = (t) => {
     if (!t) return "";
     t = String(t).trim();
@@ -143,10 +133,6 @@ module.exports = async (req, res, next) => {
   const cIn2 = normalizeTime(checkinTo);
   const cOut1 = normalizeTime(checkoutFrom);
   const cOut2 = normalizeTime(checkoutTo);
-
-  // Debug nếu cần
-  // console.log("⏰ RAW:", checkinFrom, checkinTo, checkoutFrom, checkoutTo);
-  // console.log("⏰ NORMALIZED:", cIn1, cIn2, cOut1, cOut2);
 
   if (!cIn1 || !cIn2 || toMin(cIn1) >= toMin(cIn2)) {
     errors.checkin = "Giờ nhận phòng không hợp lệ. (Từ phải nhỏ hơn Đến)";
@@ -200,9 +186,5 @@ module.exports = async (req, res, next) => {
       error: null,
     });
   }
-
-  // =======================================
-  // ✔ Không lỗi → Tiếp tục update
-  // =======================================
   next();
 };

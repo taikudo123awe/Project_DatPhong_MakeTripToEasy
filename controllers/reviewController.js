@@ -12,7 +12,7 @@ exports.showReviewedRooms = async (req, res) => {
   try {
     const providerId = req.session.provider.providerId;
 
-    // ⭐ Lấy thông tin provider & providerInfo
+    // Lấy thông tin provider & providerInfo
     const provider = req.session.provider;
     const providerInfo = await ProviderInfo.findOne({
       where: { providerId },
@@ -59,10 +59,10 @@ exports.showRoomReviews = async (req, res) => {
     const providerId = req.session.provider.providerId;
     const { roomId } = req.params;
 
-    // ⭐ Lấy provider từ session
+    // Lấy provider từ session
     const provider = req.session.provider;
 
-    // ⭐ Lấy providerInfo
+    // Lấy providerInfo
     const providerInfo = await ProviderInfo.findOne({
       where: { providerId },
     });
@@ -134,29 +134,29 @@ exports.submitReview = async (req, res) => {
     const { rating, comment } = req.body;
     const customerId = req.session.customer?.customerId;
 
-    // 1️⃣ Kiểm tra đăng nhập
+    // Kiểm tra đăng nhập
     if (!customerId) {
       return res.redirect("/customer/login");
     }
 
-    // 2️⃣ Kiểm tra hợp lệ
+    // Kiểm tra hợp lệ
     if (!rating || rating < 1 || rating > 5) {
       req.session.error = "Vui lòng chọn số sao hợp lệ (1–5).";
       return res.redirect(`/customer/history-detail/${bookingId}`);
     }
 
-    // ✅ Không bắt buộc nhận xét nữa
+    // Không bắt buộc nhận xét nữa
     const commentText =
       comment && comment.trim().length > 0 ? comment.trim() : null;
 
-    // 3️⃣ Kiểm tra booking có tồn tại không
+    // Kiểm tra booking có tồn tại không
     const booking = await Booking.findByPk(bookingId, { include: Room });
     if (!booking) {
       req.session.error = "Không tìm thấy thông tin đặt phòng.";
       return res.redirect("/customer/history-dashboard");
     }
 
-    // 4️⃣ Kiểm tra đã đánh giá chưa
+    // Kiểm tra đã đánh giá chưa
     const existingReview = await Review.findOne({
       where: {
         customerId,

@@ -67,5 +67,5 @@ module.exports = ({
   Room.belongsToMany(Amenity, { through: RoomAmenity, foreignKey: "roomId", otherKey: "amenityId" });
   Amenity.belongsToMany(Room, { through: RoomAmenity, foreignKey: "amenityId", otherKey: "roomId" });
 
-  console.log("--- Các liên kết model (Associations) đã được định nghĩa ---");
+  console.log("Các liên kết model (Associations) đã được định nghĩa");
 };

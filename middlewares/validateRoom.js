@@ -108,22 +108,22 @@ exports.validateEditRoom = (req, res, next) => {
 
   const errors = {};
 
-  // 🔹 Kiểm tra lựa chọn tên phòng
+  // Kiểm tra lựa chọn tên phòng
   if (!roomNameId || isNaN(roomNameId)) {
     errors.roomNameId = "Vui lòng chọn tên phòng hợp lệ.";
   }
 
-  // 👥 Sức chứa
+  // Sức chứa
   if (!isNumber(Number(capacity)) || capacity < 1 || capacity > 50) {
     errors.capacity = "Sức chứa phải là số từ 1–50 người.";
   }
 
-  // 💰 Giá
+  // Giá
   if (!isNumber(Number(price)) || price <= 0 || price > 1e9) {
     errors.price = "Giá phòng phải là số hợp lệ (≤ 1,000,000,000 VND).";
   }
 
-  // 📝 Mô tả
+  // Mô tả
   const desc = sanitize(description);
   if (!desc) {
     errors.description = "Mô tả phòng không được để trống.";
@@ -131,7 +131,7 @@ exports.validateEditRoom = (req, res, next) => {
     errors.description = "Mô tả phải có ít nhất 20 ký tự.";
   }
 
-  // 🖼️ Ảnh (chỉ kiểm tra nếu có upload)
+  // Ảnh (chỉ kiểm tra nếu có upload)
   if (req.files?.length > 0) {
     if (req.files.length > MAX_IMAGES) {
       errors.image = `Chỉ được tải lên tối đa ${MAX_IMAGES} ảnh.`;

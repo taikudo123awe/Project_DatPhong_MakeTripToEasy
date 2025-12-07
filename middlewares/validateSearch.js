@@ -36,7 +36,7 @@ module.exports = (req, res, next) => {
       }
     }
 
-    // ✅ Gắn lại dữ liệu hợp lệ vào request để controller dùng
+    // Gắn lại dữ liệu hợp lệ vào request để controller dùng
     req.validatedSearch = {
       city: (cityName || '').trim(),
       district: (districtName || '').trim(),

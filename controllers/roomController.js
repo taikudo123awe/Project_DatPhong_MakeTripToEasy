@@ -40,9 +40,7 @@ exports.getAllRooms = async (req, res) => {
   }
 };
 
-// ===========================
 // Lấy danh sách phòng cho trang chủ
-// ===========================
 exports.getRoomsForHome = async (req, res) => {
   try {
     const featuredRooms = await Room.findAll({
@@ -58,7 +56,7 @@ exports.getRoomsForHome = async (req, res) => {
           model: Address,
           attributes: ["city", "district", "ward"],
         },
-        { model: RoomType},
+        { model: RoomType },
         { model: Amenity, through: { attributes: [] } },
       ],
       order: [["postedAt", "DESC"]],
@@ -72,8 +70,8 @@ exports.getRoomsForHome = async (req, res) => {
       const avgRating =
         reviewCount > 0
           ? (
-              reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount
-            ).toFixed(1)
+            reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount
+          ).toFixed(1)
           : "4.5";
       return { ...room.toJSON(), avgRating, reviewCount };
     });
@@ -82,7 +80,7 @@ exports.getRoomsForHome = async (req, res) => {
     const weekendRooms = await Room.findAll({
       where: { approvalStatus: "Đã duyệt" },
       include: [
-        { model: Address,  attributes: ["city", "district"] },
+        { model: Address, attributes: ["city", "district"] },
         {
           model: Review,
           attributes: ["rating"],
@@ -98,9 +96,9 @@ exports.getRoomsForHome = async (req, res) => {
       const avgRating =
         reviews.length > 0
           ? (
-              reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
-              reviews.length
-            ).toFixed(1)
+            reviews.reduce((sum, r) => sum + (r.rating || 0), 0) /
+            reviews.length
+          ).toFixed(1)
           : "4.5";
       const discountPercent = Math.floor(Math.random() * 30) + 10;
       const oldPrice = Math.round(room.price * (1 + discountPercent / 100));
@@ -113,9 +111,7 @@ exports.getRoomsForHome = async (req, res) => {
     res.status(500).send("Lỗi khi tải trang chủ");
   }
 };
-// ===========================
 // Chi tiết phòng
-// ===========================
 exports.getRoomDetail = async (req, res) => {
   const roomId = req.params.roomId;
   const { checkInDate, checkOutDate, numberOfGuests, numRooms } = req.query;
@@ -131,7 +127,7 @@ exports.getRoomDetail = async (req, res) => {
           model: Review,
           include: [
             { model: Customer, attributes: ["fullName"] },
-            { model: Feedback }, // ⭐ THÊM DÒNG NÀY
+            { model: Feedback },
           ],
         },
       ],
@@ -152,14 +148,10 @@ exports.getRoomDetail = async (req, res) => {
   }
 };
 
-// ===========================
 // Lấy danh sách phòng cho trang chủ /
-// ===========================
 exports.getRoomsForHome = async (req, res) => {
   try {
-    // ==============================
-    // 🔹 1. Lấy danh sách phòng nổi bật
-    // ==============================
+    // 1. Lấy danh sách phòng nổi bật
     const featuredRooms = await Room.findAll({
       where: { approvalStatus: "Đã duyệt" },
       include: [
@@ -186,8 +178,8 @@ exports.getRoomsForHome = async (req, res) => {
       const avgRating =
         reviewCount > 0
           ? (
-              reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount
-            ).toFixed(1)
+            reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount
+          ).toFixed(1)
           : "4.5";
 
       return {
@@ -197,9 +189,7 @@ exports.getRoomsForHome = async (req, res) => {
       };
     });
 
-    // ==============================
-    // 🔹 2. Lấy danh sách ưu đãi cuối tuần (ngẫu nhiên)
-    // ==============================
+    // 2. Lấy danh sách ưu đãi cuối tuần (ngẫu nhiên)
     const weekendRooms = await Room.findAll({
       where: { approvalStatus: "Đã duyệt" },
       include: [
@@ -220,8 +210,8 @@ exports.getRoomsForHome = async (req, res) => {
       const avgRating =
         reviewCount > 0
           ? (
-              reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount
-            ).toFixed(1)
+            reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviewCount
+          ).toFixed(1)
           : "4.5";
 
       // Tạo giảm giá ảo 10–40%
@@ -237,9 +227,7 @@ exports.getRoomsForHome = async (req, res) => {
       };
     });
 
-    // ==============================
-    // 🔹 3. Render ra trang home
-    // ==============================
+    // 3. Render ra trang home
     res.render("home", {
       rooms: roomsWithComputed,
       weekendDeals, // thêm dữ liệu ưu đãi vào home.ejs
@@ -250,32 +238,27 @@ exports.getRoomsForHome = async (req, res) => {
   }
 };
 
-// ===========================
 // Hiển thị form thêm phòng
-// ===========================
-// ===========================
-// Hiển thị form thêm phòng
-// ===========================
 exports.showAddRoomForm = async (req, res) => {
   try {
     const providerId = req.session.provider?.providerId;
     if (!providerId) return res.redirect("/provider/login");
 
-    // ⭐ Lấy provider từ session để truyền vào EJS
+    // Lấy provider từ session để truyền vào EJS
     const provider = req.session.provider;
 
-    // 🔹 Lấy thông tin hồ sơ NCC (ProviderInfo)
+    // Lấy thông tin hồ sơ NCC (ProviderInfo)
     const providerInfo = await ProviderInfo.findOne({
       where: { providerId },
     });
 
-    // 🔹 Lấy loại phòng + tên phòng
+    // Lấy loại phòng + tên phòng
     const [roomTypes, roomNames] = await Promise.all([
       RoomType.findAll(),
       RoomName.findAll(),
     ]);
 
-    // 🔹 Lấy tiện ích và gom nhóm
+    // Lấy tiện ích và gom nhóm
     const amenities = await Amenity.findAll({
       order: [
         ["category", "ASC"],
@@ -289,7 +272,7 @@ exports.showAddRoomForm = async (req, res) => {
       groupedAmenities[a.category].push(a);
     });
 
-    // ⭐ Render form
+    // Render form
     res.render("provider/add-room", {
       error: {},
       form: {},
@@ -297,7 +280,7 @@ exports.showAddRoomForm = async (req, res) => {
       roomTypes,
       roomNames,
       groupedAmenities,
-      provider, // ✔️ ĐÃ SỬA, BIẾN TỒN TẠI
+      provider, // ĐÃ SỬA, BIẾN TỒN TẠI
       providerInfo,
       active: "dashboard",
       layout: false,
@@ -307,9 +290,7 @@ exports.showAddRoomForm = async (req, res) => {
     res.status(500).send("Lỗi khi tải form thêm phòng");
   }
 };
-// ===========================
 // Thêm phòng mới
-// ===========================
 exports.createRoom = async (req, res) => {
   if (req.validationErrors && Object.keys(req.validationErrors).length > 0) {
     const providerId = req.session.provider?.providerId;
@@ -339,7 +320,7 @@ exports.createRoom = async (req, res) => {
       roomTypes,
       roomNames,
       groupedAmenities,
-      providerInfo, // ⭐ MUST HAVE
+      providerInfo,
       layout: false,
     });
   }
@@ -389,7 +370,7 @@ exports.createRoom = async (req, res) => {
 
     const fullAddress = `${customAddress}, ${ward}, ${district}, ${city}`;
 
-    // 1️⃣ Tạo phòng TRONG transaction
+    // Tạo phòng TRONG transaction
     const room = await Room.create(
       {
         roomNameId,
@@ -413,10 +394,10 @@ exports.createRoom = async (req, res) => {
 
     console.log("🆕 Room ID mới tạo:", room.roomId);
 
-    // 2️⃣ Commit transaction sớm — đảm bảo roomId đã có trong DB
+    // Commit transaction sớm — đảm bảo roomId đã có trong DB
     await t.commit();
 
-    // 3️⃣ Sau commit, xử lý tiện ích
+    // Sau commit, xử lý tiện ích
     let amenityList = Array.isArray(amenities) ? amenities : [amenities];
     amenityList = amenityList.filter((id) => id && !isNaN(id));
 
@@ -428,14 +409,14 @@ exports.createRoom = async (req, res) => {
 
       const validIds = validAmenities.map((a) => a.amenityId);
       if (validIds.length > 0) {
-        await room.setAmenities(validIds); // ✅ chạy ngoài transaction
+        await room.setAmenities(validIds); // chạy ngoài transaction
         console.log(
-          `✅ Gắn ${validIds.length} tiện ích cho phòng ${room.roomId}`
+          `Gắn ${validIds.length} tiện ích cho phòng ${room.roomId}`
         );
       }
     }
 
-    req.session.success = "✅ Phòng đã được thêm thành công!";
+    req.session.success = "Phòng đã được thêm thành công!";
     res.redirect("/provider/dashboard");
   } catch (err) {
     if (!t.finished) await t.rollback();
@@ -444,15 +425,13 @@ exports.createRoom = async (req, res) => {
   }
 };
 
-// ===========================
 // Hiển thị form chỉnh sửa
-// ===========================
 exports.showEditRoomForm = async (req, res) => {
   try {
     const roomId = req.params.roomId;
     const providerId = req.session.provider?.providerId;
 
-    // ⭐ Lấy provider từ session
+    // Lấy provider từ session
     const provider = req.session.provider;
 
     const room = await Room.findByPk(roomId, {
@@ -481,7 +460,7 @@ exports.showEditRoomForm = async (req, res) => {
 
     res.render("provider/edit-room", {
       room,
-      providerInfo, // ⭐ thêm
+      providerInfo,
       roomTypes,
       roomNames,
       groupedAmenities,
@@ -497,22 +476,19 @@ exports.showEditRoomForm = async (req, res) => {
   }
 };
 
-// ===========================
 // Cập nhật phòng
-// ===========================
 exports.updateRoom = async (req, res) => {
   console.log("🔧 validateEditRoom:", req.validationErrors);
 
   if (req.validationErrors && Object.keys(req.validationErrors).length > 0) {
-    // ... (render lại form như bạn đang làm)
     return;
   }
 
   try {
     const roomId = req.params.roomId;
     const {
-      roomNameId, // nếu dùng
-      roomTypeId, // 🔹 lấy từ form
+      roomNameId,
+      roomTypeId, //lấy từ form
       capacity,
       price,
       description,
@@ -542,14 +518,14 @@ exports.updateRoom = async (req, res) => {
     let address = await Address.findOne({ where: { city, district, ward } });
     if (!address) address = await Address.create({ city, district, ward });
 
-    // 🔹 Cập nhật dữ liệu, NHỚ set roomTypeId
+    // Cập nhật dữ liệu, NHỚ set roomTypeId
     const updateData = {
       capacity,
       price,
       description,
       fullAddress: `${customAddress}, ${ward}, ${district}, ${city}`,
       addressId: address.addressId,
-      roomTypeId: Number(roomTypeId), // ✅ QUAN TRỌNG
+      roomTypeId: Number(roomTypeId),
       approvalStatus: "Chờ duyệt",
     };
     if (image) updateData.image = image;
@@ -561,7 +537,7 @@ exports.updateRoom = async (req, res) => {
       attributes: ["roomId", "roomTypeId"],
       include: [{ model: RoomType, attributes: ["typeName"] }],
     });
-    console.log("✅ Room sau khi cập nhật:", {
+    console.log("Room sau khi cập nhật:", {
       id: updatedRoom.roomId,
       roomTypeId: updatedRoom.roomTypeId,
       roomTypeName: updatedRoom.RoomType?.typeName,
@@ -572,17 +548,15 @@ exports.updateRoom = async (req, res) => {
     let amenityList = Array.isArray(amenities) ? amenities : [amenities];
     if (amenityList.length > 0) await room.setAmenities(amenityList);
 
-    req.session.success = "✅ Cập nhật thành công! Phòng sẽ được duyệt lại.";
+    req.session.success = "Cập nhật thành công! Phòng sẽ được duyệt lại.";
     res.redirect("/provider/dashboard");
   } catch (err) {
-    console.error("❌ Lỗi khi cập nhật phòng:", err);
+    console.error("Lỗi khi cập nhật phòng:", err);
     res.status(500).send("Lỗi khi cập nhật phòng: " + err.message);
   }
 };
 
-// ===========================
 // Xóa (ẩn) phòng — soft delete
-// ===========================
 exports.deleteRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
@@ -605,10 +579,10 @@ exports.deleteRoom = async (req, res) => {
     // 3️⃣ Chỉ đổi trạng thái, không xóa dữ liệu
     await Room.update({ status: "Ngưng hoạt động" }, { where: { roomId } });
 
-    req.session.success = `🗑️ Phòng "${room.roomName}" đã được ẩn khỏi hệ thống (ngưng hoạt động).`;
+    req.session.success = `Phòng "${room.roomName}" đã được ẩn khỏi hệ thống (ngưng hoạt động).`;
     res.redirect("/provider/dashboard");
   } catch (err) {
-    console.error("❌ Lỗi khi ẩn phòng:", err);
+    console.error("Lỗi khi ẩn phòng:", err);
     req.session.error = "Đã xảy ra lỗi khi ẩn phòng. Vui lòng thử lại.";
     res.redirect("/provider/dashboard");
   }
@@ -625,27 +599,27 @@ exports.searchRooms = async (req, res) => {
     const numGuests = validated.numGuests || 1;
     const numRooms = validated.numRooms || 1;
 
-    // 1️⃣ Lấy danh sách phòng đã bị đặt
+    //Lấy danh sách phòng đã bị đặt
     const bookedRoomIds = await getBookedRoomIds(checkInDate, checkOutDate);
 
-    // 2️⃣ Tạo điều kiện lọc phòng
+    //Tạo điều kiện lọc phòng
     const whereConditions = buildRoomFilters(req, bookedRoomIds, validated);
 
-    // 3️⃣ Truy vấn danh sách phòng
-    const availableRooms = await getAvailableRooms( whereConditions, city, district, ward, Room, Address, sequelize, Op );
-    
-    // 4️⃣ Lấy loại phòng
+    //Truy vấn danh sách phòng
+    const availableRooms = await getAvailableRooms(whereConditions, city, district, ward, Room, Address, sequelize, Op);
+
+    //Lấy loại phòng
     const roomTypes = await getRoomTypes();
 
-    // 5️⃣ Dữ liệu tìm kiếm
+    //Dữ liệu tìm kiếm
     const searchParams = {
       checkInDate: checkInDate ? checkInDate.toISOString().slice(0, 10) : "",
       checkOutDate: checkOutDate ? checkOutDate.toISOString().slice(0, 10) : "",
       numGuests,
       numRooms,
     };
-    
-    // 6️⃣ Render kết quả
+
+    //Render kết quả
     res.render("list", {
       rooms: availableRooms,
       roomTypes,
@@ -671,10 +645,10 @@ exports.listRoomsByCity = async (req, res) => {
 
     const whereAddress = city
       ? {
-          city: {
-            [Op.like]: `%${city}%`,
-          },
-        }
+        city: {
+          [Op.like]: `%${city}%`,
+        },
+      }
       : {};
 
     const rooms = await Room.findAll({
@@ -735,8 +709,8 @@ exports.getWeekendDeals = async (req, res) => {
       const reviews = room.Reviews || [];
       const avgRating = reviews.length
         ? (
-            reviews.reduce((a, r) => a + (r.rating || 0), 0) / reviews.length
-          ).toFixed(1)
+          reviews.reduce((a, r) => a + (r.rating || 0), 0) / reviews.length
+        ).toFixed(1)
         : null;
 
       const discountPercent = Math.floor(Math.random() * 30) + 10; // 10–40%

@@ -17,13 +17,11 @@ module.exports = async (req, res, next) => {
     checkoutTo,
   } = req.body;
 
-  // 🔹 Regex cho tên / địa chỉ: cho phép mọi chữ cái Unicode
+  // Regex cho tên / địa chỉ: cho phép mọi chữ cái Unicode
   const nameRegex = /^[\p{L}0-9\s.,'-]+$/u;
   const addressRegex = /^[\p{L}0-9\s/.,'-]+$/u;
 
-  // ======================
-  // ⭐ Convert AM/PM (nếu có) → 24h
-  // ======================
+  // Convert AM/PM (nếu có) → 24h
   function to24h(t) {
     if (!t) return "";
 
@@ -50,30 +48,26 @@ module.exports = async (req, res, next) => {
     return `${String(hours).padStart(2, "0")}:${minutes}`;
   }
 
-  // ⭐ Convert trước validate
+  // Convert trước validate
   const checkinFrom24 = to24h(checkinFrom);
   const checkinTo24 = to24h(checkinTo);
   const checkoutFrom24 = to24h(checkoutFrom);
   const checkoutTo24 = to24h(checkoutTo);
 
-  // ⭐ Giữ lại giá trị khi render lại form
+  // Giữ lại giá trị khi render lại form
   req.body.checkinFrom = checkinFrom24;
   req.body.checkinTo = checkinTo24;
   req.body.checkoutFrom = checkoutFrom24;
   req.body.checkoutTo = checkoutTo24;
 
-  // ======================
-  // ⭐ Convert HH:mm → phút để compare chính xác
-  // ======================
+  // Convert HH:mm → phút để compare chính xác
   function toMinutes(t) {
     if (!t || !/^\d{2}:\d{2}$/.test(t)) return NaN;
     const [h, m] = t.split(":").map(Number);
     return h * 60 + m;
   }
 
-  // ======================
-  // 🏢 TÊN DOANH NGHIỆP
-  // ======================
+  // TÊN DOANH NGHIỆP
   if (!businessName || !businessName.trim()) {
     errors.businessName = "Tên doanh nghiệp không được để trống.";
   } else if (businessName.trim().length < 3) {
@@ -83,9 +77,7 @@ module.exports = async (req, res, next) => {
       "Tên doanh nghiệp không được chứa ký tự đặc biệt (chỉ chấp nhận chữ, số và . , ' -).";
   }
 
-  // ======================
-  // 🏠 ĐỊA CHỈ
-  // ======================
+  // ĐỊA CHỈ
   if (!customAddress || !customAddress.trim()) {
     errors.customAddress = "Vui lòng nhập tên đường / số nhà.";
   } else if (!addressRegex.test(customAddress.trim())) {
@@ -97,9 +89,7 @@ module.exports = async (req, res, next) => {
   if (!district) errors.district = "Vui lòng chọn quận / huyện.";
   if (!ward) errors.ward = "Vui lòng chọn phường / xã.";
 
-  // ======================
-  // 📖 MÔ TẢ
-  // ======================
+  // MÔ TẢ
   if (!description || !description.trim()) {
     errors.description = "Mô tả doanh nghiệp không được để trống.";
   } else if (description.trim().length < 50) {
@@ -107,9 +97,7 @@ module.exports = async (req, res, next) => {
       "Mô tả quá ngắn. Vui lòng viết ít nhất 50 ký tự để mô tả rõ hơn.";
   }
 
-  // ======================
-  // 💎 TIỆN ÍCH
-  // ======================
+  // TIỆN ÍCH
   // popularAmenities có thể là string (1 item) hoặc array hoặc undefined
   let normalizedAmenities = [];
   if (Array.isArray(popularAmenities)) {
@@ -122,28 +110,24 @@ module.exports = async (req, res, next) => {
     errors.popularAmenities = "Vui lòng chọn ít nhất 1 tiện ích nổi bật.";
   }
 
-  // ======================
-  // ⏰ CHECKIN / CHECKOUT
-  // ======================
+  // CHECKIN / CHECKOUT
   const isValidTime = (t) => /^\d{2}:\d{2}$/.test(t || "");
 
-  // ⭐ CHECK-IN
+  // CHECK-IN
   if (!isValidTime(checkinFrom24) || !isValidTime(checkinTo24)) {
     errors.checkin = "Vui lòng nhập giờ nhận phòng hợp lệ (hh:mm).";
   } else if (toMinutes(checkinFrom24) >= toMinutes(checkinTo24)) {
     errors.checkin = "Giờ nhận phòng (Từ) phải sớm hơn giờ (Đến).";
   }
 
-  // ⭐ CHECK-OUT
+  // CHECK-OUT
   if (!isValidTime(checkoutFrom24) || !isValidTime(checkoutTo24)) {
     errors.checkout = "Vui lòng nhập giờ trả phòng hợp lệ (hh:mm).";
   } else if (toMinutes(checkoutFrom24) >= toMinutes(checkoutTo24)) {
     errors.checkout = "Giờ trả phòng (Từ) phải sớm hơn giờ (Đến).";
   }
 
-  // ======================
-  // ❌ Có lỗi → render lại form
-  // ======================
+  // Có lỗi → render lại form
   if (Object.keys(errors).length > 0) {
     const amenities = await Amenity.findAll({
       order: [
@@ -158,12 +142,12 @@ module.exports = async (req, res, next) => {
       groupedAmenities[a.category].push(a);
     });
 
-    // ⭐ Chọn đúng view theo URL: setup hay edit
+    // Chọn đúng view theo URL: setup hay edit
     const view = req.originalUrl.includes("/profile/edit")
       ? "provider/edit-provider-info"
       : "provider/setup-profile";
 
-    // ⭐ Nếu body KHÔNG có city/district/ward (do select bị disable chẳng hạn)
+    // Nếu body KHÔNG có city/district/ward (do select bị disable chẳng hạn)
     //    thì fallback về địa chỉ cũ từ req.providerInfo (dành cho form edit)
     const oldAddr = req.providerInfo?.Address || {};
     const safeCity = city || oldAddr.city || "";
@@ -202,9 +186,5 @@ module.exports = async (req, res, next) => {
       success: null,
     });
   }
-
-  // ======================
-  // ✅ Không lỗi → next()
-  // ======================
   next();
 };

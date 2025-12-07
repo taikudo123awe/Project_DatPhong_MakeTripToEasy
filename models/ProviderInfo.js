@@ -42,7 +42,7 @@ const ProviderInfo = sequelize.define(
       allowNull: true,
     },
 
-    // ✅ BỔ SUNG CÁC CỘT BỊ NULL
+    // BỔ SUNG CÁC CỘT BỊ NULL
     allowSmoking: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

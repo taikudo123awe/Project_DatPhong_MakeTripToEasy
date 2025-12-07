@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8" />
   <title>🛠️ Chỉnh sửa thông tin phòng</title>
@@ -11,7 +12,7 @@
   <link rel="stylesheet" href="/css/provider-add-room.css" />
 
   <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
   <style>
     .checkbox-grid {
@@ -19,6 +20,7 @@
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 8px;
     }
+
     .checkbox-grid label {
       background: #f8f9fa;
       border: 1px solid #ddd;
@@ -27,6 +29,7 @@
       cursor: pointer;
       transition: background 0.2s;
     }
+
     .checkbox-grid label:hover {
       background: #eef5ff;
     }
@@ -40,249 +43,214 @@
 
     <h2 class="page-title">🛠️ Chỉnh sửa thông tin phòng</h2>
 
-    <% if (error && Object.keys(error).length > 0) { %>
+    <% if (error && Object.keys(error).length> 0) { %>
       <div class="alert alert-danger text-center fw-bold">
         Vui lòng kiểm tra lại các trường bên dưới.
       </div>
-    <% } else if (success) { %>
-      <div class="alert alert-success text-center fw-bold"><%= success %></div>
-    <% } %>
-
-    <form
-      method="POST"
-      action="/provider/edit-room/<%= room.roomId %>"
-      enctype="multipart/form-data"
-      class="card p-4 shadow"
-      novalidate
-    >
-    <!-- 🔹 Tên phòng -->
-    <div class="mb-3">
-      <label for="roomNameId" class="form-label">Tên phòng</label>
-      <select
-        id="roomNameId"
-        name="roomNameId"
-        class="form-select <%= error?.roomNameId ? 'is-invalid' : '' %>"
-        required
-      >
-        <option value="">-- Chọn tên phòng --</option>
-        <% (roomNames || []).forEach(n => { %>
-          <option
-            value="<%= n.roomNameId %>"
-            <%= String(room.roomNameId) === String(n.roomNameId) ? 'selected' : '' %>>
-            <%= n.roomName %>
-          </option>
-        <% }) %>
-      </select>
-      <% if (error?.roomNameId) { %>
-        <small class="text-danger"><%= error.roomNameId %></small>
-      <% } %>
-    </div>
-
-
-      <!-- 🔹 Loại phòng -->
-      <div class="mb-3">
-        <label for="roomTypeId" class="form-label">Loại phòng</label>
-        <select
-          id="roomTypeId"
-          name="roomTypeId"
-          class="form-select <%= error?.roomTypeId ? 'is-invalid' : '' %>"
-          required
-        >
-          <option value="">-- Chọn loại phòng --</option>
-          <% (roomTypes || []).forEach(t => { %>
-            <option
-              value="<%= t.typeId || t.roomTypeId %>"
-              <%= String(form?.roomTypeId || room.roomTypeId) === String(t.typeId || t.roomTypeId) ? 'selected' : '' %>>
-              <%= t.typeName %>
-            </option>
-          <% }) %>
-        </select>
-        <% if (error?.roomTypeId) { %>
-          <small class="text-danger"><%= error.roomTypeId %></small>
-        <% } %>
-      </div>
-
-      <!-- 🔹 Địa chỉ -->
-<div class="mb-3">
-  <label class="form-label">Địa chỉ phòng</label>
-
-  <% if (providerInfo && providerInfo.businessAddress) { %>
-
-    <!-- ⭐ Không cho sửa -->
-    <input
-      type="text"
-      class="form-control"
-      value="<%= providerInfo.businessAddress %>"
-      readonly
-    />
-    <small class="text-muted">📌 Địa chỉ được lấy từ hồ sơ doanh nghiệp — không thể chỉnh sửa.</small>
-
-    <% 
-      const parts = providerInfo.businessAddress.split(',').map(p => p.trim());
-      const street = parts[0] || "";
-      const ward = parts[1] || "";
-      const district = parts[2] || "";
-      const city = parts[3] || "";
-    %>
-
-    <!-- ⭐ Hidden input gửi về backend -->
-    <input type="hidden" name="customAddress" value="<%= street %>">
-    <input type="hidden" name="ward" value="<%= ward %>">
-    <input type="hidden" name="district" value="<%= district %>">
-    <input type="hidden" name="city" value="<%= city %>">
-
-  <% } else { %>
-
-    <!-- ⭐ Trường hợp không có ProviderInfo (hiếm khi xảy ra) -->
-    <input
-      type="text"
-      class="form-control"
-      name="fullAddressFallback"
-      value="<%= room.fullAddress %>"
-      readonly
-    />
-
-  <% } %>
-</div>
-
-
-<!-- Script load địa chỉ -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="/javascript/addressAPI.js"></script>
-<script>
-  document.getElementById("city").addEventListener("change", function () {
-    document.getElementById("cityName").value = this.options[this.selectedIndex].text;
-  });
-  document.getElementById("district").addEventListener("change", function () {
-    document.getElementById("districtName").value = this.options[this.selectedIndex].text;
-  });
-  document.getElementById("ward").addEventListener("change", function () {
-    document.getElementById("wardName").value = this.options[this.selectedIndex].text;
-  });
-</script>
-
-      <!-- 🔹 Sức chứa -->
-      <div class="mb-3">
-        <label for="capacity" class="form-label">Sức chứa (người)</label>
-        <select
-          id="capacity"
-          name="capacity"
-          class="form-select <%= error?.capacity ? 'is-invalid' : '' %>"
-          required
-        >
-          <option value="">-- Chọn sức chứa --</option>
-          <% for (let i = 1; i <= 20; i++) { %>
-            <option value="<%= i %>"
-              <%= String(form?.capacity || room.capacity) === String(i) ? 'selected' : '' %>>
-              <%= i %> người
-            </option>
-          <% } %>
-        </select>
-        <% if (error?.capacity) { %>
-          <small class="text-danger"><%= error.capacity %></small>
-        <% } %>
-      </div>
-
-      <!-- 🔹 Giá -->
-      <div class="mb-3">
-        <label for="price" class="form-label">Giá (VND)</label>
-        <input
-          type="number"
-          id="price"
-          name="price"
-          class="form-control <%= error?.price ? 'is-invalid' : '' %>"
-          value="<%= form?.price || room.price %>"
-          required
-        />
-        <% if (error?.price) { %>
-          <small class="text-danger"><%= error.price %></small>
-        <% } %>
-      </div>
-
-      <!-- 🔹 Tiện ích -->
-      <div class="mb-3">
-        <label class="form-label fw-bold">Tiện ích</label>
-
-        <% const chosen = Array.isArray(form?.amenities)
-              ? form.amenities.map(String)
-              : form?.amenities
-              ? [String(form.amenities)]
-              : (room.Amenities || []).map(a => String(a.amenityId)); %>
-
-        <% for (let category in groupedAmenities) { %>
-          <h5 class="mt-3 text-primary fw-bold"><%= category %></h5>
-
-          <div class="checkbox-grid">
-            <% groupedAmenities[category].forEach(a => { 
-                const id = String(a.amenityId); %>
-              <label>
-                <input 
-                  type="checkbox" 
-                  name="amenities" 
-                  value="<%= id %>"
-                  <%= chosen.includes(id) ? "checked" : "" %>
-                />
-                <%= a.amenityName %>
-              </label>
-            <% }) %>
-          </div>
+      <% } else if (success) { %>
+        <div class="alert alert-success text-center fw-bold">
+          <%= success %>
+        </div>
         <% } %>
 
-        <% if (error?.amenities) { %>
-          <small class="text-danger d-block"><%= error.amenities %></small>
-        <% } %>
-      </div>
+          <form method="POST" action="/provider/edit-room/<%= room.roomId %>" enctype="multipart/form-data"
+            class="card p-4 shadow" novalidate>
+            <!-- 🔹 Tên phòng -->
+            <div class="mb-3">
+              <label for="roomNameId" class="form-label">Tên phòng</label>
+              <select id="roomNameId" name="roomNameId" class="form-select <%= error?.roomNameId ? 'is-invalid' : '' %>"
+                required>
+                <option value="">-- Chọn tên phòng --</option>
+                <% (roomNames || []).forEach(n=> { %>
+                  <option value="<%= n.roomNameId %>" <%=String(room.roomNameId)===String(n.roomNameId) ? 'selected'
+                    : '' %>>
+                    <%= n.roomName %>
+                  </option>
+                  <% }) %>
+              </select>
+              <% if (error?.roomNameId) { %>
+                <small class="text-danger">
+                  <%= error.roomNameId %>
+                </small>
+                <% } %>
+            </div>
 
-      <!-- 🔹 Mô tả -->
-      <div class="mb-3">
-        <label for="description" class="form-label">Mô tả chi tiết</label>
-        <textarea
-          id="description"
-          name="description"
-          rows="4"
-          class="form-control <%= error?.description ? 'is-invalid' : '' %>"
-          required
-        ><%= form?.description || room.description %></textarea>
-        <% if (error?.description) { %>
-          <small class="text-danger"><%= error.description %></small>
-        <% } %>
-      </div>
 
-      <!-- 🔹 Ảnh hiện tại -->
-      <div class="mb-3">
-        <label class="form-label">Ảnh hiện tại:</label><br />
-        <% if (room.image) { 
-          const imgs = room.image.split(';').filter(i => i.trim() !== '');
-        %>
-          <% imgs.forEach(img => { %>
-            <img src="/<%= img %>" alt="Ảnh phòng" width="150" class="rounded shadow me-2 mb-2" />
-          <% }) %>
-        <% } else { %>
-          <p class="text-muted">Chưa có ảnh</p>
-        <% } %>
-      </div>
+            <!-- 🔹 Loại phòng -->
+            <div class="mb-3">
+              <label for="roomTypeId" class="form-label">Loại phòng</label>
+              <select id="roomTypeId" name="roomTypeId" class="form-select <%= error?.roomTypeId ? 'is-invalid' : '' %>"
+                required>
+                <option value="">-- Chọn loại phòng --</option>
+                <% (roomTypes || []).forEach(t=> { %>
+                  <option value="<%= t.typeId || t.roomTypeId %>" <%=String(form?.roomTypeId ||
+                    room.roomTypeId)===String(t.typeId || t.roomTypeId) ? 'selected' : '' %>>
+                    <%= t.typeName %>
+                  </option>
+                  <% }) %>
+              </select>
+              <% if (error?.roomTypeId) { %>
+                <small class="text-danger">
+                  <%= error.roomTypeId %>
+                </small>
+                <% } %>
+            </div>
 
-      <!-- 🔹 Ảnh mới -->
-      <div class="mb-3">
-        <label for="images" class="form-label">Cập nhật ảnh mới (nếu có)</label>
-        <input
-          type="file"
-          id="images"
-          name="images"
-          multiple
-          accept="image/*"
-          class="form-control <%= error?.image ? 'is-invalid' : '' %>"
-        />
-        <% if (error?.image) { %>
-          <small class="text-danger"><%= error.image %></small>
-        <% } %>
-      </div>
+            <!-- 🔹 Địa chỉ -->
+            <div class="mb-3">
+              <label class="form-label">Địa chỉ phòng</label>
 
-      <!-- 🔹 Nút -->
-      <div class="text-center mt-4">
-        <button type="submit" class="btn btn-success px-4">💾 Lưu thay đổi</button>
-        <a href="/provider/dashboard" class="btn btn-secondary ms-3 px-4">Hủy</a>
-      </div>
-    </form>
-  </body>
+              <% if (providerInfo && providerInfo.businessAddress) { %>
+
+                <!-- ⭐ Không cho sửa -->
+                <input type="text" class="form-control" value="<%= providerInfo.businessAddress %>" readonly />
+                <small class="text-muted">📌 Địa chỉ được lấy từ hồ sơ doanh nghiệp — không thể chỉnh sửa.</small>
+
+                <% const parts=providerInfo.businessAddress.split(',').map(p=> p.trim());
+                  const street = parts[0] || "";
+                  const ward = parts[1] || "";
+                  const district = parts[2] || "";
+                  const city = parts[3] || "";
+                  %>
+
+                  <!-- ⭐ Hidden input gửi về backend -->
+                  <input type="hidden" name="customAddress" value="<%= street %>">
+                  <input type="hidden" name="ward" value="<%= ward %>">
+                  <input type="hidden" name="district" value="<%= district %>">
+                  <input type="hidden" name="city" value="<%= city %>">
+
+                  <% } else { %>
+
+                    <!-- ⭐ Trường hợp không có ProviderInfo (hiếm khi xảy ra) -->
+                    <input type="text" class="form-control" name="fullAddressFallback" value="<%= room.fullAddress %>"
+                      readonly />
+
+                    <% } %>
+            </div>
+
+
+            <!-- Script load địa chỉ -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script src="/javascript/addressAPI.js"></script>
+            <script>
+              document.getElementById("city").addEventListener("change", function () {
+                document.getElementById("cityName").value = this.options[this.selectedIndex].text;
+              });
+              document.getElementById("district").addEventListener("change", function () {
+                document.getElementById("districtName").value = this.options[this.selectedIndex].text;
+              });
+              document.getElementById("ward").addEventListener("change", function () {
+                document.getElementById("wardName").value = this.options[this.selectedIndex].text;
+              });
+            </script>
+
+            <!-- 🔹 Sức chứa -->
+            <div class="mb-3">
+              <label for="capacity" class="form-label">Sức chứa (người)</label>
+              <select id="capacity" name="capacity" class="form-select <%= error?.capacity ? 'is-invalid' : '' %>"
+                required>
+                <option value="">-- Chọn sức chứa --</option>
+                <% for (let i=1; i <=20; i++) { %>
+                  <option value="<%= i %>" <%=String(form?.capacity || room.capacity)===String(i) ? 'selected' : '' %>>
+                    <%= i %> người
+                  </option>
+                  <% } %>
+              </select>
+              <% if (error?.capacity) { %>
+                <small class="text-danger">
+                  <%= error.capacity %>
+                </small>
+                <% } %>
+            </div>
+
+            <!-- 🔹 Giá -->
+            <div class="mb-3">
+              <label for="price" class="form-label">Giá (VND)</label>
+              <input type="number" id="price" name="price" class="form-control <%= error?.price ? 'is-invalid' : '' %>"
+                value="<%= form?.price || room.price %>" required />
+              <% if (error?.price) { %>
+                <small class="text-danger">
+                  <%= error.price %>
+                </small>
+                <% } %>
+            </div>
+
+            <!-- 🔹 Tiện ích -->
+            <div class="mb-3">
+              <label class="form-label fw-bold">Tiện ích</label>
+
+              <% const chosen=Array.isArray(form?.amenities) ? form.amenities.map(String) : form?.amenities ?
+                [String(form.amenities)] : (room.Amenities || []).map(a=> String(a.amenityId)); %>
+
+                <% for (let category in groupedAmenities) { %>
+                  <h5 class="mt-3 text-primary fw-bold">
+                    <%= category %>
+                  </h5>
+
+                  <div class="checkbox-grid">
+                    <% groupedAmenities[category].forEach(a=> {
+                      const id = String(a.amenityId); %>
+                      <label>
+                        <input type="checkbox" name="amenities" value="<%= id %>" <%=chosen.includes(id) ? "checked"
+                          : "" %>
+                        />
+                        <%= a.amenityName %>
+                      </label>
+                      <% }) %>
+                  </div>
+                  <% } %>
+
+                    <% if (error?.amenities) { %>
+                      <small class="text-danger d-block">
+                        <%= error.amenities %>
+                      </small>
+                      <% } %>
+            </div>
+
+            <!-- 🔹 Mô tả -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Mô tả chi tiết</label>
+              <textarea id="description" name="description" rows="4"
+                class="form-control <%= error?.description ? 'is-invalid' : '' %>"
+                required><%= form?.description || room.description %></textarea>
+              <% if (error?.description) { %>
+                <small class="text-danger">
+                  <%= error.description %>
+                </small>
+                <% } %>
+            </div>
+
+            <!-- 🔹 Ảnh hiện tại -->
+            <div class="mb-3">
+              <label class="form-label">Ảnh hiện tại:</label><br />
+              <% if (room.image) { const imgs=room.image.split(';').filter(i=> i.trim() !== '');
+                %>
+                <% imgs.forEach(img=> { %>
+                  <img src="/<%= img %>" alt="Ảnh phòng" width="150" class="rounded shadow me-2 mb-2" />
+                  <% }) %>
+                    <% } else { %>
+                      <p class="text-muted">Chưa có ảnh</p>
+                      <% } %>
+            </div>
+
+            <!-- 🔹 Ảnh mới -->
+            <div class="mb-3">
+              <label for="images" class="form-label">Cập nhật ảnh mới (nếu có)</label>
+              <input type="file" id="images" name="images" multiple accept="image/*"
+                class="form-control <%= error?.image ? 'is-invalid' : '' %>" />
+              <% if (error?.image) { %>
+                <small class="text-danger">
+                  <%= error.image %>
+                </small>
+                <% } %>
+            </div>
+
+            <!-- 🔹 Nút -->
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-success px-4">💾 Lưu thay đổi</button>
+              <a href="/provider/dashboard" class="btn btn-secondary ms-3 px-4">Hủy</a>
+            </div>
+          </form>
+</body>
+
 </html>

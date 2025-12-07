@@ -6,12 +6,8 @@ const Room = require("../models/Room");
 const Customer = require("../models/Customer");
 const Invoice = require("../models/Invoice");
 const Address = require("../models/Address");
-
-
-// ⭐ THÊM: import models
 const Provider = require("../models/Provider");
 const ProviderInfo = require("../models/ProviderInfo");
-// const { act } = require("react");
 
 // SỬA LẠI HÀM NÀY: Lấy tất cả booking và gom nhóm
 exports.listAllBookings = async (req, res) => {
@@ -225,7 +221,7 @@ exports.cancelBooking = async (req, res) => {
 // Hiển thị form đặt phòng cho khách
 exports.showBookingForm = async (req, res) => {
   const roomId = req.params.roomId;
-  const { checkInDate, checkOutDate, numberOfGuests, quantity } = req.query; // 👈 lấy dữ liệu từ URL query
+  const { checkInDate, checkOutDate, numberOfGuests, quantity } = req.query; // lấy dữ liệu từ URL query
 
   try {
     const room = await Room.findByPk(roomId);

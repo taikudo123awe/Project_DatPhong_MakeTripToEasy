@@ -8,10 +8,10 @@
   const ProviderInfo = require("../models/ProviderInfo");
   const Address = require("../models/Address");
   const Amenity = require("../models/Amenity");
-
   const Booking = require("../models/Booking");
   const Customer = require("../models/Customer");
   const Invoice = require("../models/Invoice");
+
   // ==================== DASHBOARD ====================
   exports.showDashboard = async (req, res) => {
     try {
@@ -138,9 +138,9 @@
 
       res.render("provider/edit-profile", {
         provider,
-        paymentInfo, // Gửi paymentInfo (có thể là null)
-        providerInfo, // ⭐ THÊM DÒNG NÀY
-        active: "edit-profile", // ⭐ ĐỂ SIDEBAR highlight đúng mục
+        paymentInfo,
+        providerInfo,
+        active: "edit-profile",
       });
     } catch (err) {
       console.error("❌ Lỗi khi lấy thông tin provider:", err);
@@ -367,36 +367,36 @@
         checkoutTo,
       } = req.body;
 
-      // ✅ Kiểm tra dữ liệu
+      // Kiểm tra dữ liệu
       if (!req.body || Object.keys(req.body).length === 0)
         throw new Error("Không nhận được dữ liệu từ form");
 
-      // ✅ Lưu địa chỉ vào bảng Address
+      // Lưu địa chỉ vào bảng Address
       const address = await Address.create({
         city,
         district,
         ward,
       });
 
-      // ✅ Gộp tiện ích (checkbox)
+      // Gộp tiện ích (checkbox)
       const amenitiesString = Array.isArray(popularAmenities)
         ? popularAmenities.join("; ")
         : popularAmenities || "";
 
-      // ✅ Logo (nếu có)
+      // Logo (nếu có)
       let logoPath = null;
       if (req.file) {
         logoPath = req.file.path.replace(/^public[\\/]/, "");
       }
 
-      // ✅ Gộp địa chỉ đầy đủ
+      // Gộp địa chỉ đầy đủ
       const businessAddress = `${customAddress}, ${ward}, ${district}, ${city}`;
 
       console.log("📍 Address:", businessAddress);
       console.log("🐶 Pet policy:", petPolicy);
       console.log("🕐 checkinFrom:", checkinFrom, " - ", checkoutTo);
 
-      // ✅ Lưu ProviderInfo (đã có addressId & generalRules)
+      // Lưu ProviderInfo (đã có addressId & generalRules)
       await ProviderInfo.create({
         providerId: provider.providerId,
         businessName, // ✔️ lưu đúng tên doanh nghiệp
@@ -543,9 +543,7 @@
         checkoutTo,
       } = req.body;
 
-      // =====================================
-      // ⚡ 1) UPDATE Address
-      // =====================================
+      // 1) UPDATE Address
       await Address.update(
         {
           city,
@@ -555,31 +553,22 @@
         { where: { addressId: info.addressId } }
       );
 
-      // =====================================
-      // ⚡ 2) xử lý tiện ích
-      // =====================================
+      // 2) xử lý tiện ích
       const amenitiesString = Array.isArray(popularAmenities)
         ? popularAmenities.join("; ")
         : popularAmenities || "";
 
-      // =====================================
-      // ⚡ 3) xử lý logo
-      // =====================================
-
+      // 3) xử lý logo
       let logoPath = info.profileImage; // giữ logo cũ
 
       if (req.file) {
         logoPath = req.file.path.replace(/^public[\\/]/, "");
       }
 
-      // =====================================
-      // ⚡ 4) Gộp địa chỉ đầy đủ
-      // =====================================
+      // 4) Gộp địa chỉ đầy đủ
       const businessAddress = `${customAddress}, ${ward}, ${district}, ${city}`;
 
-      // =====================================
-      // ⚡ 5) UPDATE ProviderInfo
-      // =====================================
+      // 5) UPDATE ProviderInfo
       await ProviderInfo.update(
         {
           businessName,

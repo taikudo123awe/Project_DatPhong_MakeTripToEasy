@@ -22,7 +22,7 @@ const Provider = sequelize.define(
     identityNumber: {
       type: DataTypes.STRING(12),
       allowNull: false,
-      unique: true, // ✅ tránh trùng CCCD
+      unique: true, // tránh trùng CCCD
     },
     phoneNumber: {
       type: DataTypes.STRING(15),
@@ -36,7 +36,7 @@ const Provider = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Account, // ✅ tham chiếu trực tiếp model thay vì string
+        model: Account, //tham chiếu trực tiếp model thay vì string
         key: "accountId",
       },
     },
@@ -47,7 +47,7 @@ const Provider = sequelize.define(
   }
 );
 
-// ✅ Thiết lập quan hệ 1-1 với Account
+// Thiết lập quan hệ 1-1 với Account
 Provider.belongsTo(Account, {
   foreignKey: "accountId",
   as: "Account", // đặt alias để dễ include
