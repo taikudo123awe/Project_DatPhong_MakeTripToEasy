@@ -24,9 +24,9 @@
                             <hr>
                             <h5>Các hóa đơn cần thanh toán</h5>
                             <ul>
-                                <% providerData.invoices.forEach(invoice => { %>
+                                <% providerData.Invoice.forEach(Invoice => { %>
                                     <li>
-                                        Phòng <%= invoice.Booking.Room.roomName %> - <strong><%= invoice.amount.toLocaleString() %> VND</strong>
+                                        Phòng <%= Invoice.Booking.Room.roomName %> - <strong><%= Invoice.amount.toLocaleString() %> VND</strong>
                                     </li>
                                 <% }) %>
                             </ul>

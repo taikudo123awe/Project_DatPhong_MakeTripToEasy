@@ -1,37 +1,44 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <title>🛠️ Chỉnh sửa thông tin phòng</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <style>
-      .checkbox-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 8px;
-      }
-      .checkbox-grid label {
-        background: #f8f9fa;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        padding: 6px 10px;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      .checkbox-grid label:hover {
-        background: #eef5ff;
-      }
-      .checkbox-grid input[type="checkbox"] {
-        margin-right: 6px;
-      }
-    </style>
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <title>🛠️ Chỉnh sửa thông tin phòng</title>
 
-  <body class="container py-5">
-    <h2 class="text-center mb-4">🛠️ Chỉnh sửa thông tin phòng</h2>
+  <!-- SIDEBAR -->
+  <link rel="stylesheet" href="/css//provider-sidebar.css" />
+
+  <!-- FORM CSS -->
+  <link rel="stylesheet" href="/css/provider-add-room.css" />
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+  <style>
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 8px;
+    }
+    .checkbox-grid label {
+      background: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 6px 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .checkbox-grid label:hover {
+      background: #eef5ff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ⭐ SIDEBAR + HEADER -->
+  <%- include('../partials/header-provider', {providerInfo, provider,}) %>
+
+    <h2 class="page-title">🛠️ Chỉnh sửa thông tin phòng</h2>
 
     <% if (error && Object.keys(error).length > 0) { %>
       <div class="alert alert-danger text-center fw-bold">

@@ -1,20 +1,8 @@
 module.exports = ({
-  Account,
-  Provider,
-  ProviderInfo,
-  Room,
-  RoomType,
-  Customer,
-  Review,
-  Feedback,
-  Admin,
-  Booking,
-  Invoice,
-  Address,
-  RoomAmenity,
-  RoomName,
-  Amenity
+  Account, Provider, ProviderInfo, Room, RoomType, Customer, Review, 
+  Feedback, Admin, Booking, Invoice, Address, RoomAmenity, RoomName, Amenity
 }) => {
+  
   // Customer <-> Account (1-1)
   Customer.belongsTo(Account, { foreignKey: "accountId" });
   Account.hasOne(Customer, { foreignKey: "accountId" });
@@ -67,19 +55,17 @@ module.exports = ({
   Room.belongsTo(RoomType, { foreignKey: "roomTypeId" });
   RoomType.hasMany(Room, { foreignKey: "roomTypeId" });
 
-  // ==========================
-  // 🔹 Provider & ProviderInfo
-  // ==========================
-  Provider.hasOne(ProviderInfo, { foreignKey: "providerId", as: "ProviderInfo", });
-  ProviderInfo.belongsTo(Provider, { foreignKey: "providerId", as: "Provider", });
-  ProviderInfo.belongsTo(Address, { foreignKey: "addressId", as: "Address", });
-  Address.hasOne(ProviderInfo, { foreignKey: "addressId", as: "ProviderInfo", });
+  Provider.hasOne(ProviderInfo, { foreignKey: "providerId" });
+  ProviderInfo.belongsTo(Provider, { foreignKey: "providerId" });
 
-  Room.belongsTo(RoomName, { foreignKey: "roomNameId", as: "RoomName" });
-  RoomName.hasMany(Room, { foreignKey: "roomNameId", as: "Rooms" });
+  ProviderInfo.belongsTo(Address, { foreignKey: "addressId" });
+  Address.hasOne(ProviderInfo, { foreignKey: "addressId" });
 
-  Room.belongsToMany(Amenity, { through: RoomAmenity, foreignKey: "roomId", otherKey: "amenityId", as: "Amenities", });
-  Amenity.belongsToMany(Room, { through: RoomAmenity, foreignKey: "amenityId", otherKey: "roomId", as: "Rooms", });
+  Room.belongsTo(RoomName, { foreignKey: "roomNameId" });
+  RoomName.hasMany(Room, { foreignKey: "roomNameId" });
+
+  Room.belongsToMany(Amenity, { through: RoomAmenity, foreignKey: "roomId", otherKey: "amenityId" });
+  Amenity.belongsToMany(Room, { through: RoomAmenity, foreignKey: "amenityId", otherKey: "roomId" });
 
   console.log("--- Các liên kết model (Associations) đã được định nghĩa ---");
 };

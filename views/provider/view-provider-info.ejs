@@ -1,158 +1,33 @@
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Hồ sơ doanh nghiệp</title>
+<head>
+  <meta charset="UTF-8" />
+  <title>Hồ sơ doanh nghiệp</title>
 
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      rel="stylesheet"
-    />
+  <!-- SIDEBAR + HEADER -->
+  <link rel="stylesheet" href="/css/provider-sidebar.css" />
 
-    <style>
-      body {
-        background: #eef4ff;
-        font-family: "Segoe UI", sans-serif;
-        padding: 40px;
-      }
+  <!-- PROFILE CSS -->
+  <link rel="stylesheet" href="/css/provider-profile.css" />
 
-      .profile-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        background: #fff;
-        padding: 40px 50px;
-        border-radius: 26px;
-        box-shadow: 0px 20px 55px rgba(0, 0, 0, 0.15);
-        display: flex;
-        gap: 40px;
-      }
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+</head>
 
-      /* ==== LEFT SIDE ==== */
-      .left-box {
-        flex: 1.4;
-      }
+<body>
 
-      .title-block {
-        text-align: left;
-        margin-bottom: 30px;
-      }
+    <!-- ⭐ SIDEBAR + HEADER -->
+    <% provider.providerName = provider.providerName || provider.name; %>
+    <%- include('../partials/header-provider', { providerInfo, provider }) %>
 
-      .title-block h2 {
-        font-weight: 800;
-        font-size: 2rem;
-        color: #1e293b;
-      }
+    <!-- ALERT -->
+    <% if (success) { %>
+      <div class="alert alert-success text-center mb-3"><%= success %></div>
+    <% } %>
 
-      .title-sub {
-        color: #64748b;
-        margin-top: 4px;
-        font-size: 1rem;
-      }
-
-      .section {
-        background: #f8fafc;
-        border-radius: 16px;
-        padding: 22px;
-        margin-bottom: 22px;
-        border: 1px solid #e2e8f0;
-      }
-
-      .section-title {
-        font-size: 1.15rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: #0f172a;
-      }
-
-      .info-text {
-        font-size: 1.05rem;
-        color: #334155;
-      }
-
-      /* ==== RIGHT SIDE ==== */
-      .right-box {
-        flex: 1;
-        background: #f9fbff;
-        padding: 28px;
-        border-radius: 20px;
-        border: 1px solid #d8e0ea;
-        height: fit-content;
-      }
-
-      .logo-img {
-        width: 100%;
-        max-height: 220px;
-        object-fit: contain;
-        border-radius: 20px;
-        border: 1px solid #d1d5db;
-        background: #fff;
-        padding: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.12);
-      }
-
-      .badge-amenity {
-        display: inline-block;
-        padding: 8px 14px;
-        border-radius: 12px;
-        margin: 5px;
-        background: #dbeafe;
-        color: #1e40af;
-        font-weight: 600;
-        border: 1px solid #93c5fd;
-      }
-
-      .rule-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-        color: #334155;
-        font-size: 1.03rem;
-      }
-
-      .rule-item i {
-        font-size: 1.2rem;
-        margin-right: 10px;
-      }
-
-      /* ==== BUTTONS ==== */
-      .btn-group-custom {
-        margin-top: 20px;
-        text-align: right;
-      }
-
-      .btn-main {
-        background: linear-gradient(135deg, #0284c7, #0ea5e9);
-        border: none;
-        padding: 12px 26px;
-        font-size: 1rem;
-        border-radius: 12px;
-        color: #fff;
-        font-weight: 700;
-        text-decoration: none;
-        margin-left: 10px;
-        box-shadow: 0 8px 22px rgba(14, 165, 233, 0.3);
-      }
-
-      .btn-main:hover {
-        opacity: 0.92;
-      }
-    </style>
-  </head>
-  <% if (success) { %>
-  <div class="alert alert-success text-center mb-3"><%= success %></div>
-  <% } %>
-  <body>
-    <% const info = providerInfo || {}; %> <% const popular =
-    (info.popularAmenities || '').split(';').map(a => a.trim()).filter(a =>
-    a.length > 0); %>
+    <% const info = providerInfo || {}; %>
+    <% const popular = (info.popularAmenities || '').split(';').map(a => a.trim()).filter(a => a.length > 0); %>
 
     <div class="profile-container">
       <!-- LEFT SIDE CONTENT -->
@@ -257,9 +132,9 @@
 
         <!-- BUTTONS -->
         <div class="btn-group-custom">
-          <a href="/provider/dashboard" class="btn-main">
+          <!-- <a href="/provider/dashboard" class="btn-main">
             <i class="fas fa-arrow-left"></i> Dashboard
-          </a>
+          </a> -->
 
           <a href="/provider/profile/edit-info" class="btn-main">
             <i class="fas fa-pen-to-square"></i> Chỉnh sửa hồ sơ

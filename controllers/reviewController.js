@@ -5,10 +5,18 @@ const Review = require("../models/Review");
 const Feedback = require("../models/Feedback");
 const { Op } = require("sequelize");
 const sequelize = require("../config/database");
+const Provider = require("../models/Provider");
+const ProviderInfo = require("../models/ProviderInfo");
 // Bước 2: Hiển thị danh sách các phòng đã có đánh giá
 exports.showReviewedRooms = async (req, res) => {
   try {
-    const providerId = req.session.provider.id;
+    const providerId = req.session.provider.providerId;
+
+    // ⭐ Lấy thông tin provider & providerInfo
+    const provider = req.session.provider;
+    const providerInfo = await ProviderInfo.findOne({
+      where: { providerId },
+    });
 
     const roomsWithReviews = await Room.findAll({
       where: { providerId },
@@ -33,7 +41,12 @@ exports.showReviewedRooms = async (req, res) => {
       order: [["roomName", "ASC"]],
     });
 
-    res.render("provider/reviews", { rooms: roomsWithReviews });
+    res.render("provider/reviews", {
+      rooms: roomsWithReviews,
+      provider,
+      providerInfo,
+      active:"reviews",
+    });
   } catch (err) {
     console.error("Lỗi khi lấy phòng có đánh giá:", err);
     res.status(500).send("Lỗi máy chủ");
@@ -43,8 +56,16 @@ exports.showReviewedRooms = async (req, res) => {
 // Bước 3 & 4: Hiển thị chi tiết đánh giá của một phòng
 exports.showRoomReviews = async (req, res) => {
   try {
-    const providerId = req.session.provider.id;
+    const providerId = req.session.provider.providerId;
     const { roomId } = req.params;
+
+    // ⭐ Lấy provider từ session
+    const provider = req.session.provider;
+
+    // ⭐ Lấy providerInfo
+    const providerInfo = await ProviderInfo.findOne({
+      where: { providerId },
+    });
 
     const room = await Room.findOne({
       where: {
@@ -69,7 +90,12 @@ exports.showRoomReviews = async (req, res) => {
         .send("Không tìm thấy phòng hoặc bạn không có quyền.");
     }
 
-    res.render("provider/review-details", { room });
+    res.render("provider/review-details", {
+      room,
+      provider,
+      providerInfo,
+      active: "reviews",
+    });
   } catch (err) {
     console.error("Lỗi khi lấy chi tiết đánh giá:", err);
     res.status(500).send("Lỗi máy chủ");
@@ -79,7 +105,7 @@ exports.showRoomReviews = async (req, res) => {
 // Bước 5 & 6: Lưu phản hồi
 exports.addFeedback = async (req, res) => {
   try {
-    const providerId = req.session.provider.id;
+    const providerId = req.session.provider.providerId;
     const { reviewId, message, roomId } = req.body; // roomId dùng để redirect
 
     // Kiểm tra xem đã phản hồi chưa (để tránh spam)

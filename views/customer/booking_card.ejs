@@ -2,15 +2,15 @@
 // Xác định class CSS và text hiển thị dựa trên trạng thái
 let cardClass = '';
 let statusText = booking.status; // Mặc định lấy trạng thái booking
-let invoiceStatusText = 'N/A';
+let InvoiceStatusText = 'N/A';
 let invoiceStatusClass = 'text-muted';
 
-if (booking.invoice) { // Nếu có hóa đơn
-    invoiceStatusText = booking.invoice.status;
-    if (booking.invoice.status === 'Đã thanh toán') {
+if (booking.Invoice) { // Nếu có hóa đơn
+    invoiceStatusText = booking.Invoice.status;
+    if (booking.Invoice.status === 'Đã thanh toán') {
         cardClass = 'status-paid';
         invoiceStatusClass = 'text-success fw-bold';
-    } else if (booking.invoice.status === 'Chờ thanh toán') {
+    } else if (booking.Invoice.status === 'Chờ thanh toán') {
         cardClass = 'status-unpaid';
         invoiceStatusClass = 'text-warning fw-bold';
     }
@@ -34,9 +34,9 @@ if (booking.status === 'Đã hủy') {
     <div class="card card-booking <%= cardClass %>">
         <div class="card-body">
             <div class="row align-items-center">
-                <% if (showCheckbox && booking.invoice && booking.invoice.status==='Chờ thanh toán' ) { %>
+                <% if (showCheckbox && booking.Invoice && booking.Invoice.status==='Chờ thanh toán' ) { %>
                     <div class="col-md-1 d-flex justify-content-center">
-                        <input type="checkbox" name="invoiceIds" value="<%= booking.invoice.invoiceId %>"
+                        <input type="checkbox" name="invoiceIds" value="<%= booking.Invoice.invoiceId %>"
                             class="form-check-input">
                     </div>
                     <% } else { %>

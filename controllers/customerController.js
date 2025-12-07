@@ -1,19 +1,9 @@
-// const { Op } = require("sequelize");
-// const Invoice = require("../models/Invoice");
-// const Booking = require("../models/Booking");
-// const Room = require("../models/Room");
-// const Provider = require("../models/Provider");
-// const PaymentInfo = require("../models/PaymentInfo");
-// const Customer = require("../models/Customer");
-// const Review = require("../models/Review");
-// const sequelize = require("../config/database");
-
 const { Invoice, Booking, Room, Provider, PaymentInfo, Customer, Review, sequelize } = require("../models");
 const { Op } = require("sequelize");
 
+const vnpay = require("../config/vnpay");
+const moment = require("moment");
 
-const vnpay = require("../config/vnpay"); // <-- THÊM "THƯ VIỆN" VNPAY
-const moment = require("moment"); // <-- THÊM MOMENT
 // Lấy tất cả booking/invoice và gom nhóm theo trạng thái
 exports.showBookingsByStatus = async (req, res) => {
   try {
@@ -29,7 +19,6 @@ exports.showBookingsByStatus = async (req, res) => {
         },
         {
           model: Invoice,
-          as: "Invoice",
           required: false, // LEFT JOIN
         },
       ],
@@ -47,9 +36,9 @@ exports.showBookingsByStatus = async (req, res) => {
     allBookings.forEach((booking) => {
       if (booking.status === "Đã hủy") {
         grouped.cancelled.push(booking);
-      } else if (booking.invoice && booking.invoice.status === "Đã thanh toán") {
+      } else if (booking.Invoice && booking.Invoice.status === "Đã thanh toán") {
         grouped.paid.push(booking); // Lưu cả booking có invoice đã thanh toán
-      } else if (booking.invoice && booking.invoice.status === "Chờ thanh toán") {
+      } else if (booking.Invoice && booking.Invoice.status === "Chờ thanh toán") {
         grouped.unpaid.push(booking); // Lưu cả booking có invoice chờ thanh toán
       }
       // Các trạng thái khác của booking (VD: Đang sử dụng, Chờ nhận phòng mà chưa có Invoice)
@@ -68,74 +57,6 @@ exports.showBookingsByStatus = async (req, res) => {
   }
 };
 
-// Bước 3 & 5 & 6: Hiển thị trang thông tin thanh toán
-// exports.showPaymentPage = async (req, res) => {
-//   try {
-//     const { invoiceIds } = req.body;
-//     const customerId = req.session.customer.customerId;
-
-//     if (!invoiceIds || invoiceIds.length === 0) {
-//       // Nếu không chọn hóa đơn nào thì quay lại
-//       return res.redirect("/customer/history");
-//     }
-
-//     const invoices = await Invoice.findAll({
-//       where: {
-//         invoiceId: {
-//           [Op.in]: Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds],
-//         },
-//         customerId,
-//         status: "Chờ thanh toán",
-//       },
-//       include: {
-//         model: Booking,
-//         include: {
-//           model: Room,
-//           include: {
-//             model: Provider,
-//             include: {
-//               model: PaymentInfo,
-//               required: true, // Bắt buộc nhà cung cấp phải có thông tin thanh toán
-//             },
-//           },
-//         },
-//       },
-//     });
-
-//     if (invoices.length === 0) {
-//       return res
-//         .status(404)
-//         .send("Không tìm thấy hóa đơn hợp lệ để thanh toán.");
-//     }
-
-//     // Nhóm các hóa đơn theo từng nhà cung cấp
-//     const providersToPay = {};
-//     invoices.forEach((invoice) => {
-//       const provider = invoice.Booking.Room.Provider;
-//       if (!providersToPay[provider.providerId]) {
-//         providersToPay[provider.providerId] = {
-//           providerName: provider.providerName,
-//           paymentInfo: provider.PaymentInfos[0], // Lấy thông tin thanh toán đầu tiên
-//           invoices: [],
-//           totalAmount: 0,
-//         };
-//       }
-//       providersToPay[provider.providerId].invoices.push(invoice);
-//       providersToPay[provider.providerId].totalAmount += invoice.amount;
-//     });
-
-//     res.render("customer/payment", {
-//       providersToPay: Object.values(providersToPay),
-//       invoiceIds: invoices.map((inv) => inv.invoiceId), // Truyền lại ID để dùng cho bước sau
-//     });
-//   } catch (err) {
-//     console.error("❌ Lỗi khi hiển thị trang thanh toán:", err);
-//     res.status(500).send("Lỗi máy chủ");
-//   }
-// };
-// THAY THẾ showPaymentPage BẰNG HÀM NÀY
-// Bước 1: Tạo URL thanh toán
-// =============================================================
 // 1. Sửa hàm tạo URL để gửi kèm invoiceIds
 exports.createPaymentUrl = async (req, res) => {
   try {
@@ -177,79 +98,7 @@ exports.createPaymentUrl = async (req, res) => {
     res.status(500).send("Lỗi máy chủ");
   }
 };
-// Bước 7 & 8: Xác nhận đã chuyển tiền
-// SỬA LẠI HÀM NÀY: Xác nhận đã chuyển tiền
-// exports.confirmPayment = async (req, res) => {
-//   const t = await sequelize.transaction(); // Bắt đầu transaction
-//   try {
-//     const { invoiceIds } = req.body;
-//     const customerId = req.session.customer.customerId;
 
-//     if (!invoiceIds || invoiceIds.length === 0) {
-//       return res.redirect("/customer/history");
-//     }
-
-//     // Cập nhật trạng thái các hóa đơn đã chọn
-//     // Đảm bảo invoiceIds luôn là một mảng
-//     const invoiceIdList = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
-
-//     // 1. Tìm các hóa đơn (để lấy bookingIds)
-//     const invoices = await Invoice.findAll({
-//       where: {
-//         invoiceId: { [Op.in]: invoiceIdList },
-//         customerId: customerId,
-//         status: "Chờ thanh toán", // Chỉ cập nhật HĐ chờ thanh toán
-//       },
-//       attributes: ["bookingId"], // Chỉ cần lấy bookingId
-//       transaction: t,
-//     });
-
-//     if (invoices.length === 0) {
-//       await t.rollback();
-//       return res.redirect("/customer/history"); // Không có gì để cập nhật
-//     }
-
-//     // Lấy danh sách các bookingId liên quan
-//     const bookingIds = invoices.map((inv) => inv.bookingId);
-
-//     // 2. Cập nhật trạng thái Hóa đơn (Invoice) thành "Đã thanh toán"
-//     await Invoice.update(
-//       { status: "Đã thanh toán" },
-//       {
-//         where: {
-//           invoiceId: { [Op.in]: invoiceIdList },
-//         },
-//         transaction: t,
-//       }
-//     );
-
-//     // 3. Cập nhật trạng thái Phiếu đặt phòng (Booking) thành "Đã hoàn thành"
-//     // Chỉ cập nhật các phiếu đang ở trạng thái "Đang sử dụng"
-//     await Booking.update(
-//       { status: "Đã hoàn thành" },
-//       {
-//         where: {
-//           bookingId: { [Op.in]: bookingIds },
-//           status: "Đang sử dụng", // Điều kiện quan trọng
-//         },
-//         transaction: t,
-//       }
-//     );
-
-//     await t.commit(); // Hoàn tất giao dịch
-
-//     res.redirect("/customer/history");
-//   } catch (err) {
-//     await t.rollback(); // Hoàn tác nếu có lỗi
-//     console.error("❌ Lỗi khi xác nhận thanh toán:", err);
-//     res.status(500).send("Lỗi máy chủ");
-//   }
-// };
-
-// HÀM MỚI
-// Bước 2: Khách hàng quay về (vnp_ReturnUrl)
-// =============================================================
-// 2. Sửa hàm Return để cập nhật DB ngay lập tức
 exports.vnpayReturn = async (req, res) => {
   try {
     const vnp_Params = req.query;
@@ -322,106 +171,6 @@ exports.vnpayReturn = async (req, res) => {
     });
   }
 };
-// THAY THẾ confirmPayment BẰNG HÀM NÀY
-// Bước 3: VNPay gọi IPN (vnp_IpnUrl) - Nơi cập nhật CSDL
-// =============================================================
-// controllers/customerController.js
-// ...
-
-// exports.vnpayIpn = async (req, res) => {
-//   console.log("🔥 [IPN START] VNPay đang gọi vào IPN...");
-//   console.log("👉 Query Params nhận được:", JSON.stringify(req.query, null, 2));
-
-//   const t = await sequelize.transaction();
-//   try {
-//     let vnp_Params = req.query;
-//     const vnp_SecureHash = vnp_Params['vnp_SecureHash'];
-//     const vnp_ResponseCode = vnp_Params['vnp_ResponseCode'];
-//     const vnp_TxnRef = vnp_Params['vnp_TxnRef'];
-
-//     delete vnp_Params['vnp_SecureHash'];
-//     delete vnp_Params['vnp_SecureHashType'];
-
-//     vnp_Params = sortObject(vnp_Params);
-//     const vnpay = require('../config/vnpay'); // Đảm bảo path đúng
-//     const secretKey = process.env.VNP_HASH_SECRET;
-
-//     // Tự tính lại hash để so sánh
-//     const crypto = require('crypto');
-//     const qs = require('qs');
-//     const signData = qs.stringify(vnp_Params, { encode: false });
-//     const hmac = crypto.createHmac("sha512", secretKey);
-//     const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
-
-//     console.log("🔑 Hash tính toán:", signed);
-//     console.log("🔑 Hash từ VNPay:", vnp_SecureHash);
-
-//     if (signed === vnp_SecureHash) {
-//       console.log("✅ Chữ ký hợp lệ.");
-//       if (vnp_ResponseCode === '00') {
-//         console.log("✅ Giao dịch thành công trên VNPay. Đang cập nhật DB...");
-
-//         // Giải mã extraData
-//         try {
-//              const vnp_OrderInfo = decodeURIComponent(vnp_Params['vnp_OrderInfo']); // Decode trước
-//              // Tùy vào cách VNPay trả về, có thể cần hoặc không cần decodeURIComponent.
-//              // Hãy xem log "Query Params nhận được" để điều chỉnh nếu cần.
-//              // Nếu vnp_OrderInfo trong log không có ký tự %, có thể bỏ dòng decode trên.
-
-//              const orderInfoParts = vnp_OrderInfo.split('|');
-//              if (orderInfoParts.length < 2) {
-//                  throw new Error("Format vnp_OrderInfo không đúng (thiếu dấu |)");
-//              }
-//              const extraDataEncoded = orderInfoParts[1];
-//              const extraData = Buffer.from(extraDataEncoded, 'base64').toString('utf8');
-//              const invoiceIdList = JSON.parse(extraData);
-
-//              console.log("📦 Invoice IDs cần thanh toán:", invoiceIdList);
-
-//              const invoices = await Invoice.findAll({
-//                  where: {
-//                      invoiceId: { [Op.in]: invoiceIdList },
-//                      status: 'Chờ thanh toán'
-//                  },
-//                  attributes: ['bookingId', 'invoiceId'],
-//                  transaction: t
-//              });
-
-//              console.log(`🔎 Tìm thấy ${invoices.length} hóa đơn 'Chờ thanh toán' hợp lệ.`);
-
-//              if (invoices.length > 0) {
-//                  const bookingIds = invoices.map(inv => inv.bookingId);
-//                  await Invoice.update({ status: 'Đã thanh toán' }, { where: { invoiceId: { [Op.in]: invoiceIdList } }, transaction: t });
-//                  await Booking.update({ status: 'Đã hoàn thành' }, { where: { bookingId: { [Op.in]: bookingIds }, status: 'Đang sử dụng' }, transaction: t });
-//                  await t.commit();
-//                  console.log("🎉 [IPN SUCCESS] Đã cập nhật Database thành công!");
-//                  return res.status(200).json({ RspCode: '00', Message: 'Confirm Success' });
-//              } else {
-//                  await t.rollback();
-//                  console.log("⚠️ [IPN WARNING] Không tìm thấy hóa đơn nào (có thể đã được cập nhật trước đó).");
-//                  return res.status(200).json({ RspCode: '02', Message: 'Order already confirmed' });
-//              }
-//         } catch (parseError) {
-//              await t.rollback();
-//              console.error("❌ Lỗi khi parse dữ liệu extraData:", parseError);
-//              return res.status(200).json({ RspCode: '99', Message: 'Unknown error' });
-//         }
-//       } else {
-//         console.log(`❌ Giao dịch thất bại trên VNPay. Mã lỗi: ${vnp_ResponseCode}`);
-//         await t.commit(); // Không có gì để rollback, commit để đóng transaction
-//         return res.status(200).json({ RspCode: '00', Message: 'Confirm Success' });
-//       }
-//     } else {
-//       console.log("⛔ [IPN ERROR] Chữ ký không hợp lệ!");
-//       await t.rollback();
-//       return res.status(200).json({ RspCode: '97', Message: 'Invalid Checksum' });
-//     }
-//   } catch (err) {
-//     await t.rollback();
-//     console.error('❌ [IPN EXCEPTION]:', err);
-//     return res.status(200).json({ RspCode: '99', Message: 'Unknown error' });
-//   }
-// };
 
 exports.showEditProfile = async (req, res) => {
   try {
@@ -532,7 +281,7 @@ exports.viewBookingDetail = async (req, res) => {
     const booking = await Booking.findByPk(bookingId, {
       include: [
         { model: Room, include: [Provider] },
-        { model: Invoice, },
+        { model: Invoice },
       ],
     });
 
@@ -586,8 +335,7 @@ exports.showCustomerBookingDetail = async (req, res) => {
           attributes: { exclude: ["accountId"] },
         },
         {
-          model: Invoice, // Lấy thông tin hóa đơn (nếu có)
-          // as: "Invoice",
+          model: Invoice,
           required: false,
         },
       ],

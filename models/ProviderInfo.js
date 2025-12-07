@@ -12,10 +12,6 @@ const ProviderInfo = sequelize.define(
     providerId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: {
-        model: "Provider",
-        key: "providerId",
-      },
     },
     businessName: {
       type: DataTypes.STRING(255),
@@ -84,7 +80,7 @@ const ProviderInfo = sequelize.define(
     },
   },
   {
-    tableName: "ProviderInfo",
+    tableName: "providerinfo",
     timestamps: false,
   }
 );

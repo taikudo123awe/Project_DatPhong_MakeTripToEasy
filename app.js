@@ -48,10 +48,6 @@ app.use(
     saveUninitialized: true,
   })
 );
-//test
-app.get("/test", (req, res) => {
-  res.render("test");
-});
 
 app.use((req, res, next) => {
   res.locals.customer = req.session.customer || null;
@@ -67,6 +63,37 @@ app.use("/provider", providerRoutes);
 app.use("/customer", customerRoutes);
 app.use("/customer/bookings", bookingRoutes);
 app.use("/provider/report", reportRoutes);
+
+app.get("/about", (req, res) => {
+  res.render("about");
+});
+
+app.get("/terms", (req, res) => {
+  res.render("terms");
+});
+
+app.get("/contact", (req, res) => {
+  res.render("contact");
+});
+
+app.use((req, res) => {
+  const url = req.originalUrl;
+
+  // Gợi ý đường dẫn gần đúng
+  const suggestions = [
+    "/",
+    "/rooms",
+    "/customer/login",
+    "/provider/login",
+    "/customer/history",
+    "/provider/dashboard"
+  ];
+
+  res.status(404).render("404", {
+    url,
+    suggestions
+  });
+});
 
 sequelize.sync().then(() => {
   app.listen(3000, () =>
