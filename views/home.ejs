@@ -260,18 +260,18 @@
                             </div>
                         </div>
                     </div>
-                <% }) %>
+                    <% }) %>
             </div>
         </section>
     </main>
-    <%- include('partials/footer') %>
-    <script>
-        const slides = document.querySelectorAll('.hero-bg-slideshow img');
-        let index = 0;
+<%- include('partials/footer') %>
+        <script>
+            const slides = document.querySelectorAll('.hero-bg-slideshow img');
+            let index = 0;
 
-        setInterval(() => {
-            slides[index].classList.remove('active');
-            index = (index + 1) % slides.length;
-            slides[index].classList.add('active');
-        }, 5000); // 5 giây chuyển ảnh
-    </script>
+            setInterval(() => {
+                slides[index].classList.remove('active');
+                index = (index + 1) % slides.length;
+                slides[index].classList.add('active');
+            }, 5000); // 5 giây chuyển ảnh
+        </script>

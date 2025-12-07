@@ -1,8 +1,7 @@
-// models/index.js
 const Sequelize = require("sequelize");
 const sequelize = require("../config/database");
 
-// ✅ Import trực tiếp các model đã define sẵn
+// Import models
 const Account = require("./Account");
 const Admin = require("./Admin");
 const Address = require("./Address");
@@ -12,11 +11,15 @@ const Feedback = require("./Feedback");
 const Invoice = require("./Invoice");
 const PaymentInfo = require("./PaymentInfo");
 const Provider = require("./Provider");
+const ProviderInfo = require("./ProviderInfo");
 const Review = require("./Review");
 const Room = require("./Room");
 const RoomType = require("./RoomType");
+const Amenity = require("./Amenity");
+const RoomAmenity = require("./RoomAmenity");
+const RoomName = require("./RoomName");
 
-// ✅ Gọi associations nếu có
+// Gọi associations
 require("./associations")({
   Account,
   Admin,
@@ -27,14 +30,19 @@ require("./associations")({
   Invoice,
   PaymentInfo,
   Provider,
+  ProviderInfo,
   Review,
   Room,
   RoomType,
+  Amenity,
+  RoomAmenity,
+  RoomName,
+  Amenity,
   sequelize,
   Sequelize,
 });
 
-// ✅ Export ra để các file khác dùng
+// Export
 module.exports = {
   sequelize,
   Sequelize,
@@ -47,7 +55,12 @@ module.exports = {
   Invoice,
   PaymentInfo,
   Provider,
+  ProviderInfo,
   Review,
   Room,
   RoomType,
+  Amenity,
+  RoomAmenity,
+  RoomName,
+  Amenity,
 };

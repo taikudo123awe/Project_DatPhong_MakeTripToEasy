@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chỉnh sửa hồ sơ doanh nghiệp</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, #0284c7, #0ea5e9);
+        font-family: "Segoe UI", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      /* ===== MAIN CONTAINER ===== */
+      .container-box {
+        width: 100%;
+        max-width: 1300px;
+        min-height: 90vh;
+        background: #ffffff;
+        padding: 60px 70px;
+        border-radius: 28px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+        display: flex;
+        flex-direction: column;
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ===== TITLE ===== */
+      .setup-title {
+        text-align: center;
+        margin-bottom: 35px;
+      }
+
+      .setup-icon {
+        width: 85px;
+        height: 85px;
+        margin: 0 auto 15px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #0284c7, #0ea5e9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 18px rgba(2, 132, 199, 0.25);
+        animation: floatIcon 3s ease-in-out infinite;
+      }
+
+      .setup-icon i {
+        font-size: 2.6rem;
+        color: #ffffff;
+      }
+
+      .setup-title h2 {
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 6px;
+      }
+
+      .setup-subtitle {
+        font-size: 1.02rem;
+        color: #64748b;
+      }
+
+      @keyframes floatIcon {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
+      }
+
+      /* ===== STEP PROGRESS BAR ===== */
+      .step-progress-bar {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin-bottom: 40px;
+        margin-top: 10px;
+      }
+
+      .step-progress-bar::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background-color: #e2e8f0;
+        transform: translateY(-50%);
+        border-radius: 999px;
+      }
+
+      .step-progress-bar-line {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #0284c7, #0ea5e9);
+        transform: translateY(-50%);
+        border-radius: 999px;
+        width: 0%;
+        transition: width 0.4s ease;
+      }
+
+      .step {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        flex: 1;
+      }
+
+      .step-circle {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 3px solid #cbd5e1;
+        color: #94a3b8;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+      }
+
+      .step-label {
+        margin-top: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #94a3b8;
+      }
+
+      .step.active .step-circle {
+        background: #0284c7;
+        color: #ffffff;
+        border-color: #0284c7;
+      }
+
+      .step.active .step-label {
+        color: #0284c7;
+      }
+
+      .step.completed .step-circle {
+        background: #fff;
+        border-color: #0284c7;
+        color: #0284c7;
+      }
+
+      .step.completed .step-label {
+        color: #1e293b;
+      }
+
+      /* ===== FORM STEPS ===== */
+      #multiStepForm {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form-step {
+        display: none;
+        animation: showStep 0.3s ease;
+      }
+
+      .form-step.active {
+        display: block;
+      }
+
+      @keyframes showStep {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      label {
+        font-weight: 600;
+        color: #334155;
+      }
+
+      input.form-control,
+      textarea.form-control,
+      select.form-select {
+        border: 2px solid #e2e8f0;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 11px 13px;
+        font-size: 0.96rem;
+        transition: all 0.25s ease;
+      }
+
+      input.form-control:focus,
+      textarea.form-control:focus,
+      select.form-select:focus {
+        border-color: #0284c7;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18);
+        outline: none;
+      }
+
+      textarea.form-control {
+        min-height: 260px;
+        resize: vertical;
+      }
+
+      /* ===== CHECKBOX GRID ===== */
+      .checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 10px;
+        margin-bottom: 5px;
+      }
+
+      .checkbox-grid label {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 9px 10px;
+        border: 2px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        font-size: 0.93rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .checkbox-grid input {
+        margin-right: 8px;
+      }
+
+      .checkbox-grid label:hover {
+        background: #e0f2fe;
+        border-color: #0284c7;
+      }
+
+      /* ===== SWITCH (RULE) ===== */
+      .switch {
+        background: #f8fafc;
+        padding: 10px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      /* ===== LOGO PREVIEW ===== */
+      .logo-preview {
+        max-width: 260px;
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        padding: 8px;
+        background: #f9fafb;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
+        margin-bottom: 15px;
+      }
+
+      /* ===== FORM NAVIGATION BUTTONS ===== */
+      .form-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 40px;
+      }
+
+      .btn-nav {
+        border: none;
+        padding: 10px 26px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        background: #64748b;
+        color: #ffffff;
+        transition: all 0.2s ease;
+      }
+
+      .btn-nav:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+
+      .btn-next {
+        background: linear-gradient(135deg, #0284c7, #0ea5e9);
+        box-shadow: 0 3px 10px rgba(2, 132, 199, 0.25);
+      }
+
+      .btn-save {
+        background: linear-gradient(135deg, #16a34a, #22c55e);
+        padding: 11px 28px;
+        border-radius: 12px;
+        color: #fff;
+        border: none;
+        font-weight: 600;
+        font-size: 0.98rem;
+        box-shadow: 0 4px 14px rgba(22, 163, 74, 0.45);
+        transition: all 0.25s ease;
+      }
+
+      .btn-save:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(22, 163, 74, 0.5);
+      }
+
+      /* ===== ERROR TEXT ===== */
+      .text-danger {
+        font-size: 0.8rem;
+        margin-top: 3px;
+        display: block;
+      }
+
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 992px) {
+        .container-box {
+          padding: 30px 20px;
+          border-radius: 18px;
+        }
+
+        .setup-title h2 {
+          font-size: 1.7rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NÚT QUAY LẠI -->
+    <a
+      href="/provider/profile"
+      style="
+        position: absolute;
+        top: 25px;
+        left: 40px;
+        font-size: 17px;
+        color: #ffffff;
+        font-weight: 600;
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 14px;
+        border-radius: 10px;
+        backdrop-filter: blur(4px);
+        transition: 0.2s;
+      "
+      onmouseover="this.style.background='rgba(255,255,255,0.35)'"
+      onmouseout="this.style.background='rgba(255,255,255,0.2)'"
+    >
+      <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+
+    <div class="container-box">
+      <div class="setup-title">
+        <div class="setup-icon">
+          <i class="fas fa-building"></i>
+        </div>
+        <h2>Chỉnh sửa hồ sơ doanh nghiệp</h2>
+        <p class="setup-subtitle">Cập nhật thông tin hiển thị cho khách hàng</p>
+      </div>
+
+      <!-- ========== STEP PROGRESS BAR ========== -->
+      <div class="step-progress-bar">
+        <div class="step-progress-bar-line"></div>
+
+        <div class="step active" data-step="1">
+          <div class="step-circle">1</div>
+          <div class="step-label">Tên</div>
+        </div>
+        <div class="step" data-step="2">
+          <div class="step-circle">2</div>
+          <div class="step-label">Địa chỉ</div>
+        </div>
+        <div class="step" data-step="3">
+          <div class="step-circle">3</div>
+          <div class="step-label">Mô tả</div>
+        </div>
+        <div class="step" data-step="4">
+          <div class="step-circle">4</div>
+          <div class="step-label">Tiện ích</div>
+        </div>
+        <div class="step" data-step="5">
+          <div class="step-circle">5</div>
+          <div class="step-label">Quy tắc</div>
+        </div>
+        <div class="step" data-step="6">
+          <div class="step-circle">6</div>
+          <div class="step-label">Thời gian</div>
+        </div>
+        <div class="step" data-step="7">
+          <div class="step-circle">7</div>
+          <div class="step-label">Logo</div>
+        </div>
+      </div>
+
+      <!-- ========== FORM ========== -->
+      <form
+        method="POST"
+        action="/provider/profile/edit-info"
+        enctype="multipart/form-data"
+        id="multiStepForm"
+      >
+        <% const info = providerInfo || {}; %>
+
+        <!-- ===== STEP 1: TÊN DOANH NGHIỆP ===== -->
+        <div class="form-step active">
+          <h4 class="mb-3">Bước 1: Tên doanh nghiệp</h4>
+
+          <div class="mb-3">
+            <label class="form-label">Tên doanh nghiệp</label>
+            <input
+              type="text"
+              name="businessName"
+              class="form-control"
+              value="<%= formData?.businessName || info.businessName || '' %>"
+              required
+            />
+            <small class="text-danger" id="error-businessName">
+              <%= errors?.businessName || '' %>
+            </small>
+          </div>
+        </div>
+
+        <!-- ===== STEP 2: ĐỊA CHỈ ===== -->
+        <div class="form-step">
+          <h4 class="mb-3">Bước 2: Địa chỉ kinh doanh</h4>
+
+          <div class="row">
+            <div class="col-md-4 mb-2">
+              <label>Thành phố</label>
+              <select
+                id="city"
+                class="form-select"
+                data-current="<%= info.Address?.city || '' %>"
+              >
+                <option value="">-- Chọn thành phố --</option>
+              </select>
+              <small class="text-danger" id="error-city">
+                <%= errors?.city || '' %>
+              </small>
+            </div>
+
+            <div class="col-md-4 mb-2">
+              <label>Quận / Huyện</label>
+              <select
+                id="district"
+                class="form-select"
+                disabled
+                data-current="<%= info.Address?.district || '' %>"
+              >
+                <option value="">-- Chọn quận/huyện --</option>
+              </select>
+              <small class="text-danger" id="error-district">
+                <%= errors?.district || '' %>
+              </small>
+            </div>
+
+            <div class="col-md-4 mb-2">
+              <label>Phường / Xã</label>
+              <select
+                id="ward"
+                class="form-select"
+                disabled
+                data-current="<%= info.Address?.ward || '' %>"
+              >
+                <option value="">-- Chọn phường/xã --</option>
+              </select>
+              <small class="text-danger" id="error-ward">
+                <%= errors?.ward || '' %>
+              </small>
+            </div>
+
+            <!-- Hidden cho API + gửi form -->
+            <input
+              type="hidden"
+              id="cityName"
+              name="city"
+              value="<%= formData?.city || info.Address?.city || '' %>"
+            />
+            <input
+              type="hidden"
+              id="districtName"
+              name="district"
+              value="<%= formData?.district || info.Address?.district || '' %>"
+            />
+            <input
+              type="hidden"
+              id="wardName"
+              name="ward"
+              value="<%= formData?.ward || info.Address?.ward || '' %>"
+            />
+
+            <!-- Hidden fullAddress cho addressAPI.js (nếu cần) -->
+            <input type="hidden" id="fullAddress" name="fullAddress" />
+          </div>
+
+          <div class="mt-3">
+            <label>Tên đường / Số nhà</label>
+            <input
+              type="text"
+              id="customAddress"
+              name="customAddress"
+              class="form-control"
+              value="<%= formData?.customAddress || (info.businessAddress ? info.businessAddress.split(',')[0].trim() : '') %>"
+              required
+            />
+            <small class="text-danger" id="error-customAddress">
+              <%= errors?.customAddress || '' %>
+            </small>
+          </div>
+        </div>
+
+        <!-- ===== STEP 3: MÔ TẢ ===== -->
+        <div class="form-step">
+          <h4 class="mb-3">Bước 3: Mô tả doanh nghiệp</h4>
+
+          <div class="mb-3">
+            <textarea name="description" class="form-control" rows="6" required>
+<%= formData?.description || info.description || '' %></textarea
+            >
+            <small class="text-danger" id="error-description">
+              <%= errors?.description || '' %>
+            </small>
+          </div>
+        </div>
+
+        <!-- ===== STEP 4: TIỆN ÍCH ===== -->
+        <div class="form-step">
+          <h4 class="mb-3">Bước 4: Tiện ích nổi bật</h4>
+
+          <% const selectedAmenities = formData?.popularAmenities ?
+          (Array.isArray(formData.popularAmenities) ? formData.popularAmenities
+          : [formData.popularAmenities]) : (info.popularAmenities ?
+          info.popularAmenities.split(';').map(a => a.trim()) : []); %> <% if
+          (groupedAmenities) { %> <%
+          Object.keys(groupedAmenities).forEach(category => { %>
+          <h5 class="fw-bold mt-3"><%= category %></h5>
+          <div class="checkbox-grid">
+            <% groupedAmenities[category].forEach(a => { %>
+            <label>
+              <input type="checkbox" name="popularAmenities" value="<%=
+              a.amenityName %>" <%= selectedAmenities.includes(a.amenityName) ?
+              "checked" : "" %> /> <%= a.amenityName %>
+            </label>
+            <% }) %>
+          </div>
+          <% }) %> <% } else { %>
+          <p class="text-muted">Không có tiện ích nào trong hệ thống.</p>
+          <% } %>
+
+          <small class="text-danger" id="error-popularAmenities">
+            <%= errors?.popularAmenities || '' %>
+          </small>
+        </div>
+
+        <!-- ===== STEP 5: QUY TẮC ===== -->
+        <div class="form-step">
+          <h4 class="mb-3">Bước 5: Quy tắc chung</h4>
+
+          <div class="switch">
+            <span>Được phép hút thuốc</span>
+            <input type="checkbox" name="allowSmoking" class="form-check-input"
+            <%= (formData?.allowSmoking ?? info.allowSmoking) ? "checked" : ""
+            %> />
+          </div>
+
+          <div class="switch">
+            <span>Cho phép trẻ em</span>
+            <input type="checkbox" name="allowChildren" class="form-check-input"
+            <%= (formData?.allowChildren ?? info.allowChildren ?? 1) ? "checked"
+            : "" %> />
+          </div>
+
+          <div class="switch">
+            <span>Cho phép tổ chức sự kiện</span>
+            <input type="checkbox" name="allowEvents" class="form-check-input"
+            <%= (formData?.allowEvents ?? info.allowEvents) ? "checked" : "" %>
+            />
+          </div>
+        </div>
+
+        <!-- ===== STEP 6: THỜI GIAN ===== -->
+        <div class="form-step">
+          <h4 class="mb-3">Bước 6: Thời gian nhận & trả phòng</h4>
+
+          <div class="row">
+            <div class="col-md-6">
+              <label class="form-label">Check-in từ</label>
+              <input
+                type="time"
+                name="checkinFrom"
+                class="form-control"
+                value="<%= formData?.checkinFrom || info.checkinFrom || '15:00' %>"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Check-in đến</label>
+              <input
+                type="time"
+                name="checkinTo"
+                class="form-control"
+                value="<%= formData?.checkinTo || info.checkinTo || '18:00' %>"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <label class="form-label">Check-out từ</label>
+              <input
+                type="time"
+                name="checkoutFrom"
+                class="form-control"
+                value="<%= formData?.checkoutFrom || info.checkoutFrom || '08:00' %>"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Check-out đến</label>
+              <input
+                type="time"
+                name="checkoutTo"
+                class="form-control"
+                value="<%= formData?.checkoutTo || info.checkoutTo || '11:00' %>"
+                required
+              />
+            </div>
+          </div>
+
+          <small class="text-danger" id="error-checkin">
+            <%= errors?.checkin || '' %>
+          </small>
+          <small class="text-danger" id="error-checkout">
+            <%= errors?.checkout || '' %>
+          </small>
+        </div>
+
+        <!-- ===== STEP 7: LOGO ===== -->
+        <div class="form-step">
+          <h4 class="mb-3">Bước 7: Logo doanh nghiệp</h4>
+
+          <% if (info.profileImage) { %>
+          <img
+            src="/<%= info.profileImage %>"
+            alt="Logo doanh nghiệp"
+            class="logo-preview"
+          />
+          <% } %>
+
+          <div class="mt-3">
+            <label class="form-label">Tải logo mới (không bắt buộc)</label>
+            <input
+              type="file"
+              name="logoImage"
+              class="form-control"
+              accept="image/*"
+            />
+            <small class="text-muted">
+              Nếu không chọn file mới, hệ thống sẽ giữ logo hiện tại.
+            </small>
+          </div>
+        </div>
+
+        <!-- ===== FORM NAVIGATION ===== -->
+        <div class="form-navigation">
+          <button
+            type="button"
+            class="btn-nav btn-prev"
+            id="btnPrev"
+            style="display: none"
+          >
+            &lt; Quay lại
+          </button>
+
+          <div class="ms-auto d-flex gap-2">
+            <button type="button" class="btn-nav btn-next" id="btnNext">
+              Tiếp tục &gt;
+            </button>
+
+            <button
+              type="submit"
+              class="btn-save"
+              id="btnSubmit"
+              style="display: none"
+            >
+              💾 Lưu thay đổi
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      const FAILED_STEP = Number(
+        "<%= typeof failedStep !== 'undefined' ? failedStep : 1 %>"
+      );
+    </script>
+
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- ĐÃ CÓ: public/javascript/addressAPI.js -->
+    <script src="/javascript/addressAPI.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        let currentStep = 0;
+        const formSteps = $(".form-step");
+        const progressSteps = $(".step");
+        const progressBarLine = $(".step-progress-bar-line");
+        const btnNext = $("#btnNext");
+        const btnPrev = $("#btnPrev");
+        const btnSubmit = $("#btnSubmit");
+
+        // ⭐ Không validate ở client nữa — chỉ đổi step
+        function showStep(stepIndex) {
+          formSteps.removeClass("active");
+          $(formSteps[stepIndex]).addClass("active");
+
+          progressSteps.each(function (index) {
+            if (index < stepIndex) {
+              $(this).addClass("completed").removeClass("active");
+            } else if (index === stepIndex) {
+              $(this).addClass("active").removeClass("completed");
+            } else {
+              $(this).removeClass("active completed");
+            }
+          });
+
+          const totalSteps = progressSteps.length - 1;
+          const progressWidth = (stepIndex / totalSteps) * 100 + "%";
+          progressBarLine.css("width", progressWidth);
+
+          btnPrev.toggle(stepIndex > 0);
+          btnNext.toggle(stepIndex < formSteps.length - 1);
+          btnSubmit.toggle(stepIndex === formSteps.length - 1);
+        }
+
+        // ⭐ Nút Next – KHÔNG còn validate client
+        btnNext.on("click", function () {
+          currentStep++;
+          showStep(currentStep);
+        });
+
+        // ⭐ Nút Prev
+        btnPrev.on("click", function () {
+          currentStep--;
+          showStep(currentStep);
+        });
+
+        // ⭐ Submit bình thường – backend validate
+        // ⭐ Submit bình thường – backend validate
+        $("#multiStepForm").on("submit", function () {
+          return true;
+        });
+
+        // ⭐ Nếu backend trả lỗi → mở đúng step lỗi
+        if (typeof FAILED_STEP !== "undefined" && FAILED_STEP >= 1) {
+          currentStep = FAILED_STEP - 1;
+        }
+
+        showStep(currentStep);
+      });
+    </script>
+  </body>
+</html>

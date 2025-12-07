@@ -59,13 +59,12 @@ function buildRoomFilters(req, bookedRoomIds, validated) {
  */
 async function getRoomTypes() {
     const [roomTypes] = await sequelize.query(`
-    SELECT rt.typeId, rt.typeName, COUNT(r.roomId) AS roomCount
+    SELECT rt.roomTypeId, rt.typeName, COUNT(r.roomId) AS roomCount
     FROM RoomType rt
-    JOIN Room r ON r.typeId = rt.typeId
-    GROUP BY rt.typeId, rt.typeName
+    JOIN Room r ON r.roomTypeId = rt.roomTypeId
+    GROUP BY rt.roomTypeId, rt.typeName
     ORDER BY roomCount DESC
-    LIMIT 8;
-  `);
+    LIMIT 8;`);
     return roomTypes;
 }
 
@@ -78,24 +77,23 @@ async function getAvailableRooms(whereConditions, city, district, ward, Room, Ad
         include: [
             {
                 model: Address,
-                as: "address",
                 where: {
                     [Op.and]: [
                         city
                             ? sequelize.where(
-                                sequelize.fn("LOWER", sequelize.col("address.city")),
+                                sequelize.fn("LOWER", sequelize.col("Address.city")),
                                 { [Op.like]: `%${city.toLowerCase()}%` }
                             )
                             : null,
                         district
                             ? sequelize.where(
-                                sequelize.fn("LOWER", sequelize.col("address.district")),
+                                sequelize.fn("LOWER", sequelize.col("Address.district")),
                                 { [Op.like]: `%${district.toLowerCase()}%` }
                             )
                             : null,
                         ward
                             ? sequelize.where(
-                                sequelize.fn("LOWER", sequelize.col("address.ward")),
+                                sequelize.fn("LOWER", sequelize.col("Address.ward")),
                                 { [Op.like]: `%${ward.toLowerCase()}%` }
                             )
                             : null,

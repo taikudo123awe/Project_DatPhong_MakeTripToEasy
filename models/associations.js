@@ -1,6 +1,7 @@
 module.exports = ({
   Account,
   Provider,
+  ProviderInfo,
   Room,
   RoomType,
   Customer,
@@ -10,6 +11,9 @@ module.exports = ({
   Booking,
   Invoice,
   Address,
+  RoomAmenity,
+  RoomName,
+  Amenity
 }) => {
   // Customer <-> Account (1-1)
   Customer.belongsTo(Account, { foreignKey: "accountId" });
@@ -56,12 +60,26 @@ module.exports = ({
   Provider.hasMany(Room, { foreignKey: "providerId" });
 
   // Room <-> Address (N-1)
-  Room.belongsTo(Address, { foreignKey: "addressId", as: "address" });
-  Address.hasMany(Room, { foreignKey: "addressId", as: "rooms" });
+  Room.belongsTo(Address, { foreignKey: "addressId" });
+  Address.hasMany(Room, { foreignKey: "addressId" });
 
   // Room <-> RoomType (N-1)
-  Room.belongsTo(RoomType, { foreignKey: "typeId", as: "roomType" });
-  RoomType.hasMany(Room, { foreignKey: "typeId", as: "rooms" });
+  Room.belongsTo(RoomType, { foreignKey: "roomTypeId" });
+  RoomType.hasMany(Room, { foreignKey: "roomTypeId" });
+
+  // ==========================
+  // 🔹 Provider & ProviderInfo
+  // ==========================
+  Provider.hasOne(ProviderInfo, { foreignKey: "providerId", as: "ProviderInfo", });
+  ProviderInfo.belongsTo(Provider, { foreignKey: "providerId", as: "Provider", });
+  ProviderInfo.belongsTo(Address, { foreignKey: "addressId", as: "Address", });
+  Address.hasOne(ProviderInfo, { foreignKey: "addressId", as: "ProviderInfo", });
+
+  Room.belongsTo(RoomName, { foreignKey: "roomNameId", as: "RoomName" });
+  RoomName.hasMany(Room, { foreignKey: "roomNameId", as: "Rooms" });
+
+  Room.belongsToMany(Amenity, { through: RoomAmenity, foreignKey: "roomId", otherKey: "amenityId", as: "Amenities", });
+  Amenity.belongsToMany(Room, { through: RoomAmenity, foreignKey: "amenityId", otherKey: "roomId", as: "Rooms", });
 
   console.log("--- Các liên kết model (Associations) đã được định nghĩa ---");
 };

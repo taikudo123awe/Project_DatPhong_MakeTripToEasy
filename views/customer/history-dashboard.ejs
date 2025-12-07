@@ -23,8 +23,8 @@
                 <div class="row g-3 align-items-stretch">
                   <!-- Hình ảnh -->
                   <div class="col-md-4">
-                    <img src="/uploads/imgrooms/<%= b.Room?.image || 'default.png' %>"
-                      class="img-fluid rounded-start booking-img" alt="<%= b.Room?.roomName || 'Unknown Room' %>">
+                    <img src="/<%= (b.Room && b.Room.image ? b.Room.image.split(';')[0] : 'uploads/default.jpg') %>"
+                      class="room-image w-100" alt="<%= b.Room?.roomName || 'Unknown Room' %>">
                   </div>
 
                   <!-- Nội dung -->

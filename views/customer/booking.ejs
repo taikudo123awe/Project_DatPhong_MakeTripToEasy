@@ -626,7 +626,13 @@
                 </div>
               <% } %>
             </div>
-
+            <% if (error) { %>
+              <div class="alert alert-danger" 
+                  style="background:#f8d7da; color:#842029; padding:12px; border-radius:6px; margin: 15px 0;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <%= error %>
+              </div>
+            <% } %>
             <button type="submit" class="btn btn-primary">
               <i class="fa-solid fa-check"></i>
               Xác nhận đặt phòng

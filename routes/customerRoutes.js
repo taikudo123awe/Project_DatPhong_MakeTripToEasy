@@ -15,19 +15,10 @@ router.get(
   customerController.showBookingsByStatus
 );
 
-// Bước 3, 5: Gửi yêu cầu thanh toán
-router.post(
-  "/payment",
-  ensureCustomerLoggedIn,
-  customerController.showPaymentPage
-);
-
-// Bước 7, 8: Xác nhận đã chuyển tiền
-router.post(
-  "/confirm-payment",
-  ensureCustomerLoggedIn,
-  customerController.confirmPayment
-);
+// SỬA LẠI LOGIC THANH TOÁN
+router.post('/payment', ensureCustomerLoggedIn, customerController.createPaymentUrl); // Đổi tên hàm
+router.get('/vnpay_return', ensureCustomerLoggedIn, customerController.vnpayReturn); // Route khách quay về
+// router.get('/vnpay_ipn', customerController.vnpayIpn); // Route VNPay gọi (IPN)
 
 // Hiển thị form chỉnh sửa
 router.get('/update',ensureCustomerLoggedIn ,customerController.showEditProfile);

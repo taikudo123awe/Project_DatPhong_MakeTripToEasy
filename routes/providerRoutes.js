@@ -6,6 +6,14 @@ const providerController = require("../controllers/providerController");
 const validateProvider = require("../middlewares/validateProvider");
 const reviewController = require("../controllers/reviewController");
 const bookingController = require("../controllers/bookingController"); //Quan ly dat phong
+const validateSetupProfile = require("../middlewares/validateSetupProfile");
+const validateEditProviderInfo = require("../middlewares/validateEditProviderInfo");
+
+const {
+  validateAddRoom,
+  validateEditRoom,
+} = require("../middlewares/validateRoom");
+
 // --- THÊM CẤU HÌNH MULTER ---
 const multer = require("multer");
 const path = require("path");
@@ -47,6 +55,28 @@ const storageQR = multer.diskStorage({
 });
 const uploadQR = multer({ storage: storageQR });
 
+// ⚙️ Cấu hình lưu ảnh logo
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads/"); // thư mục lưu ảnh
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+// ✅ Tạo biến upload dùng cho route
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    const allowed = ["image/jpeg", "image/png", "image/jpg"];
+    if (allowed.includes(file.mimetype)) cb(null, true);
+    else cb(new Error("Chỉ chấp nhận file JPG/PNG"));
+  },
+});
+
 // ================== ROUTES ==================
 
 // Dashboard
@@ -58,10 +88,12 @@ router.get(
 
 // Thêm phòng
 router.get("/add-room", ensureProviderLoggedIn, roomController.showAddRoomForm);
+
 router.post(
-  "/add-room",
-  ensureProviderLoggedIn,
+  "/add-room", // ✅ chỉ cần /add-room thôi
+  ensureProviderLoggedIn, // 👈 thêm middleware để chặn truy cập trái phép
   uploadRoom.array("images", 10),
+  validateAddRoom,
   roomController.createRoom
 );
 
@@ -73,19 +105,17 @@ router.get(
 );
 router.post(
   "/edit-room/:roomId",
-  ensureProviderLoggedIn,
   uploadRoom.array("images", 10),
+  validateEditRoom,
   roomController.updateRoom
 );
-
 // Xoá phòng
 router.post(
   "/delete-room/:roomId",
   ensureProviderLoggedIn,
   roomController.deleteRoom
 );
-
-// Hồ sơ nhà cung cấp
+// chỉnh sửa nhà cung cấp
 router.get(
   "/edit-profile",
   ensureProviderLoggedIn,
@@ -135,6 +165,42 @@ router.post(
   "/bookings/cancel",
   ensureProviderLoggedIn,
   bookingController.cancelBooking
+);
+
+// Route GET setup-profile
+router.get(
+  "/setup-profile",
+  ensureProviderLoggedIn,
+  providerController.showSetupProfile
+);
+
+// Route POST setup-profile (phải đặt sau upload)
+router.post(
+  "/setup-profile",
+  ensureProviderLoggedIn,
+  upload.single("logoImage"),
+  validateSetupProfile,
+  providerController.saveSetupProfile
+);
+
+// Xem hồ sơ doanh nghiệp
+router.get(
+  "/profile",
+  ensureProviderLoggedIn,
+  providerController.viewProviderInfo
+);
+
+router.get(
+  "/profile/edit-info",
+  ensureProviderLoggedIn,
+  providerController.showEditProviderInfo
+);
+router.post(
+  "/profile/edit-info",
+  ensureProviderLoggedIn,
+  upload.single("logoImage"),
+  validateEditProviderInfo, // ✔️ dùng middleware gộp
+  providerController.updateProviderInfo
 );
 
 // Hiển thị form đăng ký

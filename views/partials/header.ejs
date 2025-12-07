@@ -2,70 +2,70 @@
 <html lang="vi">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Make Trip To Easy - Đặt phòng dễ dàng</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <style>
-        :root {
-            --primary-blue: #0284c7;
-            --light-blue: #0ea5e9;
-            --sky-blue: #0284c7;
-            --pale-blue: #bae6fd;
-            --white: #ffffff;
-            --text-dark: #0c4a6e;
-            --text-gray: #475569;
-            --accent-cyan: #06b6d4;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Make Trip To Easy - Đặt phòng dễ dàng</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    :root {
+      --primary-blue: #0284c7;
+      --light-blue: #0ea5e9;
+      --sky-blue: #0284c7;
+      --pale-blue: #bae6fd;
+      --white: #ffffff;
+      --text-dark: #0c4a6e;
+      --text-gray: #475569;
+      --accent-cyan: #06b6d4;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f9ff;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+    body {
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f9ff;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
-            box-shadow: 0 2px 12px rgba(2, 132, 199, 0.3);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-        }
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+      box-shadow: 0 2px 12px rgba(2, 132, 199, 0.3);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
 
-        .header .navbar-brand {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: white !important;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
+    .header .navbar-brand {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: white !important;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-        .header .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            font-weight: 500;
-            transition: all 0.3s;
-            padding: 0.5rem 1rem !important;
-        }
+    .header .nav-link {
+      color: rgba(255, 255, 255, 0.9) !important;
+      font-weight: 500;
+      transition: all 0.3s;
+      padding: 0.5rem 1rem !important;
+    }
 
-        .header .nav-link:hover {
-            color: white !important;
-            transform: translateY(-2px);
-        }
+    .header .nav-link:hover {
+      color: white !important;
+      transform: translateY(-2px);
+    }
 
-        /* Hero Section */
-        /* .hero-section {
+    /* Hero Section */
+    /* .hero-section {
             background: linear-gradient(135deg, #2f9ed5 0%, #2195cb 100%), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,101.3C1248,85,1344,75,1392,69.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
             background-size: cover;
             background-position: center;
@@ -73,543 +73,546 @@
             margin-bottom: 2rem;
         } */
 
-        /* Hero Section Background Slideshow */
-        .hero-section {
-            position: relative;
-            height: 420px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            color: white;
-        }
-
-        /* Slideshow wrapper */
-        .hero-bg-slideshow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        /* Các ảnh */
-        .hero-bg-slideshow img {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            transition: opacity 1.8s ease-in-out;
-        }
-
-        /* Ảnh đang active */
-        .hero-bg-slideshow img.active {
-            opacity: 1;
-        }
-
-
-        .hero-title {
-            color: #fff;
-            font-size: 3rem;
-            font-weight: 800;
-            text-shadow: 4px 4px 12px rgba(0, 0, 0, 0.55);
-            margin-bottom: 1rem;
-            animation: fadeInDown 0.8s ease-out;
-        }
-
-        .hero-subtitle {
-            color: rgba(255, 255, 255, 0.9);
-            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.35);
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            animation: fadeInUp 0.8s ease-out;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Search Bar */
-        .search-container {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 10px 40px rgba(8, 145, 178, 0.15);
-            margin-bottom: 2rem;
-        }
-
-        .search-input {
-            border: 2px solid var(--pale-blue);
-            border-radius: 12px;
-            padding: 0.8rem 1.2rem;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-
-        .search-input:focus {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 0.25rem rgba(8, 145, 178, 0.1);
-            outline: none;
-        }
-
-        .btn-search {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--sky-blue) 100%);
-            border: none;
-            color: white;
-            padding: 0.8rem 2rem;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(8, 145, 178, 0.3);
-        }
-
-        .btn-search:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(8, 145, 178, 0.4);
-        }
-
-        /* Auth Buttons */
-        .auth-buttons {
-            margin: 1.5rem 0;
-        }
-
-        .btn-login {
-            background: white;
-            color: var(--primary-blue);
-            border: 2px solid white;
-            padding: 0.7rem 2rem;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-login:hover {
-            background: var(--pale-blue);
-            color: var(--primary-blue);
-            transform: translateY(-2px);
-        }
-
-        .btn-register {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 0.7rem 2rem;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-register:hover {
-            background: white;
-            color: var(--primary-blue);
-            transform: translateY(-2px);
-        }
-
-        /* Room Cards */
-        .room-card {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
-            height: 100%;
-            border: 2px solid #e0f2fe;
-        }
-
-        .room-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 32px rgba(2, 132, 199, 0.3);
-            border-color: #0ea5e9;
-        }
-
-        .room-image {
-            height: 220px;
-            object-fit: cover;
-            transition: transform 0.4s;
-            position: relative;
-        }
-
-        .room-card:hover .room-image {
-            transform: scale(1.08);
-        }
-
-        .image-container {
-            overflow: hidden;
-            position: relative;
-        }
-
-        .image-overlay {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--sky-blue) 100%);
-            color: white;
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .room-title {
-            color: var(--primary-blue);
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 0.8rem;
-        }
-
-        .rating {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.8rem;
-        }
-
-        .rating-stars {
-            color: #fbbf24;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        .rating-count {
-            color: var(--text-gray);
-            font-size: 0.9rem;
-        }
-
-        .room-description {
-            color: var(--text-gray);
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 1rem;
-        }
-
-        .room-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-            margin-bottom: 1rem;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-dark);
-            font-size: 0.95rem;
-        }
-
-        .info-item i {
-            color: var(--primary-blue);
-            width: 20px;
-        }
-
-        .room-price {
-            color: var(--primary-blue);
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 0.3rem;
-        }
-
-        .price-unit {
-            color: var(--text-gray);
-            font-size: 0.9rem;
-            font-weight: 400;
-        }
-
-        .btn-detail {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--sky-blue) 100%);
-            border: none;
-            color: white;
-            padding: 0.7rem 1.5rem;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s;
-            width: 100%;
-            box-shadow: 0 4px 15px rgba(8, 145, 178, 0.2);
-        }
-
-        .btn-detail:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(8, 145, 178, 0.35);
-        }
-
-        /* Footer */
-        .footer {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--sky-blue) 100%);
-            color: white;
-            padding: 3rem 0 1rem 0;
-            margin-top: 4rem;
-        }
-
-        .footer-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .footer-link {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            transition: all 0.3s;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-
-        .footer-link:hover {
-            color: white;
-            transform: translateX(5px);
-        }
-
-        .card {
-            transition: transform 0.3s, box-shadow 0.3s;
-            border-radius: 12px;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .badge.bg-success {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-        }
-
-        /* ==== Các địa danh du lịch nổi tiếng ==== */
-        .place-card {
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-        }
-
-        .place-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        .place-card img {
-            width: 100%;
-            height: 160px;
-            object-fit: cover;
-            border-radius: 12px;
-            transition: filter 0.3s ease;
-        }
-
-        .place-card:hover img {
-            filter: brightness(1.05);
-        }
-
-        /* Tên địa danh và thành phố hiển thị dưới ảnh */
-        .place-info {
-            text-align: center;
-            margin-top: 8px;
-        }
-
-        .place-info h5 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #0c4da2;
-            margin-bottom: 4px;
-        }
-
-        .place-info p {
-            font-size: 0.9rem;
-            color: #64748b;
-            margin: 0;
-        }
-
-        /* ==== ƯU ĐÃI CUỐI TUẦN ==== */
-        .weekend-section h2 {
-            color: #0c4da2;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .weekend-section p {
-            color: #64748b;
-            font-size: 0.95rem;
-        }
-
-        .deal-card {
-            border: none;
-            border-radius: 15px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .deal-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-        }
-
-        .deal-card img {
-            height: 200px;
-            object-fit: cover;
-            width: 100%;
-            transition: transform 0.3s ease;
-        }
-
-        .deal-card:hover img {
-            transform: scale(1.05);
-        }
-
-        .deal-card .card-body {
-            padding: 15px 18px;
-        }
-
-        .deal-card h6 {
-            color: #0c4da2;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .deal-card p {
-            margin: 0;
-        }
-
-        .deal-card .badge {
-            font-size: 0.8rem;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        .deal-card .badge.bg-success {
-            background: linear-gradient(135deg, #16a34a, #22c55e);
-        }
-
-        .deal-card .badge.bg-info {
-            background: linear-gradient(135deg, #0ea5e9, #0284c7);
-        }
-
-        .deal-card .text-danger {
-            font-size: 0.9rem;
-        }
-
-        .deal-card strong {
-            color: #0c4da2;
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1rem;
-            }
-
-            .search-container {
-                padding: 1.5rem;
-            }
-
-            .place-card img {
-                height: 140px;
-            }
-
-            .deal-card img {
-                height: 160px;
-            }
-        }
-
-        /* Loading Animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, .3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
+    /* Hero Section Background Slideshow */
+    .hero-section {
+      position: relative;
+      height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: white;
+    }
+
+    /* Slideshow wrapper */
+    .hero-bg-slideshow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    /* Các ảnh */
+    .hero-bg-slideshow img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.8s ease-in-out;
+    }
+
+    /* Ảnh đang active */
+    .hero-bg-slideshow img.active {
+      opacity: 1;
+    }
+
+
+    .hero-title {
+      color: #fff;
+      font-size: 3rem;
+      font-weight: 800;
+      text-shadow: 4px 4px 12px rgba(0, 0, 0, 0.55);
+      margin-bottom: 1rem;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    .hero-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.35);
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Search Bar */
+    .search-container {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 40px rgba(8, 145, 178, 0.15);
+      margin-bottom: 2rem;
+    }
+
+    .search-input {
+      border: 2px solid var(--pale-blue);
+      border-radius: 12px;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 0.25rem rgba(8, 145, 178, 0.1);
+      outline: none;
+    }
+
+    .btn-search {
+      background: linear-gradient(135deg, var(--primary-blue) 0%, var(--sky-blue) 100%);
+      border: none;
+      color: white;
+      padding: 0.8rem 2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(8, 145, 178, 0.3);
+    }
+
+    .btn-search:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(8, 145, 178, 0.4);
+    }
+
+    /* Auth Buttons */
+    .auth-buttons {
+      margin: 1.5rem 0;
+    }
+
+    .btn-login {
+      background: white;
+      color: var(--primary-blue);
+      border: 2px solid white;
+      padding: 0.7rem 2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-login:hover {
+      background: var(--pale-blue);
+      color: var(--primary-blue);
+      transform: translateY(-2px);
+    }
+
+    .btn-register {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid white;
+      padding: 0.7rem 2rem;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-register:hover {
+      background: white;
+      color: var(--primary-blue);
+      transform: translateY(-2px);
+    }
+
+    /* Room Cards */
+    .room-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+      height: 100%;
+      border: 2px solid #e0f2fe;
+    }
+
+    .room-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 32px rgba(2, 132, 199, 0.3);
+      border-color: #0ea5e9;
+    }
+
+    .room-image {
+      height: 220px;
+      object-fit: cover;
+      transition: transform 0.4s;
+      position: relative;
+    }
+
+    .room-card:hover .room-image {
+      transform: scale(1.08);
+    }
+
+    .image-container {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .image-overlay {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: linear-gradient(135deg, var(--primary-blue) 0%, var(--sky-blue) 100%);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    .room-title {
+      color: var(--primary-blue);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+    }
+
+    .rating {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .rating-stars {
+      color: #fbbf24;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .rating-count {
+      color: var(--text-gray);
+      font-size: 0.9rem;
+    }
+
+    .room-description {
+      color: var(--text-gray);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .room-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-dark);
+      font-size: 0.95rem;
+    }
+
+    .info-item i {
+      color: var(--primary-blue);
+      width: 20px;
+    }
+
+    .room-price {
+      color: var(--primary-blue);
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 0.3rem;
+    }
+
+    .price-unit {
+      color: var(--text-gray);
+      font-size: 0.9rem;
+      font-weight: 400;
+    }
+
+    .btn-detail {
+      background: linear-gradient(135deg, var(--primary-blue) 0%, var(--sky-blue) 100%);
+      border: none;
+      color: white;
+      padding: 0.7rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s;
+      width: 100%;
+      box-shadow: 0 4px 15px rgba(8, 145, 178, 0.2);
+    }
+
+    .btn-detail:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(8, 145, 178, 0.35);
+    }
+
+    /* Footer */
+    .footer {
+      background: linear-gradient(135deg, var(--primary-blue) 0%, var(--sky-blue) 100%);
+      color: white;
+      padding: 3rem 0 1rem 0;
+      margin-top: 4rem;
+    }
+
+    .footer-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .footer-link {
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      transition: all 0.3s;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-link:hover {
+      color: white;
+      transform: translateX(5px);
+    }
+
+    .card {
+      transition: transform 0.3s, box-shadow 0.3s;
+      border-radius: 12px;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .badge.bg-success {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    /* ==== Các địa danh du lịch nổi tiếng ==== */
+    .place-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .place-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .place-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 12px;
+      transition: filter 0.3s ease;
+    }
+
+    .place-card:hover img {
+      filter: brightness(1.05);
+    }
+
+    /* Tên địa danh và thành phố hiển thị dưới ảnh */
+    .place-info {
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .place-info h5 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #0c4da2;
+      margin-bottom: 4px;
+    }
+
+    .place-info p {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin: 0;
+    }
+
+    /* ==== ƯU ĐÃI CUỐI TUẦN ==== */
+    .weekend-section h2 {
+      color: #0c4da2;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .weekend-section p {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    .deal-card {
+      border: none;
+      border-radius: 15px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .deal-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .deal-card img {
+      height: 200px;
+      object-fit: cover;
+      width: 100%;
+      transition: transform 0.3s ease;
+    }
+
+    .deal-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .deal-card .card-body {
+      padding: 15px 18px;
+    }
+
+    .deal-card h6 {
+      color: #0c4da2;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .deal-card p {
+      margin: 0;
+    }
+
+    .deal-card .badge {
+      font-size: 0.8rem;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .deal-card .badge.bg-success {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+    }
+
+    .deal-card .badge.bg-info {
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    }
+
+    .deal-card .text-danger {
+      font-size: 0.9rem;
+    }
+
+    .deal-card strong {
+      color: #0c4da2;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+
+      .search-container {
+        padding: 1.5rem;
+      }
+
+      .place-card img {
+        height: 140px;
+      }
+
+      .deal-card img {
+        height: 160px;
+      }
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, .3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="navbar navbar-expand-lg container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-plane-departure"></i> Make Trip To Easy
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/"><i class="fas fa-home"></i> Trang chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/rooms"><i class="fas fa-bed"></i> Phòng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/provider/dashboard"><i class="fas fa-hotel"></i> Đăng chỗ nghĩ của
-                            quý vị</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/contact"><i class="fas fa-envelope"></i> Liên hệ</a>
-                    </li>
-                    <% if (customer) { %>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="customerMenu" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                Xin chào, <%= customer.fullName %>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="customerMenu">
-                                <li><a class="dropdown-item" href="/customer/profile"><i class="fas fa-user"></i> Thông
-                                        tin cá nhân</a></li>
-                                <li><a class="dropdown-item" href="/customer/history-dashboard"><i
-                                            class="fas fa-calendar-check"></i> Phiếu đặt phòng</a></li>
-                                <li><a class="dropdown-item" href="/customer/logout"><i class="fas fa-sign-out"></i>
-                                        Đăng xuất</a></li>
-                            </ul>
-                        </li>
-                        <% } else { %>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/customer/login"><i class="fas fa-sign-in"></i> Đăng nhập</a>
-                            </li>
-                            <% } %>
-                </ul>
-            </div>
-        </nav>
-    </header>
+  <!-- Header -->
+  <header class="header">
+    <nav class="navbar navbar-expand-lg container">
+      <a class="navbar-brand" href="/">
+        <i class="fas fa-plane-departure"></i> Make Trip To Easy
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="/"><i class="fas fa-home"></i> Trang chủ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/rooms"><i class="fas fa-bed"></i> Phòng</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/customer/history"><i class="fas fa-bed"></i> Thanh toán</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/provider/dashboard"><i class="fas fa-hotel"></i> Đăng chỗ nghĩ của
+              quý vị</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/contact"><i class="fas fa-envelope"></i> Liên hệ</a>
+          </li>
+          <% if (customer) { %>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="customerMenu" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Xin chào, <%= customer.fullName %>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="customerMenu">
+                <li><a class="dropdown-item" href="/customer/profile"><i class="fas fa-user"></i> Thông
+                    tin cá nhân</a></li>
+                <li><a class="dropdown-item" href="/customer/history-dashboard"><i class="fas fa-calendar-check"></i>
+                    Phiếu đặt phòng</a></li>
+                <li><a class="dropdown-item" href="/customer/logout"><i class="fas fa-sign-out"></i>
+                    Đăng xuất</a></li>
+              </ul>
+            </li>
+            <% } else { %>
+              <li class="nav-item">
+                <a class="nav-link" href="/customer/login"><i class="fas fa-sign-in"></i> Đăng nhập</a>
+              </li>
+              <% } %>
+        </ul>
+      </div>
+    </nav>
+  </header>

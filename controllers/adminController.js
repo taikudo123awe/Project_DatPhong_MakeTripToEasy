@@ -4,8 +4,6 @@ const Review = require('../models/Review');
 const Feedback = require('../models/Feedback');
 const Booking = require('../models/Booking');
 const Invoice = require('../models/Invoice');
-const PaymentInfo = require('../models/PaymentInfo');
-const validator = require('validator');
 const sequelize = require('../config/database');
 const Account = require('../models/Account');
 const fs = require('fs');
@@ -225,8 +223,8 @@ exports.listUsers = async (req, res) => {
             where: whereCondition,
             include: [
                 // Include Customer hoặc Provider để lấy tên (nếu có)
-                { model: Customer, attributes: ['fullName'], required: false },
-                { model: Provider, attributes: ['providerName'], required: false }
+                { model: Customer, as: "Customer", attributes: ['fullName'], required: false },
+                { model: Provider, as: "Provider", attributes: ['providerName'], required: false }
             ],
             order: [['accountId', 'ASC']]
         });
@@ -243,8 +241,8 @@ exports.showUserDetails = async (req, res) => {
         const accountId = req.params.accountId;
         const account = await Account.findByPk(accountId, {
             include: [
-                { model: Customer, required: false },
-                { model: Provider, required: false }
+                { model: Customer, as: "Customer", required: false },
+                { model: Provider, as: "Provider", required: false }
             ]
         });
 
