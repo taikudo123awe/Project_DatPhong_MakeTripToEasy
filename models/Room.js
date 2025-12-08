@@ -35,6 +35,11 @@ const Room = sequelize.define(
       allowNull: false,
       defaultValue: 1,
     },
+    totalRooms: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+    },
     price: {
       type: DataTypes.FLOAT,
       allowNull: false,

@@ -351,6 +351,7 @@ exports.showCustomerBookingDetail = async (req, res) => {
     res.status(500).send("Lỗi máy chủ");
   }
 };
+
 function sortObject(obj) {
   let sorted = {};
   let str = [];

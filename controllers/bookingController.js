@@ -1,4 +1,3 @@
-// controllers/bookingController.js
 const { Op } = require("sequelize");
 const sequelize = require("../config/database");
 const Booking = require("../models/Booking");
@@ -8,17 +7,18 @@ const Invoice = require("../models/Invoice");
 const Address = require("../models/Address");
 const Provider = require("../models/Provider");
 const ProviderInfo = require("../models/ProviderInfo");
+const { getBookedRooms } = require("../utils/checkRoom");
 
 // SỬA LẠI HÀM NÀY: Lấy tất cả booking và gom nhóm
 exports.listAllBookings = async (req, res) => {
   try {
     const providerId = req.session.provider.providerId;
-    // ⭐ THÊM: LẤY PROVIDER
+    // THÊM: LẤY PROVIDER
     const provider = await Provider.findOne({
       where: { providerId },
     });
 
-    // ⭐ THÊM: LẤY PROVIDER INFO
+    // THÊM: LẤY PROVIDER INFO
     const providerInfo = await ProviderInfo.findOne({
       where: { providerId },
     });
@@ -257,7 +257,6 @@ exports.showBookingForm = async (req, res) => {
   }
 };
 
-// Xử lý khi khách đặt phòng
 exports.handleBooking = async (req, res) => {
   const { checkInDate, checkOutDate, numberOfGuests, quantity } = req.body;
   const customerId = req.session.customer?.customerId;
@@ -281,7 +280,7 @@ exports.handleBooking = async (req, res) => {
     const qty = parseInt(quantity) || 1;
     const guests = parseInt(numberOfGuests) || 1;
 
-    // 2️⃣ Kiểm tra số người tối đa
+    // 1️⃣ Kiểm tra số người
     if (guests > room.capacity) {
       await t.rollback();
       return res.render("customer/booking", {
@@ -294,26 +293,12 @@ exports.handleBooking = async (req, res) => {
       });
     }
 
-    // 3️⃣ Kiểm tra số lượng phòng còn trống
-    if (room.availableRooms !== null && qty > room.availableRooms) {
-      await t.rollback();
-      return res.render("customer/booking", {
-        room,
-        error: `Chỉ còn ${room.availableRooms} phòng trống.`,
-        checkInDate,
-        checkOutDate,
-        numberOfGuests,
-        quantity
-      });
-    }
+    // 2️⃣ Kiểm tra ngày hợp lệ
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
 
-    // 4️⃣ Kiểm tra ngày
-    const date1 = new Date(checkInDate);
-    const date2 = new Date(checkOutDate);
-
-    if (isNaN(date1) || isNaN(date2) || date1 >= date2) {
+    if (isNaN(checkIn) || isNaN(checkOut) || checkIn >= checkOut) {
       await t.rollback();
-      console.error("❌ Ngày nhận/trả phòng không hợp lệ:", checkInDate, checkOutDate);
       return res.render("customer/booking", {
         room,
         error: "Ngày nhận phòng hoặc trả phòng không hợp lệ.",
@@ -324,12 +309,27 @@ exports.handleBooking = async (req, res) => {
       });
     }
 
-    // 5️⃣ Tính số đêm và tổng tiền
-    const timeDiff = date2.getTime() - date1.getTime();
-    const numberOfNights = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    const totalAmount = room.price * numberOfNights * qty;
+    // 3️⃣ Kiểm tra số phòng còn trống thực tế
+    const bookedQty = await getBookedRooms(roomId, checkIn, checkOut);
+    const available = room.totalRooms - bookedQty;
 
-    // 6️⃣ Tạo booking
+    if (qty > available) {
+      await t.rollback();
+      return res.render("customer/booking", {
+        room,
+        error: `Chỉ còn ${available} phòng trống trong thời gian này.`,
+        checkInDate,
+        checkOutDate,
+        numberOfGuests,
+        quantity
+      });
+    }
+
+    // 4️⃣ Tính số đêm
+    const nights = Math.ceil((checkOut - checkIn) / (1000 * 3600 * 24));
+    const totalAmount = room.price * qty * nights;
+
+    // 5️⃣ Tạo booking
     await Booking.create(
       {
         bookingDate: new Date(),
@@ -345,16 +345,9 @@ exports.handleBooking = async (req, res) => {
       { transaction: t }
     );
 
-    // 7️⃣ Trừ phòng
-    if (room.availableRooms !== null) {
-      await Room.update(
-        { availableRooms: room.availableRooms - qty },
-        { where: { roomId }, transaction: t }
-      );
-    }
-
     await t.commit();
-    res.redirect("/customer/history");
+    return res.redirect("/customer/history");
+
   } catch (err) {
     await t.rollback();
     console.error("❌ Lỗi khi đặt phòng:", err);
@@ -399,9 +392,13 @@ exports.cancelBookingByCustomer = async (req, res) => {
       return res.redirect("/customer/login");
     }
 
-    // Tìm booking của khách hàng đang "Chờ nhận phòng"
+    // Tìm booking đang ở trạng thái "Chờ nhận phòng"
     const booking = await Booking.findOne({
-      where: { bookingId, customerId, status: "Chờ nhận phòng" },
+      where: {
+        bookingId,
+        customerId,
+        status: "Chờ nhận phòng"
+      },
     });
 
     if (!booking) {
@@ -409,25 +406,10 @@ exports.cancelBookingByCustomer = async (req, res) => {
       return res.redirect("/customer/history-dashboard");
     }
 
-    // Cập nhật trạng thái booking
+    // Cập nhật trạng thái đơn đặt phòng
     await booking.update({ status: "Đã hủy" });
 
-    //cộng lại số lượng phòng sau khi huỷ
-    try {
-      const room = await Room.findByPk(booking.roomId);
-      if (room) {
-        const newAvailable =
-          (room.availableRooms || 0) + (booking.quantity || 1);
-        await room.update({ availableRooms: newAvailable });
-        console.log(
-          `✅ Cộng lại ${booking.quantity || 1} phòng vào ${room.roomName}`
-        );
-      }
-    } catch (err2) {
-      console.error("⚠️ Lỗi khi cộng lại phòng:", err2);
-    }
-
-    // Cập nhật hóa đơn (nếu có)
+    // Cập nhật hóa đơn (nếu tồn tại)
     await Invoice.update(
       { status: "Đã hủy" },
       { where: { bookingId: booking.bookingId } }
@@ -435,6 +417,7 @@ exports.cancelBookingByCustomer = async (req, res) => {
 
     req.session.success = "Đã hủy đặt phòng thành công.";
     res.redirect("/customer/history-dashboard");
+
   } catch (err) {
     console.error("❌ Lỗi khi khách hủy đặt phòng:", err);
     res.status(500).send("Lỗi máy chủ");

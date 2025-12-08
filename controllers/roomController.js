@@ -5,7 +5,7 @@ const Provider = require("../models/Provider");
 const Address = require("../models/Address");
 const Review = require("../models/Review");
 const Customer = require("../models/Customer");
-const { getBookedRoomIds, buildRoomFilters, getRoomTypes, getAvailableRooms } = require("../utils/roomHelpers");
+const { buildRoomFilters, getRoomTypes, getAvailableRooms } = require("../utils/roomHelpers");
 const RoomType = require("../models/RoomType");
 const Amenity = require("../models/Amenity");
 const RoomName = require("../models/RoomName");
@@ -290,6 +290,7 @@ exports.showAddRoomForm = async (req, res) => {
     res.status(500).send("Lỗi khi tải form thêm phòng");
   }
 };
+
 // Thêm phòng mới
 exports.createRoom = async (req, res) => {
   if (req.validationErrors && Object.keys(req.validationErrors).length > 0) {
@@ -600,13 +601,26 @@ exports.searchRooms = async (req, res) => {
     const numRooms = validated.numRooms || 1;
 
     //Lấy danh sách phòng đã bị đặt
-    const bookedRoomIds = await getBookedRoomIds(checkInDate, checkOutDate);
+    // const bookedRoomIds = await getBookedRoomIds(checkInDate, checkOutDate);
 
     //Tạo điều kiện lọc phòng
-    const whereConditions = buildRoomFilters(req, bookedRoomIds, validated);
+    // const whereConditions = buildRoomFilters(req, bookedRoomIds, validated);
+    const whereConditions = buildRoomFilters(req, validated);
 
     //Truy vấn danh sách phòng
-    const availableRooms = await getAvailableRooms(whereConditions, city, district, ward, Room, Address, sequelize, Op);
+    // const availableRooms = await getAvailableRooms(whereConditions, city, district, ward, Room, Address, sequelize, Op);
+    const availableRooms = await getAvailableRooms(
+      whereConditions,
+      city,
+      district,
+      ward,
+      Room,
+      Address,
+      sequelize,
+      Op,
+      checkInDate,
+      checkOutDate
+    );
 
     //Lấy loại phòng
     const roomTypes = await getRoomTypes();
@@ -687,6 +701,7 @@ exports.listRoomsByCity = async (req, res) => {
     res.status(500).send("Lỗi khi lấy danh sách phòng");
   }
 };
+
 //lấy phòng ưu đãi
 exports.getWeekendDeals = async (req, res) => {
   try {

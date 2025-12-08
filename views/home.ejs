@@ -102,9 +102,9 @@
                                     <div class="info-item">
                                         <i class="fas fa-map-marker-alt"></i>
                                         <span>
-                                            <% if (room.address) { %>
-                                                <%= room.address.district ? room.address.district + ', ' : '' %>
-                                                    <%= room.address.city || '' %>
+                                            <% if (room.Address) { %>
+                                                <%= room.Address.district ? room.Address.district + ', ' : '' %>
+                                                    <%= room.Address.city || '' %>
                                                         <% } else { %>
                                                             Không rõ
                                                             <% } %>

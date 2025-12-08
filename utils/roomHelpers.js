@@ -2,30 +2,26 @@
 const { Op } = require("sequelize");
 const { sequelize, Booking } = require("../models");
 
-/**
- * 🧩 Hàm 1: Lấy danh sách phòng đã bị đặt trong khoảng thời gian
- */
-async function getBookedRoomIds(checkInDate, checkOutDate) {
-    if (!checkInDate || !checkOutDate) return [];
+async function getBookedQtyForRoom(roomId, checkInDate, checkOutDate) {
+  const bookings = await Booking.findAll({
+    where: {
+      roomId,
+      status: { [Op.not]: "Đã hủy" },
+      [Op.and]: [
+        { checkInDate: { [Op.lt]: checkOutDate } },
+        { checkOutDate: { [Op.gt]: checkInDate } },
+      ],
+    },
+    attributes: ["quantity"],
+  });
 
-    const bookings = await Booking.findAll({
-        where: {
-            [Op.and]: [
-                { checkInDate: { [Op.lt]: checkOutDate } },
-                { checkOutDate: { [Op.gt]: checkInDate } },
-                { status: { [Op.ne]: "Đã hủy" } },
-            ],
-        },
-        attributes: ["roomId"],
-    });
-
-    return bookings.map((b) => b.roomId);
+  return bookings.reduce((sum, b) => sum + (b.quantity || 1), 0);
 }
 
 /**
  * 🧩 Hàm 2: Xây dựng điều kiện lọc phòng
  */
-function buildRoomFilters(req, bookedRoomIds, validated) {
+function buildRoomFilters(req, validated) {
   const numGuests = Number(validated.numGuests) || 1;
   const typeIds = req.query.typeId;
   const priceRange = req.query.priceRange ? parseInt(req.query.priceRange) : null;
@@ -34,7 +30,7 @@ function buildRoomFilters(req, bookedRoomIds, validated) {
   const filters = [];
 
   // Phòng chưa bị đặt
-  if (bookedRoomIds?.length > 0) filters.push({ roomId: { [Op.notIn]: bookedRoomIds } });
+  // if (bookedRoomIds?.length > 0) filters.push({ roomId: { [Op.notIn]: bookedRoomIds } });
 
   // Phòng hoạt động và đã duyệt
   filters.push({ approvalStatus: "Đã duyệt" });
@@ -71,43 +67,40 @@ async function getRoomTypes() {
 /**
  * 🧩 Hàm 4: Lấy danh sách phòng khả dụng theo điều kiện và vị trí
  */
-async function getAvailableRooms(whereConditions, city, district, ward, Room, Address, sequelize, Op) {
-    return await Room.findAll({
-        where: whereConditions,
-        include: [
-            {
-                model: Address,
-                where: {
-                    [Op.and]: [
-                        city
-                            ? sequelize.where(
-                                sequelize.fn("LOWER", sequelize.col("Address.city")),
-                                { [Op.like]: `%${city.toLowerCase()}%` }
-                            )
-                            : null,
-                        district
-                            ? sequelize.where(
-                                sequelize.fn("LOWER", sequelize.col("Address.district")),
-                                { [Op.like]: `%${district.toLowerCase()}%` }
-                            )
-                            : null,
-                        ward
-                            ? sequelize.where(
-                                sequelize.fn("LOWER", sequelize.col("Address.ward")),
-                                { [Op.like]: `%${ward.toLowerCase()}%` }
-                            )
-                            : null,
-                    ].filter(Boolean),
-                },
-                attributes: ["city", "district", "ward"],
-            },
-        ],
-        order: [["postedAt", "DESC"]],
-    });
+async function getAvailableRooms(whereConditions, city, district, ward, Room, Address, sequelize, Op, checkInDate, checkOutDate) {
+  const rooms = await Room.findAll({
+    where: whereConditions,
+    include: [{
+      model: Address,
+      where: {
+        [Op.and]: [
+          city ? sequelize.where(sequelize.fn("LOWER", sequelize.col("Address.city")), { [Op.like]: `%${city.toLowerCase()}%` }) : null,
+          district ? sequelize.where(sequelize.fn("LOWER", sequelize.col("Address.district")), { [Op.like]: `%${district.toLowerCase()}%` }) : null,
+          ward ? sequelize.where(sequelize.fn("LOWER", sequelize.col("Address.ward")), { [Op.like]: `%${ward.toLowerCase()}%` }) : null,
+        ].filter(Boolean)
+      }
+    }]
+  });
+
+  const results = [];
+
+  for (const room of rooms) {
+    const bookedQty = await getBookedQtyForRoom(room.roomId, checkInDate, checkOutDate);
+    const available = room.totalRooms - bookedQty;
+
+    if (available > 0) {
+      room.dataValues.availableQty = available;
+      results.push(room);
+    }
+  }
+
+  return results;
 }
 
+
 module.exports = {
-    getBookedRoomIds,
+    getBookedQtyForRoom,
+    // getBookedRoomIds,
     buildRoomFilters,
     getRoomTypes,
     getAvailableRooms,

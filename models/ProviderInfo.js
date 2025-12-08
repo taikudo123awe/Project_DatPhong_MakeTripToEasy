@@ -80,7 +80,7 @@ const ProviderInfo = sequelize.define(
     },
   },
   {
-    tableName: "providerinfo",
+    tableName: "ProviderInfo",
     timestamps: false,
   }
 );
