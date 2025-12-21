@@ -27,7 +27,7 @@ module.exports = async (req, res, next) => {
   } = req.body;
 
   // Load ProviderInfo cũ
-  const providerId = req.session.provider?.id;
+  const providerId = req.session.provider?.providerId;
 
   req.providerInfo = await ProviderInfo.findOne({
     where: { providerId },

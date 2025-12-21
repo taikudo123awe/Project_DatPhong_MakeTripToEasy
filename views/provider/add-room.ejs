@@ -15,7 +15,7 @@
 </head>
 
 <body>
- <%- include('../partials/header-provider', { providerInfo, provider }) %>
+ <%- include('../partials/header-provider', { providerInfo, provider: providerInfo, active: 'dashboard'}) %>
     <h2 class="page-title">📋 Đăng thông tin phòng mới</h2>
 
     <!-- <% if (error && Object.keys(error).length > 0) { %>

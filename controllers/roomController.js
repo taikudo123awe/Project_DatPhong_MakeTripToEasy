@@ -481,15 +481,64 @@ exports.showEditRoomForm = async (req, res) => {
 exports.updateRoom = async (req, res) => {
   console.log("🔧 validateEditRoom:", req.validationErrors);
 
+  // ================== 🔴 BỔ SUNG (KHÔNG XOÁ CODE GỐC) ==================
   if (req.validationErrors && Object.keys(req.validationErrors).length > 0) {
+    try {
+      const roomId = req.params.roomId;
+      const providerId = req.session.provider?.providerId;
+
+      const room = await Room.findByPk(roomId, {
+        include: [{ model: Address }, { model: Amenity }, { model: RoomType }],
+      });
+
+      const providerInfo = await ProviderInfo.findOne({
+        where: { providerId },
+      });
+
+      const roomTypes = await RoomType.findAll();
+      const roomNames = await RoomName.findAll();
+
+      const amenities = await Amenity.findAll({
+        order: [
+          ["category", "ASC"],
+          ["amenityName", "ASC"],
+        ],
+      });
+
+      const groupedAmenities = {};
+      amenities.forEach((a) => {
+        if (!groupedAmenities[a.category]) groupedAmenities[a.category] = [];
+        groupedAmenities[a.category].push(a);
+      });
+
+      // 👉 Render lại form edit-room kèm lỗi
+      return res.render("provider/edit-room", {
+        room,
+        providerInfo,
+        roomTypes,
+        roomNames,
+        groupedAmenities,
+        error: req.validationErrors,
+        form: req.body,
+        success: null,
+        provider: req.session.provider,
+        active: "dashboard",
+      });
+    } catch (renderErr) {
+      console.error("❌ Lỗi khi render lại edit-room:", renderErr);
+      return res.status(500).send("Lỗi khi xử lý validate edit-room.");
+    }
+
+    // ⛔ DÒNG GỐC – GIỮ NGUYÊN, nhưng sẽ không bao giờ chạy tới
     return;
   }
+  // ================== 🔴 KẾT THÚC PHẦN BỔ SUNG ==================
 
   try {
     const roomId = req.params.roomId;
     const {
       roomNameId,
-      roomTypeId, //lấy từ form
+      roomTypeId, // lấy từ form
       capacity,
       price,
       description,
@@ -556,6 +605,7 @@ exports.updateRoom = async (req, res) => {
     res.status(500).send("Lỗi khi cập nhật phòng: " + err.message);
   }
 };
+
 
 // Xóa (ẩn) phòng — soft delete
 exports.deleteRoom = async (req, res) => {
