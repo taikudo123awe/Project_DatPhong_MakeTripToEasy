@@ -357,7 +357,9 @@ exports.createRoom = async (req, res) => {
     const allowed = ["image/jpeg", "image/png", "image/jpg"];
     const imagePaths = (req.files || [])
       .filter((f) => allowed.includes(f.mimetype))
-      .map((f) => f.path.replace(/^public[\\/]/, ""));
+      .map(
+        (f) => f.path.replace(/^public[\\/]/, "").replace(/\\/g, "/") // ⭐ QUAN TRỌNG
+      );
     const imageString = imagePaths.join(";");
 
     // Địa chỉ
@@ -560,7 +562,7 @@ exports.updateRoom = async (req, res) => {
       const allowed = ["image/jpeg", "image/png", "image/jpg"];
       const validImages = req.files
         .filter((f) => allowed.includes(f.mimetype))
-        .map((f) => f.path.replace(/^public[\\/]/, ""));
+        .map((f) => f.path.replace(/^public[\\/]/, "").replace(/\\/g, "/"));
       image = validImages.join(";");
     }
 
