@@ -64,7 +64,9 @@
           <i class="fa-solid fa-circle-user"></i>
           <span><%= provider?.providerName || provider?.fullName || "Nhà cung cấp" %></span>
         </div>
-        <a href="/logout" class="logout-btn">
+        <a href="/provider/logout"
+          class="logout-btn"
+          onclick="return confirm('Bạn có chắc chắn muốn đăng xuất không?')">
           <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
         </a>
       </div>
