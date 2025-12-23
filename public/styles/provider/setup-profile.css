@@ -349,6 +349,13 @@ select.form-select:focus {
     margin-bottom: 12px;
 }
 
+.logout-top {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  z-index: 1000;
+}
+
 @keyframes floatIcon {
 
     0%,
