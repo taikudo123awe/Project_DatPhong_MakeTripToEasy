@@ -36,9 +36,12 @@ exports.showReviewedRooms = async (req, res) => {
           sequelize.fn("COUNT", sequelize.col("Reviews.reviewId")),
           "reviewCount",
         ],
+        // ✅ CHÈN THÊM – KHÔNG ĐỤNG GÌ CŨ
+        [sequelize.fn("AVG", sequelize.col("Reviews.rating")), "avgRating"],
       ],
       group: ["Room.roomId", "Room.roomName", "Room.price"],
       order: [["roomName", "ASC"]],
+      raw: true,
     });
 
     res.render("provider/reviews", {

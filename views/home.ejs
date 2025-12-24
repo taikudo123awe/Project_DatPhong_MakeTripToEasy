@@ -86,8 +86,13 @@
                                 </h5>
                                 <div class="rating">
                                     <span class="rating-stars">
+                                        <% if (room.reviewCount > 0) { %>
                                         <i class="fas fa-star"></i>
-                                        <%= room.rating || '4.5' %>
+                                        <%= Number(room.avgRating).toFixed(1) %>
+                                        <span>(<%= room.reviewCount %> đánh giá)</span>
+                                        <% } else { %>
+                                        <span class="text-muted fst-italic">Chưa có đánh giá</span>
+                                        <% } %>
                                     </span>
                                     <span class="rating-count">( <%= room.reviewCount || 0 %> đánh giá )</span>
                                 </div>
