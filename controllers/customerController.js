@@ -228,12 +228,16 @@ exports.viewBookingHistory = async (req, res) => {
     const whereCondition = { customerId };
 
     if (filterStatus !== "all") {
-      if (filterStatus.startsWith("Invoice:")) {
-        // Ví dụ ?status=invoice:Đã thanh toán
-        const invoiceStatus = filterStatus.split(":")[1];
+      // Chuẩn hoá để tránh lỗi hoa/thường
+      const normalizedStatus = filterStatus.toLowerCase();
+
+      if (normalizedStatus.startsWith("invoice:")) {
+        // VD: invoice: Đã thanh toán
+        const invoiceStatus = filterStatus.split(":")[1].trim();
+
         whereCondition["$Invoice.status$"] = invoiceStatus;
       } else {
-        // Lọc theo booking status
+        // Lọc theo booking.status
         whereCondition.status = filterStatus;
       }
     }

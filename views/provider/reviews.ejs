@@ -28,7 +28,7 @@
         <a href="/provider/reviews/<%= room.roomId %>" class="list-group-item list-group-item-action">
           <div class="d-flex w-100 justify-content-between">
             <h5 class="mb-1"><%= room.roomName %></h5>
-            <small>Có <%= room.dataValues.reviewCount %> đánh giá</small>
+            <small>Có <%= room.reviewCount %> đánh giá</small>
           </div>
           <p class="mb-1">Giá: <%= room.price.toLocaleString() %> VND</p>
         </a>
