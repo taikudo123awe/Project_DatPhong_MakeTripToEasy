@@ -1,0 +1,121 @@
+/* DASHBOARD WRAPPER */
+.dashboard-container {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.provider-content {
+  padding: 30px 35px !important;
+  margin-left: 260px;
+  width: calc(100% - 260px);
+}
+
+h2 {
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 25px;
+}
+
+/* ================================
+   FORM SECTION
+================================ */
+h4 {
+  font-weight: 700;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  color: #1e293b;
+}
+
+form {
+  background: #ffffff;
+  padding: 35px;
+  border-radius: 18px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+/* ================================
+   FORM INPUTS
+================================ */
+.form-label {
+  font-weight: 600;
+  color: #334155;
+}
+
+.form-control {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  transition: 0.25s ease;
+}
+
+.form-control:focus {
+  border-color: #0284c7;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.18);
+}
+
+/* ================================
+   ERROR MESSAGE
+================================ */
+.alert-danger {
+  border-radius: 14px;
+  padding: 15px 18px;
+  background: #fee2e2;
+  color: #7f1d1d;
+  border: none;
+}
+
+/* ================================
+   QR IMAGE PREVIEW
+================================ */
+img {
+  border-radius: 12px;
+}
+
+/* ================================
+   BUTTONS
+================================ */
+.btn-success {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  border: none;
+  padding: 12px 25px;
+  font-weight: 700;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(14, 165, 233, 0.28);
+  transition: 0.25s ease;
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  padding: 12px 25px;
+  border-radius: 12px;
+  font-weight: 700;
+  background: #cbd5e1;
+  border: none;
+  transition: 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #94a3b8;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+@media (max-width: 900px) {
+  .provider-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 120px 20px;
+  }
+
+  form {
+    padding: 25px;
+  }
+}

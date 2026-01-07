@@ -1,74 +1,292 @@
 <%- include('../partials/header') %>
 
-  <main class="container py-5">
-    <div class="card p-4 shadow-lg">
-      <h2 class="text-primary mb-4">
-        <i class="fa-solid fa-calendar-check me-2"></i> Đặt phòng: <%= room.roomName %>
-      </h2>
+<link rel="stylesheet" href="/styles/customer/booking.css">
 
+<div class="booking-wrapper">
+  <div class="booking-container">
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="page-header">
+        <h1>
+          <i class="fa-solid fa-clipboard-check"></i>
+          Xác nhận đặt phòng
+        </h1>
+        <p class="subtitle"><%= room.roomName %></p>
+      </div>
+
+      <!-- Room Information -->
+      <div class="content-section">
+        <h2 class="section-title">
+          <i class="fa-solid fa-door-open"></i>
+          Thông tin phòng
+        </h2>
+        
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="fa-solid fa-bed"></i>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">Loại phòng</div>
+              <div class="detail-value"><%= room.roomName %></div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">Sức chứa tối đa</div>
+              <div class="detail-value"><%= room.capacity %> khách</div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="fa-solid fa-expand"></i>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">Diện tích</div>
+              <div class="detail-value"><%= room.size || '25m²' %></div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="fa-solid fa-tag"></i>
+            </div>
+
+            <div class="detail-content">
+              <div class="detail-label">Giá phòng</div>
+              <div class="detail-value">
+                <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+                      .format(room.pricePerNight || room.price) %> / đêm
+              </div>
+            </div>
+
+            <div class="detail-content">
+              <div class="detail-label">Tổng giá (<span id="nightCount">1</span> đêm)</div>
+              <div class="detail-value" id="totalPrice">
+                <%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+                      .format(room.pricePerNight || room.price) %>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <%
+          let amenities = [];
+          if (room && typeof room.amenities === 'string') {
+            amenities = room.amenities.split(',');
+          } else if (room && Array.isArray(room.amenities)) {
+            amenities = room.amenities;
+          }
+        %>
+        <% if (amenities.length > 0) { %>
+        <div style="margin-top: 2rem;">
+          <div class="detail-label" style="margin-bottom: 1rem; font-size: 0.875rem;">TIỆN NGHI PHÒNG</div>
+          <div class="amenities-grid">
+            <% amenities.forEach(function(amenity) { %>
+              <div class="amenity-badge">
+                <i class="fa-solid fa-check"></i>
+                <%= amenity.trim() %>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+        <% } %>
+      </div>
+
+      <% if (checkInDate && checkOutDate && numberOfGuests) { %>
+      <!-- Booking Details -->
+      <div class="content-section" style="border-top: 1px solid var(--border);">
+        <h2 class="section-title">
+          <i class="fa-solid fa-calendar-days"></i>
+          Chi tiết đặt phòng
+        </h2>
+        
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">Ngày nhận phòng</div>
+              <div class="detail-value"><%= new Date(checkInDate).toLocaleDateString('vi-VN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) %></div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">Ngày trả phòng</div>
+              <div class="detail-value"><%= new Date(checkOutDate).toLocaleDateString('vi-VN', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) %></div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="fa-solid fa-moon"></i>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">Tổng số đêm</div>
+              <div class="detail-value"><%= Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24)) %> đêm</div>
+            </div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-icon">
+              <i class="fa-solid fa-user-group"></i>
+            </div>
+            <div class="detail-content">
+              <div class="detail-label">Số lượng khách</div>
+              <div class="detail-value"><%= numberOfGuests %> người</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Important Information -->
+      <div class="content-section" style="border-top: 1px solid var(--border);">
+        <div class="info-box">
+          <div class="info-box-title">
+            <i class="fa-solid fa-circle-info"></i>
+            Điều khoản & chính sách
+          </div>
+          <ul>
+            <li>Thời gian nhận phòng: 14:00 | Trả phòng: 12:00</li>
+            <li>Yêu cầu xuất trình CMND/CCCD/Hộ chiếu hợp lệ khi check-in</li>
+            <li>Miễn phí hủy đặt phòng trước 6 giờ</li>
+            <li>Nghiêm cấm hút thuốc trong khu vực phòng nghỉ</li>
+            <li>Thanh toán toàn bộ khi nhận phòng hoặc đặt cọc trước 30%</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="booking-sidebar">
       <form action="/customer/bookings/<%= room.roomId %>" method="POST">
-        <% if (checkInDate && checkOutDate && numberOfGuests) { %>
-          <!-- Nếu người dùng đã chọn từ trước thì hiển thị sẵn -->
-          <div class="mb-3">
-            <p><strong>Ngày nhận phòng:</strong>
-              <%= checkInDate %>
-            </p>
-            <input type="hidden" name="checkInDate" value="<%= checkInDate %>">
+        <div class="summary-card">
+          <div class="summary-header">
+            <h3>Tóm tắt đơn đặt phòng</h3>
           </div>
+          <img src="/<%= (room.image ? room.image.split(';')[0] : 'uploads/default.jpg') %>"
+                                    class="room-image w-100" alt="<%= room.roomName %>">
+          <div class="summary-body">
+            <% if (checkInDate && checkOutDate && numberOfGuests) { %>
+              <input type="hidden" name="checkInDate" value="<%= checkInDate %>">
+              <input type="hidden" name="checkOutDate" value="<%= checkOutDate %>">
+              <input type="hidden" name="numberOfGuests" value="<%= numberOfGuests %>">
 
-          <div class="mb-3">
-            <p><strong>Ngày trả phòng:</strong>
-              <%= checkOutDate %>
-            </p>
-            <input type="hidden" name="checkOutDate" value="<%= checkOutDate %>">
-          </div>
+              <% if (quantity) { %>
+                <input type="hidden" name="quantity" value="<%= quantity %>">
+              <% } else { %>
+                <div class="form-group">
+                  <label for="quantity" class="form-label">Số lượng phòng</label>
+                  <input type="number" id="quantity" name="quantity" class="form-control" 
+                         min="1" max="<%= room.availableRooms || 1 %>" value="1" required>
+                  <div class="form-help">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Còn <%= room.availableRooms %> phòng trống
+                  </div>
+                </div>
+              <% } %>
 
-          <div class="mb-3">
-            <p><strong>Số lượng khách:</strong>
-              <%= numberOfGuests %>
-            </p>
-            <input type="hidden" name="numberOfGuests" value="<%= numberOfGuests %>">
-          </div>
-          <% } else { %>
-            <!-- Nếu chưa có thì cho nhập -->
-            <!-- <div class="mb-3">
-              <label for="checkInDate" class="form-label">Ngày nhận phòng</label>
-              <input type="date" id="checkInDate" name="checkInDate" class="form-control" required>
-            </div>
+              <% 
+                const nights = Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24));
+                const roomQuantity = quantity || 1;
+                const subtotal = room.pricePerNight * nights * roomQuantity;
+                const tax = subtotal * 0.1;
+                const total = subtotal + tax;
+              %>
 
-            <div class="mb-3">
-              <label for="checkOutDate" class="form-label">Ngày trả phòng</label>
-              <input type="date" id="checkOutDate" name="checkOutDate" class="form-control" required>
-            </div> -->
-            <div class="mb-3">
-              <label class="form-label">Ngày nhận - trả phòng</label>
-              <input type="text" id="dateRange" class="form-control" readonly placeholder="Chọn ngày">
-              <!-- Ẩn 2 input thật để controller vẫn nhận đúng -->
-              <input type="hidden" name="checkInDate" id="checkInDate">
-              <input type="hidden" name="checkOutDate" id="checkOutDate">
-            </div>
+              <div class="price-breakdown">
+                <div class="price-row">
+                  <span>Giá phòng × <%= nights %> đêm</span>
+                  <span><%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(subtotal) %></span>
+                </div>
+                <div class="price-row">
+                  <span>Thuế VAT (10%)</span>
+                  <span><%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(tax) %></span>
+                </div>
+                <div class="price-row price-total">
+                  <span>Tổng cộng</span>
+                  <span><%= new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total) %></span>
+                </div>
+              </div>
 
+            <% } else { %>
+              <div class="form-group">
+                <label class="form-label">Ngày nhận - trả phòng</label>
+                <!-- <input type="text" id="dateRange" class="form-control" readonly placeholder="Chọn ngày"> -->
+                <input type="text" id="dateRange" class="form-control" readonly placeholder="Chọn ngày" data-price="<%= room.pricePerNight || room.price %>" >
+                <input type="hidden" name="checkInDate" id="checkInDate">
+                <input type="hidden" name="checkOutDate" id="checkOutDate">
+              </div>
 
-            <div class="mb-3">
-              <label for="numberOfGuests" class="form-label">Số lượng khách</label>
-              <input type="number" id="numberOfGuests" name="numberOfGuests" class="form-control" min="1" required>
-            </div>
+              <div class="form-group">
+                <label for="quantity" class="form-label">Số lượng phòng</label>
+                <input type="number" id="quantity" name="quantity" class="form-control" 
+                       min="1" max="<%= room.availableRooms || 1 %>" value="1" required>
+                <div class="form-help">
+                  <i class="fa-solid fa-circle-info"></i>
+                  Còn <%= room.availableRooms %> phòng trống
+                </div>
+              </div>
             <% } %>
 
-              <button type="submit" class="btn btn-primary">
-                <i class="fa-solid fa-check me-2"></i> Xác nhận đặt phòng
-              </button>
+            <!-- Thông tin khách hàng -->
+            <div class="form-group" style="border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem;">
+              <h4 style="font-size: 1rem; font-weight: 600; color: var(--primary); margin-bottom: 1rem;">
+                <i class="fa-solid fa-user me-2"></i> Thông tin người đặt phòng
+              </h4>
+
+              <% if (customer) { %>
+                <div class="detail-value"><strong>Họ tên:</strong> <%= customer.fullName %></div>
+                <div class="detail-value"><strong>Email:</strong> <%= customer.email %></div>
+                <div class="detail-value"><strong>Số điện thoại:</strong> <%= customer.phoneNumber %></div>
+
+                <!-- Ẩn để gửi kèm form -->
+                <input type="hidden" name="customerId" value="<%= customer.customerId %>">
+              <% } else { %>
+                <div class="alert alert-warning" style="background:#fff3cd; color:#856404; border-radius:6px; padding:10px;">
+                  Bạn chưa đăng nhập. <a href="/customer/login" style="color:#0d6efd;">Đăng nhập ngay</a> để đặt phòng.
+                </div>
+              <% } %>
+            </div>
+            <% if (error) { %>
+              <div class="alert alert-danger" 
+                  style="background:#f8d7da; color:#842029; padding:12px; border-radius:6px; margin: 15px 0;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <%= error %>
+              </div>
+            <% } %>
+            <button type="submit" class="btn btn-primary">
+              <i class="fa-solid fa-check"></i>
+              Xác nhận đặt phòng
+            </button>
+
+            <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+              <i class="fa-solid fa-arrow-left"></i>
+              Quay lại
+            </button>
+          </div>
+        </div>
       </form>
-
     </div>
-  </main>
+  </div>
+</div>
 
-  <!-- Thêm CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
-  <!-- Thêm JS (cần jQuery và moment.js) -->
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-  <!-- js cho phần chọn ngày tháng -->
-  <script src="/javascript/dateRangePicker.js"></script>
-  <%- include('../partials/footer') %>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="/javascript/dateRangePicker.js"></script>
+
+<%- include('../partials/footer') %>

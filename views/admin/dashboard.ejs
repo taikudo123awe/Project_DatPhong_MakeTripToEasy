@@ -1,73 +1,82 @@
-<%- include('../partials/header_admin') %>
+<%- include('../partials/header-admin') %>
 
-    <div class="dashboard-container">
-        <div class="welcome-section">
-            <h1 class="welcome-title">Chào mừng đến với Admin Panel</h1>
-            <p class="welcome-subtitle">Xin chào, <strong><%= admin.email %></strong></p>
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2><i class="fa-solid fa-gear"></i> Admin Panel</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/admin/dashboard" class="nav-item active"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+      <a href="/admin/rooms" class="nav-item"><i class="fa-solid fa-bed"></i> Quản lý Phòng</a>
+      <a href="/admin/users" class="nav-item"><i class="fa-solid fa-users"></i> Quản lý Người dùng</a>
+      <a href="/admin/interface" class="nav-item"><i class="fa-solid fa-image"></i> Quản lý Giao diện</a>
+      <a href="/admin/offers" class="nav-item"><i class="fa-solid fa-gift"></i> Ưu đãi & Bài viết</a>
+      <a href="/admin/settings" class="nav-item"><i class="fa-solid fa-sliders"></i> Cài đặt</a>
+      <a href="/admin/logout" class="nav-item logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="dashboard-content">
+    <div class="welcome-section">
+      <h1>Chào mừng trở lại, <%= admin.email %> 👋</h1>
+      <p class="subtitle">Tổng quan hệ thống của bạn hôm nay</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-overview">
+      <div class="stat-card">
+        <i class="fa-solid fa-hotel icon"></i>
+        <div>
+          <h2><%= totalRooms || 0 %></h2>
+          <p>Tổng phòng</p>
         </div>
-
-        <div class="stats-overview">
-            <div class="stat-card">
-                <div class="stat-icon">🏠</div>
-                <div class="stat-value"><%= typeof totalRooms !== 'undefined' ? totalRooms : 0 %></div>
-                <div class="stat-label">Tổng phòng</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">⏳</div>
-                <div class="stat-value"><%= typeof pendingRooms !== 'undefined' ? pendingRooms : 0 %></div>
-                <div class="stat-label">Chờ duyệt</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">👥</div>
-                <div class="stat-value"><%= (typeof totalCustomers !== 'undefined' ? totalCustomers : 0) + (typeof totalProviders !== 'undefined' ? totalProviders : 0) %></div>
-                <div class="stat-label">Người dùng (C+P)</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">📊</div>
-                <div class="stat-value"><%= typeof approvalRate !== 'undefined' ? approvalRate : 0 %>%</div>
-                <div class="stat-label">Tỷ lệ duyệt phòng</div>
-            </div>
+      </div>
+      <div class="stat-card">
+        <i class="fa-solid fa-hourglass-half icon"></i>
+        <div>
+          <h2><%= pendingRooms || 0 %></h2>
+          <p>Chờ duyệt</p>
         </div>
-
-        <h2 class="features-title">Chức năng chính</h2>
-        <div class="features-grid">
-            <div class="feature-card rooms">
-                <div class="feature-content">
-                    <h3 class="feature-title">Quản lý Phòng</h3>
-                    <p class="feature-description">...</p>
-                    <div class="feature-stats">
-                        <div class="feature-stat-item">
-                            <span class="feature-stat-value"><%= typeof totalRooms !== 'undefined' ? totalRooms : 0 %></span>
-                            <span class="feature-stat-label">Tổng phòng</span>
-                        </div>
-                        <div class="feature-stat-item">
-                            <span class="feature-stat-value"><%= typeof pendingRooms !== 'undefined' ? pendingRooms : 0 %></span>
-                            <span class="feature-stat-label">Chờ duyệt</span>
-                        </div>
-                    </div>
-                    <a href="/admin/rooms" class="feature-button">Quản lý phòng</a>
-                </div>
-            </div>
-
-            <div class="feature-card users">
-                 <div class="feature-content">
-                    <h3 class="feature-title">Quản lý Người dùng</h3>
-                    <p class="feature-description">...</p>
-                    <div class="feature-stats">
-                        <div class="feature-stat-item">
-                            <span class="feature-stat-value"><%= typeof totalCustomers !== 'undefined' ? totalCustomers : 0 %></span>
-                            <span class="feature-stat-label">Customers</span>
-                        </div>
-                        <div class="feature-stat-item">
-                            <span class="feature-stat-value"><%= typeof totalProviders !== 'undefined' ? totalProviders : 0 %></span>
-                            <span class="feature-stat-label">Providers</span>
-                        </div>
-                    </div>
-                    <a href="/admin/users" class="feature-button">Quản lý người dùng</a>
-                </div>
-            </div>
+      </div>
+      <div class="stat-card">
+        <i class="fa-solid fa-users icon"></i>
+        <div>
+          <h2><%= (totalCustomers || 0) + (totalProviders || 0) %></h2>
+          <p>Người dùng (C+P)</p>
         </div>
-
+      </div>
+      <div class="stat-card">
+        <i class="fa-solid fa-chart-simple icon"></i>
+        <div>
+          <h2><%= approvalRate || 0 %>%</h2>
+          <p>Tỷ lệ duyệt phòng</p>
         </div>
+      </div>
+    </div>
 
-<%- include('../partials/footer_admin') %>
+    <!-- Quick actions -->
+    <section class="features-grid">
+      <div class="feature-card">
+        <h3><i class="fa-solid fa-bed"></i> Quản lý Phòng</h3>
+        <p><%= totalRooms || 0 %> phòng tổng, <%= pendingRooms || 0 %> chờ duyệt.</p>
+        <a href="/admin/rooms" class="btn btn-primary">Đi đến Quản lý Phòng</a>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fa-solid fa-users"></i> Quản lý Người dùng</h3>
+        <p><%= totalCustomers || 0 %> khách, <%= totalProviders || 0 %> nhà cung cấp.</p>
+        <a href="/admin/users" class="btn btn-secondary">Đi đến Quản lý Người dùng</a>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fa-solid fa-image"></i> Quản lý Giao diện</h3>
+        <p>Điều chỉnh phần "Điểm đến thịnh hành", "Địa danh nổi tiếng", "Ưu đãi", và hơn thế nữa.</p>
+        <a href="/admin/interface" class="btn btn-success">Đi đến Giao diện</a>
+      </div>
+    </section>
+  </main>
+</div>
+
+<%- include('../partials/footer-admin') %>

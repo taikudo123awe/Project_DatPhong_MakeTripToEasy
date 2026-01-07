@@ -14,6 +14,7 @@ const providerRoutes = require("./routes/providerRoutes");
 const customerRoutes = require("./routes/customerRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const setLocals = require('./middlewares/setLocals');
 
 require("./models/associations");
 app.set("view engine", "ejs");
@@ -47,16 +48,13 @@ app.use(
     saveUninitialized: true,
   })
 );
-//test
-app.get("/test", (req, res) => {
-  res.render("test");
-});
 
 app.use((req, res, next) => {
   res.locals.customer = req.session.customer || null;
   next();
 });
 
+app.use(setLocals);
 app.use("/admin", require("./routes/adminRoutes"));
 app.use("/rooms", roomRoutes);
 app.use("/", homeRoutes);
@@ -66,8 +64,39 @@ app.use("/customer", customerRoutes);
 app.use("/customer/bookings", bookingRoutes);
 app.use("/provider/report", reportRoutes);
 
+app.get("/about", (req, res) => {
+  res.render("about");
+});
+
+app.get("/terms", (req, res) => {
+  res.render("terms");
+});
+
+app.get("/contact", (req, res) => {
+  res.render("contact");
+});
+
+app.use((req, res) => {
+  const url = req.originalUrl;
+
+  // Gợi ý đường dẫn gần đúng
+  const suggestions = [
+    "/",
+    "/rooms",
+    "/customer/login",
+    "/provider/login",
+    "/customer/history",
+    "/provider/dashboard"
+  ];
+
+  res.status(404).render("404", {
+    url,
+    suggestions
+  });
+});
+
 sequelize.sync().then(() => {
   app.listen(3000, () =>
-    console.log("🚀 Server running on http://localhost:3000")
+    console.log("Server running on http://localhost:3000")
   );
 });

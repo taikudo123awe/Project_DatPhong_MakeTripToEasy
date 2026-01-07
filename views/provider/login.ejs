@@ -2,40 +2,155 @@
 <html lang="vi">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Đăng nhập Nhà Cung Cấp</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng nhập Nhà cung cấp - Make Trip To Easy</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/styles/provider/login.css">
 </head>
 
-<body class="container mt-5">
-    <h2>Đăng nhập Nhà cung cấp</h2>
+<body>
+  <div class="login-wrapper">
+    <!-- Left Side - Login Form -->
+    <div class="login-left">
+      <a href="/" class="back-home">
+        <i class="fas fa-arrow-left"></i>
+        Về trang chủ
+      </a>
 
-    <% if (success) { %>
-        <div class="alert alert-success">
-            <%= success %>
+      <div class="form-container">
+        <div class="brand-logo">
+          <i class="fas fa-plane-departure"></i>
+          <h1>Make Trip To Easy</h1>
         </div>
-        <% } %>
 
-            <% if (error) { %>
-                <div class="alert alert-danger">
-                    <%= error %>
+        <span class="badge-provider">
+          <i class="fas fa-building me-1"></i>Nhà cung cấp
+        </span>
+
+        <div class="welcome-text">
+          <h2>Chào mừng trở lại! 👋</h2>
+          <p>Đăng nhập để quản lý dịch vụ và đơn đặt phòng của bạn</p>
+        </div>
+
+        <!-- Alert Messages -->
+        <% if (typeof success !=='undefined' && success) { %>
+          <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span>
+              <%= success %>
+            </span>
+          </div>
+          <% } %>
+            <% if (typeof error !=='undefined' && error) { %>
+              <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>
+                  <%= error %>
+                </span>
+              </div>
+              <% } %>
+
+                <!-- Login Form -->
+                <form method="POST" action="/provider/login">
+                  <div class="form-group">
+                    <label for="phoneNumber">Số điện thoại</label>
+                    <div class="input-wrapper">
+                      <i class="fas fa-phone"></i>
+                      <input type="text" class="form-control" id="phoneNumber" name="phoneNumber"
+                        placeholder="Nhập số điện thoại của bạn" required />
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <div class="input-wrapper">
+                      <i class="fas fa-lock"></i>
+                      <input type="password" class="form-control" id="password" name="password"
+                        placeholder="Nhập mật khẩu" required />
+                      <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <i class="fas fa-eye" id="toggleIcon"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="form-options">
+                    <div class="remember-me">
+                      <input type="checkbox" id="remember" name="remember" />
+                      <label for="remember">Ghi nhớ đăng nhập</label>
+                    </div>
+                    <a href="/provider/forgot-password" class="forgot-link">Quên mật khẩu?</a>
+                  </div>
+
+                  <button type="submit" class="btn-submit">
+                    <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                  </button>
+                </form>
+
+                <div class="register-prompt">
+                  <p>Chưa đăng ký làm nhà cung cấp?</p>
+                  <a href="/provider/register" class="btn-register">
+                    <i class="fas fa-user-plus me-2"></i>Đăng ký ngay
+                  </a>
                 </div>
-                <% } %>
+      </div>
+    </div>
 
-                    <form method="POST" action="/provider/login">
-                        <div class="mb-3">
-                            <label for="phoneNumber" class="form-label">Số điện thoại</label>
-                            <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" required>
-                        </div>
+    <!-- Right Side - Banner -->
+    <div class="login-right">
+      <div class="banner-content">
+        <div class="banner-icon">
+          <i class="fas fa-hotel"></i>
+        </div>
+        <h2>Quản lý khách sạn dễ dàng</h2>
+        <p>Nền tảng quản lý toàn diện cho nhà cung cấp dịch vụ lưu trú</p>
 
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Mật khẩu</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
+        <div class="features-list">
+          <div class="feature-item">
+            <i class="fas fa-chart-line"></i>
+            <div>
+              <strong>Thống kê chi tiết</strong><br />
+              Theo dõi doanh thu và hiệu suất
+            </div>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-calendar-check"></i>
+            <div>
+              <strong>Quản lý đặt phòng</strong><br />
+              Xử lý đơn đặt phòng nhanh chóng
+            </div>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-users"></i>
+            <div>
+              <strong>Hỗ trợ 24/7</strong><br />
+              Đội ngũ hỗ trợ chuyên nghiệp
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                        <button type="submit" class="btn btn-primary">Đăng nhập</button>
-                        <a href="/provider/register" class="btn btn-link">Chưa có tài khoản? Đăng ký</a>
-                    </form>
+  <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById("password");
+      const toggleIcon = document.getElementById("toggleIcon");
+
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleIcon.classList.remove("fa-eye");
+        toggleIcon.classList.add("fa-eye-slash");
+      } else {
+        passwordInput.type = "password";
+        toggleIcon.classList.remove("fa-eye-slash");
+        toggleIcon.classList.add("fa-eye");
+      }
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -6,7 +6,8 @@
     "models",
     "routes",
     "middlewares",
-    "views"
+    "views",
+    "utils"
   ],
   "ext": "js,json,ejs",
   "ignore": ["node_modules"],

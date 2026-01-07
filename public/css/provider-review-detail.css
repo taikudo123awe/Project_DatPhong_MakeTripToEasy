@@ -1,0 +1,154 @@
+/* ======= WRAPPER ======= */
+.dashboard-container {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.provider-content {
+  padding: 40px 45px !important;
+  margin-left: 260px;
+  width: calc(100% - 260px);
+}
+
+/* ======= BACKGROUND TONE ======= */
+body {
+  background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 100%);
+  font-family: "Segoe UI", sans-serif;
+  color: #1e293b;
+}
+
+/* ======= TITLE ======= */
+.page-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 30px;
+  letter-spacing: -0.5px;
+}
+
+/* ======= BUTTON BACK ======= */
+.back-btn {
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-weight: 600;
+  border: 1px solid #bcc3d1;
+  background: #f8fafc;
+  color: #475569;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: .2s;
+}
+
+.back-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+  transform: translateY(-2px);
+}
+
+/* ======= REVIEW CARD – PREMIUM ======= */
+.review-card {
+  border-radius: 22px;
+  background: #ffffff;
+  border: none;
+  padding: 26px;
+  margin-bottom: 25px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  transition: .25s;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Accent bên trái giống Booking.com */
+.review-card:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(180deg, #3b82f6, #0ea5e9);
+  border-radius: 6px 0 0 6px;
+}
+
+.review-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+}
+
+/* ======= CUSTOMER NAME ======= */
+.customer-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+/* Rating stars style */
+.rating-line i {
+  color: #fbbf24; /* vàng */
+  margin-right: 2px;
+}
+
+.rating-line {
+  color: #64748b;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+/* Comment */
+.comment {
+  background: #f8fafc;
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-top: 12px;
+  font-size: 1rem;
+  color: #334155;
+  border-left: 3px solid #94a3b8;
+}
+
+/* ======= FEEDBACK CARD – PREMIUM ======= */
+.feedback-card {
+  background: #e0f2fe;
+  border-left: 5px solid #0284c7;
+  border-radius: 14px;
+  margin-top: 16px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 12px rgba(2,132,199,0.15);
+}
+
+.feedback-card strong {
+  color: #0369a1;
+  font-size: 1rem;
+}
+
+/* ======= FEEDBACK FORM ======= */
+.feedback-form textarea {
+  border-radius: 14px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 14px;
+  color: #334155;
+  font-size: 0.95rem;
+  transition: .2s;
+}
+
+.feedback-form textarea:focus {
+  background: white;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.25);
+}
+
+/* Button gửi */
+.feedback-form button {
+  border-radius: 10px !important;
+  padding: 9px 24px;
+  font-weight: 600;
+  background: linear-gradient(90deg, #0ea5e9, #3b82f6);
+  border: none;
+  color: white;
+  transition: .2s;
+}
+
+.feedback-form button:hover {
+  opacity: .9;
+  transform: translateY(-2px);
+}

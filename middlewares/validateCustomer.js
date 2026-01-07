@@ -85,7 +85,7 @@ module.exports = async (req, res, next) => {
       });
     }
 
-    next(); // ✅ Nếu tất cả hợp lệ → sang controller
+    next(); // Nếu tất cả hợp lệ → sang controller
   } catch (err) {
     console.error('❌ Lỗi validate dữ liệu đăng ký khách hàng:', err);
     return res.render('customer/register', {

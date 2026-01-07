@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Hoàn thiện hồ sơ doanh nghiệp</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/provider/setup-profile.css">
+</head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<body>
+  <div class="logout-top">
+    <a href="/provider/logout"
+      class="btn btn-outline-danger btn-sm"
+      onclick="return confirm('Bạn có chắc chắn muốn đăng xuất không?')">
+      <i class="fas fa-right-from-bracket me-1"></i> Đăng xuất
+    </a>
+  </div>
+  <div class="container-box">
+    <div class="setup-title">
+      <div class="setup-icon">
+        <i class="fas fa-building"></i>
+      </div>
+      <h2>Hoàn thiện hồ sơ doanh nghiệp</h2>
+      <p class="setup-subtitle">
+        Giúp khách hàng hiểu rõ hơn về cơ sở của bạn
+      </p>
+    </div>
+
+    <div class="step-progress-bar">
+      <div class="step-progress-bar-line"></div>
+      <div class="step active" data-step="1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Tên</div>
+      </div>
+      <div class="step" data-step="2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Địa chỉ</div>
+      </div>
+      <div class="step" data-step="3">
+        <div class="step-circle">3</div>
+        <div class="step-label">Mô tả</div>
+      </div>
+      <div class="step" data-step="4">
+        <div class="step-circle">4</div>
+        <div class="step-label">Tiện ích</div>
+      </div>
+      <div class="step" data-step="5">
+        <div class="step-circle">5</div>
+        <div class="step-label">Quy tắc</div>
+      </div>
+      <div class="step" data-step="6">
+        <div class="step-circle">6</div>
+        <div class="step-label">Thời gian</div>
+      </div>
+      <div class="step" data-step="7">
+        <div class="step-circle">7</div>
+        <div class="step-label">Logo</div>
+      </div>
+    </div>
+    <form method="POST" action="/provider/setup-profile" enctype="multipart/form-data" id="multiStepForm">
+      <div class="form-step active">
+        <h4 class="mb-3">Bước 1: Tên doanh nghiệp</h4>
+        <div class="mb-3">
+          <label for="businessName" class="form-label">Tên doanh nghiệp</label>
+          <input type="text" class="form-control" id="businessName" name="businessName"
+            placeholder="VD: The Reverie Saigon" value="<%= formData?.businessName || '' %>" required />
+          <small class="text-danger" id="error-businessName">
+            <%= errors?.businessName || '' %>
+          </small>
+        </div>
+      </div>
+
+      <div class="form-step">
+        <h4 class="mb-3">Bước 2: Địa chỉ kinh doanh</h4>
+        <div class="mb-3">
+          <div class="row">
+            <div class="col-md-4 mb-2">
+              <label>Thành phố</label>
+              <select id="city" class="form-select" required>
+                <option value="">-- Chọn thành phố --</option>
+              </select>
+              <small class="text-danger" id="error-city">
+                <%= errors?.city || '' %>
+              </small>
+            </div>
+            <div class="col-md-4 mb-2">
+              <label>Quận/Huyện</label>
+              <select id="district" class="form-select" required disabled>
+                <option value="">-- Chọn quận/huyện --</option>
+              </select>
+              <small class="text-danger" id="error-district">
+                <%= errors?.district || '' %>
+              </small>
+            </div>
+            <div class="col-md-4 mb-2">
+              <label>Phường/Xã</label>
+              <select id="ward" class="form-select" required disabled>
+                <option value="">-- Chọn phường/xã --</option>
+              </select>
+              <small class="text-danger" id="error-ward">
+                <%= errors?.ward || '' %>
+              </small>
+            </div>
+          </div>
+
+          <div class="mt-2">
+            <label for="customAddress" class="form-label">Tên đường / Số nhà</label>
+            <input type="text" id="customAddress" name="customAddress" class="form-control"
+              placeholder="VD: 12 Nguyễn Huệ" value="<%= formData?.customAddress || '' %>" required />
+            <small class="text-danger" id="error-customAddress">
+              <%= errors?.customAddress || '' %>
+            </small>
+          </div>
+
+          <input type="hidden" name="city" id="cityName" />
+          <input type="hidden" name="district" id="districtName" />
+          <input type="hidden" name="ward" id="wardName" />
+        </div>
+      </div>
+
+      <div class="form-step">
+        <h4 class="mb-3">Bước 3: Mô tả doanh nghiệp</h4>
+        <div class="mb-3">
+          <label for="description" class="form-label">Mô tả doanh nghiệp</label>
+          <textarea id="description" name="description" class="form-control" rows="4"
+            placeholder="Giới thiệu tổng quan về khách sạn, dịch vụ, vị trí..." required>
+<%= formData?.description || '' %></textarea>
+          <small class="text-danger" id="error-description">
+            <%= errors?.description || '' %>
+          </small>
+        </div>
+      </div>
+
+      <div class="form-step">
+        <h4 class="mb-3">Bước 4: Tiện ích nổi bật</h4>
+
+        <div class="mb-3">
+          <% if (groupedAmenities) { %>
+            <% Object.keys(groupedAmenities).forEach(category=> { %>
+
+              <h5 class="fw-bold mt-4">
+                <%= category %>
+              </h5>
+
+              <div class="checkbox-grid mb-2">
+                <% groupedAmenities[category].forEach(a=> { %>
+
+                  <label>
+                    <input type="checkbox" name="popularAmenities" value="<%=
+                a.amenityName %>" <%=formData?.popularAmenities?.includes(a.amenityName) ? 'checked' : '' %> /> <%=
+                      a.amenityName %>
+                  </label>
+
+                  <% }) %>
+              </div>
+
+              <% }) %>
+                <% } else { %>
+                  <p class="text-muted">Không có tiện ích nào trong hệ thống.</p>
+                  <% } %>
+
+                    <small class="text-danger" id="error-popularAmenities">
+                      <%= errors?.popularAmenities || '' %>
+                    </small>
+        </div>
+      </div>
+
+      <div class="form-step">
+        <h4 class="mb-3">Bước 5: Quy tắc chung</h4>
+        <div class="mb-3">
+          <div class="switch">
+            <span>Được phép hút thuốc</span>
+            <input type="checkbox" name="allowSmoking" class="form-check-input" <%=formData?.allowSmoking ? 'checked'
+              : '' %> />
+          </div>
+          <div class="switch">
+            <span>Cho phép trẻ em</span>
+            <input type="checkbox" name="allowChildren" class="form-check-input" checked />
+          </div>
+          <div class="switch">
+            <span>Cho phép tổ chức sự kiện</span>
+            <input type="checkbox" name="allowEvents" class="form-check-input" <%=formData?.allowEvents ? 'checked' : ''
+              %> />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-step">
+        <h4 class="mb-3">Bước 6: Thời gian nhận & trả phòng</h4>
+        <div class="mb-3">
+          <div class="row mt-2">
+            <div class="col-md-6">
+              <label class="form-label">Check-in từ</label>
+              <input type="time" name="checkinFrom" class="form-control" value="<%= formData?.checkinFrom || '15:00' %>"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Check-in đến</label>
+              <input type="time" name="checkinTo" class="form-control" value="<%= formData?.checkinTo || '18:00' %>"
+                required />
+            </div>
+          </div>
+          <small class="text-danger" id="error-checkin">
+            <%= errors?.checkin || '' %>
+          </small>
+
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <label class="form-label">Check-out từ</label>
+              <input type="time" name="checkoutFrom" class="form-control"
+                value="<%= formData?.checkoutFrom || '08:00' %>" required />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Check-out đến</label>
+              <input type="time" name="checkoutTo" class="form-control" value="<%= formData?.checkoutTo || '11:00' %>"
+                required />
+            </div>
+          </div>
+          <small class="text-danger" id="error-checkout">
+            <%= errors?.checkout || '' %>
+          </small>
+        </div>
+      </div>
+
+      <div class="form-step">
+        <h4 class="mb-3">Bước 7: Logo doanh nghiệp</h4>
+        <div class="mb-3 mt-3">
+          <label for="logoImage" class="form-label">Tải lên logo</label>
+          <input type="file" class="form-control" id="logoImage" name="logoImage" accept="image/*" />
+          <small class="text-muted">Đây là bước cuối cùng. Nhấn "Hoàn tất hồ sơ" để lưu.</small>
+        </div>
+      </div>
+
+      <div class="form-navigation">
+        <button type="button" class="btn-nav btn-prev" id="btnPrev" style="display: none">
+          &lt; Quay lại
+        </button>
+
+        <button type="button" class="btn-nav btn-next ms-auto" id="btnNext">
+          Tiếp tục &gt;
+        </button>
+
+        <button type="submit" class="btn-save ms-auto" id="btnSubmit" style="display: none">
+          💾 Hoàn tất hồ sơ
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/javascript/addressAPI.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      let currentStep = 0;
+      const formSteps = $(".form-step");
+      const progressSteps = $(".step");
+      const progressBarLine = $(".step-progress-bar-line");
+      const btnNext = $("#btnNext");
+      const btnPrev = $("#btnPrev");
+      const btnSubmit = $("#btnSubmit");
+
+      // Xóa lỗi client-side
+      function clearClientErrors() {
+        $("#error-businessName").text("");
+        $("#error-city").text("");
+        $("#error-district").text("");
+        $("#error-ward").text("");
+        $("#error-customAddress").text("");
+        $("#error-description").text("");
+        $("#error-popularAmenities").text("");
+        $("#error-checkin").text("");
+        $("#error-checkout").text("");
+      }
+
+      // Hiển thị bước hiện tại
+      function showStep(stepIndex) {
+        formSteps.removeClass("active");
+        $(formSteps[stepIndex]).addClass("active");
+
+        progressSteps.each(function (index) {
+          if (index < stepIndex) {
+            $(this).addClass("completed").removeClass("active");
+          } else if (index === stepIndex) {
+            $(this).addClass("active").removeClass("completed");
+          } else {
+            $(this).removeClass("active completed");
+          }
+        });
+
+        const totalSteps = progressSteps.length - 1;
+        const progressWidth = (stepIndex / totalSteps) * 100 + "%";
+        progressBarLine.css("width", progressWidth);
+
+        btnPrev.toggle(stepIndex > 0);
+        btnNext.toggle(stepIndex < formSteps.length - 1);
+        btnSubmit.toggle(stepIndex === formSteps.length - 1);
+      }
+
+      // Hàm kiểm tra thời gian hh:mm
+      function isValidTime(t) {
+        return /^\d{2}:\d{2}$/.test(t || "");
+      }
+
+      // ✅ Validation theo từng bước (client-side)
+      function validateStep(stepIndex) {
+        clearClientErrors();
+        let isValid = true;
+
+        switch (stepIndex) {
+          // Bước 1: Tên doanh nghiệp
+          case 0: {
+            const businessName = $("#businessName").val().trim();
+            const nameRegex = /^[\p{L}0-9\s.,'-]+$/u;
+
+            if (!businessName) {
+              $("#error-businessName").text(
+                "Tên doanh nghiệp không được để trống."
+              );
+              isValid = false;
+            } else if (businessName.length < 3) {
+              $("#error-businessName").text(
+                "Tên doanh nghiệp phải có ít nhất 3 ký tự."
+              );
+              isValid = false;
+            } else if (!nameRegex.test(businessName)) {
+              $("#error-businessName").text(
+                "Tên doanh nghiệp không được chứa ký tự đặc biệt (chỉ chấp nhận chữ, số và . , ' -)."
+              );
+              isValid = false;
+            }
+            break;
+          }
+
+          // Bước 2: Địa chỉ
+          case 1: {
+            const city = $("#city").val();
+            const district = $("#district").val();
+            const ward = $("#ward").val();
+            const customAddress = $("#customAddress").val().trim();
+            const addressRegex = /^[\p{L}0-9\s/.,'-]+$/u;
+
+            if (!city) {
+              $("#error-city").text("Vui lòng chọn thành phố.");
+              isValid = false;
+            }
+            if (!district) {
+              $("#error-district").text("Vui lòng chọn quận / huyện.");
+              isValid = false;
+            }
+            if (!ward) {
+              $("#error-ward").text("Vui lòng chọn phường / xã.");
+              isValid = false;
+            }
+
+            if (!customAddress) {
+              $("#error-customAddress").text(
+                "Vui lòng nhập tên đường / số nhà."
+              );
+              isValid = false;
+            } else if (!addressRegex.test(customAddress)) {
+              $("#error-customAddress").text(
+                "Địa chỉ không được chứa ký tự đặc biệt ngoài . , / ' -"
+              );
+              isValid = false;
+            }
+
+            break;
+          }
+
+          // Bước 3: Mô tả doanh nghiệp
+          case 2: {
+            const description = $("#description").val().trim();
+            if (!description) {
+              $("#error-description").text(
+                "Mô tả doanh nghiệp không được để trống."
+              );
+              isValid = false;
+            } else if (description.length < 50) {
+              $("#error-description").text(
+                "Mô tả quá ngắn. Vui lòng viết ít nhất 50 ký tự để mô tả rõ hơn."
+              );
+              isValid = false;
+            }
+            break;
+          }
+
+          // Bước 4: Tiện ích nổi bật
+          case 3: {
+            const checkedAmenities = $(
+              "input[name='popularAmenities']:checked"
+            );
+            if (checkedAmenities.length === 0) {
+              $("#error-popularAmenities").text(
+                "Vui lòng chọn ít nhất 1 tiện ích nổi bật."
+              );
+              isValid = false;
+            }
+            break;
+          }
+
+          // Bước 5: Quy tắc chung (không bắt buộc => bỏ qua)
+          case 4: {
+            // Nếu sau này bạn cần validate thêm, thêm vào đây
+            break;
+          }
+
+          // Bước 6: Thời gian nhận & trả phòng
+          case 5: {
+            const checkinFrom = $("input[name='checkinFrom']").val();
+            const checkinTo = $("input[name='checkinTo']").val();
+            const checkoutFrom = $("input[name='checkoutFrom']").val();
+            const checkoutTo = $("input[name='checkoutTo']").val();
+
+            if (!isValidTime(checkinFrom) || !isValidTime(checkinTo)) {
+              $("#error-checkin").text(
+                "Vui lòng nhập giờ nhận phòng hợp lệ (hh:mm)."
+              );
+              isValid = false;
+            } else if (checkinFrom >= checkinTo) {
+              $("#error-checkin").text(
+                "Giờ nhận phòng (Từ) phải sớm hơn giờ (Đến)."
+              );
+              isValid = false;
+            }
+
+            if (!isValidTime(checkoutFrom) || !isValidTime(checkoutTo)) {
+              $("#error-checkout").text(
+                "Vui lòng nhập giờ trả phòng hợp lệ (hh:mm)."
+              );
+              isValid = false;
+            } else if (checkoutFrom >= checkoutTo) {
+              $("#error-checkout").text(
+                "Giờ trả phòng (Từ) phải sớm hơn giờ (Đến)."
+              );
+              isValid = false;
+            }
+
+            break;
+          }
+
+          // Bước 7: Logo (không bắt buộc, không cần kiểm tra)
+          case 6: {
+            break;
+          }
+        }
+
+        return isValid;
+      }
+
+      // Nút "Tiếp tục"
+      btnNext.on("click", function () {
+        if (validateStep(currentStep)) {
+          currentStep++;
+          showStep(currentStep);
+        }
+      });
+
+      // Nút "Quay lại"
+      btnPrev.on("click", function () {
+        currentStep--;
+        showStep(currentStep);
+      });
+
+      // Khi submit form, vẫn để server-side validate xử lý
+      $("#multiStepForm").on("submit", function (e) {
+        // Có thể kiểm tra lại bước 6 nếu muốn chắc:
+        if (!validateStep(currentStep)) {
+          e.preventDefault();
+        }
+      });
+
+      // Hiển thị bước đầu tiên khi tải trang
+      showStep(currentStep);
+    });
+  </script>
+</body>
+
+</html>

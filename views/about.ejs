@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giới thiệu về Make Trip To Easy</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+    }
+
+    .hero-section {
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      color: white;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .hero-section h1 {
+      font-size: 3rem;
+      font-weight: 700;
+    }
+
+    .hero-section p {
+      font-size: 1.2rem;
+      margin-top: 15px;
+      opacity: 0.9;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .team-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    .team-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.12);
+    }
+
+    .team-card i {
+      font-size: 2.3rem;
+      margin-bottom: 10px;
+      color: #0284c7;
+    }
+
+    .feature-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border-left: 4px solid #0284c7;
+    }
+
+    .footer-info {
+      background: #e2e8f0;
+      margin-top: 60px;
+      padding: 30px;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #475569;
+    }
+
+    .back-home {
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      color: #0284c7;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .back-home:hover {
+      color: #0369a1;
+      transform: translateX(-5px);
+    }
+
+    .back-home i {
+      margin-right: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HERO -->
+  <div class="hero-section">
+    <h1>Giới thiệu về Make Trip To Easy</h1>
+    <p>Nền tảng quản lý lưu trú hiện đại – Kết nối nhà cung cấp và khách du lịch.</p>
+  </div>
+
+  <div class="container mt-5">
+    <a href="/" class="back-home">
+        <i class="fas fa-arrow-left"></i>
+        Về trang chủ
+    </a>
+    <!-- PROJECT INFO -->
+    <h2 class="section-title">Thông tin đề tài</h2>
+
+    <div class="feature-box">
+      <p><strong>Đề tài:</strong> Xây dựng ứng dụng nhà cung cấp dịch vụ lưu trú du lịch</p>
+      <p><strong>Giảng viên hướng dẫn:</strong> ThS. Nguyễn Thị Thanh Bình</p>
+      <p><strong>Nhóm thực hiện:</strong> Make Trip To Easy</p>
+    </div>
+
+    <!-- TEAM SECTION -->
+    <h2 class="section-title">Thành viên nhóm</h2>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="team-card">
+          <i class="fa-solid fa-user-tie"></i>
+          <h5 class="mt-2"><strong>Trần Văn Trường</strong></h5>
+          <p>Nhóm trưởng – Backend & Kiến trúc hệ thống</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="team-card">
+          <i class="fa-solid fa-clock"></i>
+          <h5 class="mt-2"><strong>Trần Tấn Tài</strong></h5>
+          <p>Timekeeper – Quản lý tiến độ</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="team-card">
+          <i class="fa-solid fa-pen"></i>
+          <h5 class="mt-2"><strong>Võ Thị Cẩm Tú</strong></h5>
+          <p>Thư ký – Thiết kế giao diện & tài liệu</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="team-card">
+          <i class="fa-solid fa-database"></i>
+          <h5 class="mt-2"><strong>Phạm Vĩ Khang</strong></h5>
+          <p>Database – API & lưu trữ hệ thống</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="team-card">
+          <i class="fa-solid fa-laptop-code"></i>
+          <h5 class="mt-2"><strong>Nguyễn Trí Dũng</strong></h5>
+          <p>Frontend – Trải nghiệm & giao diện người dùng</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SYSTEM FEATURES -->
+    <h2 class="section-title mt-5">Chức năng của hệ thống</h2>
+
+    <div class="feature-box">
+      <h5>✨ Phân hệ khách hàng</h5>
+      <ul>
+        <li>Tìm kiếm & lọc phòng nâng cao</li>
+        <li>Xem chi tiết phòng, tiện nghi, hình ảnh</li>
+        <li>Đặt phòng trực tuyến</li>
+        <li>Quản lý lịch sử đặt phòng</li>
+      </ul>
+    </div>
+
+    <div class="feature-box">
+      <h5>🏨 Phân hệ nhà cung cấp</h5>
+      <ul>
+        <li>Quản lý hồ sơ doanh nghiệp</li>
+        <li>Thêm/sửa/xóa phòng</li>
+        <li>Xử lý đơn đặt phòng</li>
+        <li>Xem thống kê doanh thu</li>
+      </ul>
+    </div>
+
+    <div class="feature-box">
+      <h5>🛡️ Phân hệ quản trị viên</h5>
+      <ul>
+        <li>Duyệt hồ sơ nhà cung cấp</li>
+        <li>Quản lý người dùng hệ thống</li>
+        <li>Theo dõi hoạt động & log</li>
+      </ul>
+    </div>
+
+    <!-- TECHNOLOGY -->
+    <h2 class="section-title mt-5">Công nghệ sử dụng</h2>
+
+    <div class="feature-box">
+      <h5>⚙️ Backend</h5>
+      <ul>
+        <li>Node.js + Express</li>
+        <li>Sequelize ORM</li>
+        <li>JWT Authentication</li>
+        <li>Bcrypt mã hóa mật khẩu</li>
+      </ul>
+    </div>
+
+    <div class="feature-box">
+      <h5>💾 Database</h5>
+      <ul>
+        <li>MySQL – Thiết kế ERD tối ưu</li>
+      </ul>
+    </div>
+
+    <div class="feature-box">
+      <h5>🎨 Frontend</h5>
+      <ul>
+        <li>HTML, CSS, JavaScript</li>
+        <li>Bootstrap 5</li>
+        <li>EJS Template Engine</li>
+      </ul>
+    </div>
+
+    <!-- FUTURE IDEAS -->
+    <h2 class="section-title mt-5">Định hướng phát triển</h2>
+
+    <div class="feature-box">
+      <ul>
+        <li>Tích hợp thanh toán online (Momo, VNPay)</li>
+        <li>AI gợi ý phòng theo nhu cầu khách hàng</li>
+        <li>Chat realtime giữa khách và nhà cung cấp</li>
+        <li>Ứng dụng mobile (Flutter)</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-info">
+    © <%= new Date().getFullYear() %> Make Trip To Easy — Nền tảng quản lý lưu trú du lịch.
+  </div>
+
+</body>
+</html>
