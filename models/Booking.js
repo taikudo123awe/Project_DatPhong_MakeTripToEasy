@@ -35,6 +35,11 @@ const Booking = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+    },
     customerId: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -42,7 +47,7 @@ const Booking = sequelize.define(
         model: "Customer",
         key: "customerId",
       },
-      onDelete: "CASCADE", // ✅ Xóa booking nếu customer bị xóa
+      onDelete: "CASCADE",
     },
     roomId: {
       type: DataTypes.INTEGER,
@@ -51,7 +56,7 @@ const Booking = sequelize.define(
         model: "Room",
         key: "roomId",
       },
-      onDelete: "CASCADE", // ✅ Xóa booking nếu room bị xóa
+      onDelete: "CASCADE",
     },
   },
   {

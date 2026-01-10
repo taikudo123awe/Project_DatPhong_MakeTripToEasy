@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Trang không tồn tại - Make Trip To Easy</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .icon {
+      font-size: 80px;
+      color: #0284c7;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      color: #1e293b;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #475569;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    .url-box {
+      background: #e2e8f0;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .suggestions ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .suggestions li {
+      margin: 8px 0;
+    }
+
+    .suggestions a {
+      color: #0284c7;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .suggestions a:hover {
+      color: #0369a1;
+      text-decoration: underline;
+    }
+
+    .btn-group {
+      margin-top: 30px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      background: #0284c7;
+      color: white;
+      border-radius: 10px;
+      text-decoration: none;
+      margin: 0 10px;
+      font-weight: 600;
+      transition: 0.25s;
+    }
+
+    .btn:hover {
+      background: #0369a1;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: #64748b;
+    }
+
+    .btn-secondary:hover {
+      background: #4b5563;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="icon">
+      <i class="fas fa-map-signs"></i>
+    </div>
+
+    <h1>Oops! Trang bạn tìm không tồn tại</h1>
+    <p>Chúng tôi không thể tìm thấy đường dẫn bạn vừa truy cập.</p>
+
+    <div class="url-box">
+      <i class="fas fa-link"></i> <%= url %>
+    </div>
+
+    <p>Không biết bạn muốn đến trang này?</p>
+
+    <div class="suggestions">
+      <ul>
+        <% suggestions.forEach(link => { %>
+          <li><a href="<%= link %>"><%= link %></a></li>
+        <% }) %>
+      </ul>
+    </div>
+
+    <div class="btn-group">
+      <a href="/" class="btn"><i class="fas fa-home"></i> Về trang chủ</a>
+      <a href="javascript:history.back()" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+      </a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+/* ===== SIDEBAR MAIN ===== */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, #0284c7 0%, #0ea5e9 40%, white 100%);
+  padding: 25px 18px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-right: 1px solid #dce6f2;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 20px;
+  z-index: 1000;
+}
+
+/* ===== TOP BRAND (THÊM MỚI) ===== */
+.brand-logo-box {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.brand-icon {
+  font-size: 42px;
+  color: white;
+}
+
+.brand-title {
+  margin-top: 10px;
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+/* ===== BUSINESS INFO ===== */
+.business-info {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.business-logo {
+  width: 85px;
+  height: 85px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 3px solid white;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  margin-bottom: 8px;
+}
+
+.placeholder-logo {
+  width: 85px;
+  height: 85px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 28px;
+  margin: 0 auto 8px;
+}
+
+.business-name {
+  color: white;
+  font-weight: 600;
+}
+
+/* ===== MENU ===== */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-item {
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+  transition: 0.25s;
+}
+
+.menu-item:hover {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+/* ===== ACTIVE MENU ===== */
+.menu-item.active {
+  background: #ffffff;
+  color: #0284c7;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  border-left: 4px solid #0284c7;
+}
+
+/* ===== FOOTER USER ===== */
+.sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid #dbeafe;
+  padding-top: 15px;
+}
+
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1e293b;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.logout-btn {
+  color: #b91c1c;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.logout-btn:hover {
+  color: #7f1d1d;
+}

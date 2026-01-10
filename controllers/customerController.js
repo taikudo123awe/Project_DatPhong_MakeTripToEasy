@@ -1,12 +1,8 @@
+const { Invoice, Booking, Room, Provider, PaymentInfo, Customer, Review, sequelize } = require("../models");
 const { Op } = require("sequelize");
-const Invoice = require("../models/Invoice");
-const Booking = require("../models/Booking");
-const Room = require("../models/Room");
-const Provider = require("../models/Provider");
-const PaymentInfo = require("../models/PaymentInfo");
-const Customer = require("../models/Customer");
-const Review = require("../models/Review");
-const sequelize = require("../config/database");
+
+const vnpay = require("../config/vnpay");
+const moment = require("moment");
 
 // Lấy tất cả booking/invoice và gom nhóm theo trạng thái
 exports.showBookingsByStatus = async (req, res) => {
@@ -40,15 +36,9 @@ exports.showBookingsByStatus = async (req, res) => {
     allBookings.forEach((booking) => {
       if (booking.status === "Đã hủy") {
         grouped.cancelled.push(booking);
-      } else if (
-        booking.Invoice &&
-        booking.Invoice.status === "Đã thanh toán"
-      ) {
+      } else if (booking.Invoice && booking.Invoice.status === "Đã thanh toán") {
         grouped.paid.push(booking); // Lưu cả booking có invoice đã thanh toán
-      } else if (
-        booking.Invoice &&
-        booking.Invoice.status === "Chờ thanh toán"
-      ) {
+      } else if (booking.Invoice && booking.Invoice.status === "Chờ thanh toán") {
         grouped.unpaid.push(booking); // Lưu cả booking có invoice chờ thanh toán
       }
       // Các trạng thái khác của booking (VD: Đang sử dụng, Chờ nhận phòng mà chưa có Invoice)
@@ -67,138 +57,118 @@ exports.showBookingsByStatus = async (req, res) => {
   }
 };
 
-// Bước 3 & 5 & 6: Hiển thị trang thông tin thanh toán
-exports.showPaymentPage = async (req, res) => {
+// 1. Sửa hàm tạo URL để gửi kèm invoiceIds
+exports.createPaymentUrl = async (req, res) => {
   try {
     const { invoiceIds } = req.body;
     const customerId = req.session.customer.customerId;
-
-    if (!invoiceIds || invoiceIds.length === 0) {
-      // Nếu không chọn hóa đơn nào thì quay lại
+    if (!invoiceIds || invoiceIds.length === 0)
       return res.redirect("/customer/history");
-    }
+    const invoiceIdList = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
 
     const invoices = await Invoice.findAll({
       where: {
-        invoiceId: {
-          [Op.in]: Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds],
-        },
+        invoiceId: { [Op.in]: invoiceIdList },
         customerId,
         status: "Chờ thanh toán",
       },
-      include: {
-        model: Booking,
-        include: {
-          model: Room,
-          include: {
-            model: Provider,
-            include: {
-              model: PaymentInfo,
-              required: true, // Bắt buộc nhà cung cấp phải có thông tin thanh toán
-            },
-          },
-        },
-      },
     });
 
-    if (invoices.length === 0) {
-      return res
-        .status(404)
-        .send("Không tìm thấy hóa đơn hợp lệ để thanh toán.");
-    }
+    if (invoices.length === 0)
+      return res.status(404).send("Không tìm thấy hóa đơn hợp lệ.");
 
-    // Nhóm các hóa đơn theo từng nhà cung cấp
-    const providersToPay = {};
-    invoices.forEach((invoice) => {
-      const provider = invoice.Booking.Room.Provider;
-      if (!providersToPay[provider.providerId]) {
-        providersToPay[provider.providerId] = {
-          providerName: provider.providerName,
-          paymentInfo: provider.PaymentInfos[0], // Lấy thông tin thanh toán đầu tiên
-          invoices: [],
-          totalAmount: 0,
-        };
-      }
-      providersToPay[provider.providerId].invoices.push(invoice);
-      providersToPay[provider.providerId].totalAmount += invoice.amount;
-    });
+    const totalAmount = invoices.reduce((sum, inv) => sum + inv.amount, 0);
+    const ipAddr = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    const vnp_TxnRef = moment().format("HHmmss");
+    const orderInfo = "Thanh toan";
 
-    res.render("customer/payment", {
-      providersToPay: Object.values(providersToPay),
-      invoiceIds: invoices.map((inv) => inv.invoiceId), // Truyền lại ID để dùng cho bước sau
-    });
+    // QUAN TRỌNG: Gửi kèm danh sách ID hóa đơn
+    const extraData = JSON.stringify(invoiceIdList);
+
+    const paymentUrl = vnpay.createPaymentUrl(
+      vnp_TxnRef,
+      totalAmount,
+      orderInfo,
+      ipAddr,
+      extraData
+    );
+    res.redirect(paymentUrl);
   } catch (err) {
-    console.error("❌ Lỗi khi hiển thị trang thanh toán:", err);
+    console.error("❌ Lỗi tạo URL VNPay:", err);
     res.status(500).send("Lỗi máy chủ");
   }
 };
 
-// Bước 7 & 8: Xác nhận đã chuyển tiền
-// SỬA LẠI HÀM NÀY: Xác nhận đã chuyển tiền
-exports.confirmPayment = async (req, res) => {
-  const t = await sequelize.transaction(); // Bắt đầu transaction
+exports.vnpayReturn = async (req, res) => {
   try {
-    const { invoiceIds } = req.body;
-    const customerId = req.session.customer.customerId;
+    const vnp_Params = req.query;
+    const isVerified = vnpay.verifyReturn(vnp_Params);
 
-    if (!invoiceIds || invoiceIds.length === 0) {
-      return res.redirect("/customer/history");
+    let message = "Giao dịch thất bại hoặc chữ ký không hợp lệ.";
+
+    if (isVerified && vnp_Params["vnp_ResponseCode"] === "00") {
+      const t = await sequelize.transaction();
+      try {
+        // Giải mã lấy invoiceIds từ vnp_OrderInfo
+        const vnp_OrderInfo = decodeURIComponent(vnp_Params["vnp_OrderInfo"]);
+        const extraDataEncoded = vnp_OrderInfo.split("|")[1];
+        const invoiceIdList = JSON.parse(
+          Buffer.from(extraDataEncoded, "base64").toString("utf8")
+        );
+
+        // Tìm các hóa đơn cần cập nhật
+        const invoices = await Invoice.findAll({
+          where: {
+            invoiceId: { [Op.in]: invoiceIdList },
+            status: "Chờ thanh toán",
+          }, // Chỉ cập nhật nếu chưa thanh toán
+          attributes: ["bookingId", "invoiceId"],
+          transaction: t,
+        });
+
+        if (invoices.length > 0) {
+          const bookingIds = invoices.map((inv) => inv.bookingId);
+          // Cập nhật Invoice
+          await Invoice.update(
+            { status: "Đã thanh toán" },
+            { where: { invoiceId: { [Op.in]: invoiceIdList } }, transaction: t }
+          );
+          // Cập nhật Booking
+          await Booking.update(
+            { status: "Đã hoàn thành" },
+            {
+              where: {
+                bookingId: { [Op.in]: bookingIds },
+                status: "Đang sử dụng",
+              },
+              transaction: t,
+            }
+          );
+
+          await t.commit();
+          message = "Giao dịch thành công! Hóa đơn đã được cập nhật.";
+        } else {
+          await t.rollback();
+          message =
+            "Giao dịch thành công, nhưng hóa đơn đã được cập nhật trước đó.";
+        }
+      } catch (dbErr) {
+        await t.rollback();
+        console.error("❌ Lỗi cập nhật DB tại vnpayReturn:", dbErr);
+        message =
+          "Thanh toán thành công nhưng lỗi khi cập nhật hệ thống. Vui lòng liên hệ Admin.";
+      }
+    } else if (isVerified) {
+      message =
+        "Giao dịch thất bại. Mã lỗi VNPay: " + vnp_Params["vnp_ResponseCode"];
     }
 
-    // Cập nhật trạng thái các hóa đơn đã chọn
-    // Đảm bảo invoiceIds luôn là một mảng
-    const invoiceIdList = Array.isArray(invoiceIds) ? invoiceIds : [invoiceIds];
-
-    // 1. Tìm các hóa đơn (để lấy bookingIds)
-    const invoices = await Invoice.findAll({
-      where: {
-        invoiceId: { [Op.in]: invoiceIdList },
-        customerId: customerId,
-        status: "Chờ thanh toán", // Chỉ cập nhật HĐ chờ thanh toán
-      },
-      attributes: ["bookingId"], // Chỉ cần lấy bookingId
-      transaction: t,
-    });
-
-    if (invoices.length === 0) {
-      await t.rollback();
-      return res.redirect("/customer/history"); // Không có gì để cập nhật
-    }
-
-    // Lấy danh sách các bookingId liên quan
-    const bookingIds = invoices.map((inv) => inv.bookingId);
-
-    // 2. Cập nhật trạng thái Hóa đơn (Invoice) thành "Đã thanh toán"
-    await Invoice.update(
-      { status: "Đã thanh toán" },
-      {
-        where: {
-          invoiceId: { [Op.in]: invoiceIdList },
-        },
-        transaction: t,
-      }
-    );
-
-    // 3. Cập nhật trạng thái Phiếu đặt phòng (Booking) thành "Đã hoàn thành"
-    // Chỉ cập nhật các phiếu đang ở trạng thái "Đang sử dụng"
-    await Booking.update(
-      { status: "Đã hoàn thành" },
-      {
-        where: {
-          bookingId: { [Op.in]: bookingIds },
-          status: "Đang sử dụng", // Điều kiện quan trọng
-        },
-        transaction: t,
-      }
-    );
-
-    await t.commit(); // Hoàn tất giao dịch
-
-    res.redirect("/customer/history");
+    res.render("customer/payment-return", { message });
   } catch (err) {
-    await t.rollback(); // Hoàn tác nếu có lỗi
-    console.error("❌ Lỗi khi xác nhận thanh toán:", err);
-    res.status(500).send("Lỗi máy chủ");
+    console.error("❌ Lỗi vnpayReturn:", err);
+    res.render("customer/payment-return", {
+      message: "Đã xảy ra lỗi trong quá trình xử lý.",
+    });
   }
 };
 
@@ -210,12 +180,12 @@ exports.showEditProfile = async (req, res) => {
     const customer = await Customer.findByPk(customerSession.customerId);
     if (!customer) return res.status(404).send("Customer not found");
 
-    const success = req.query.success === '1';
+    const success = req.query.success === "1";
 
-    res.render('customer/update', { 
+    res.render("customer/update", {
       customer,
       success,
-      error: null
+      error: null,
     });
   } catch (err) {
     console.error("showEditProfile error:", err);
@@ -239,7 +209,7 @@ exports.updateProfile = async (req, res) => {
     const updated = await Customer.findByPk(customerId);
     req.session.customer = updated;
 
-    // ✅ chuyển hướng lại với thông báo thành công
+    // chuyển hướng lại với thông báo thành công
     res.redirect("/customer/profile");
   } catch (err) {
     console.error("updateProfile error:", err);
@@ -258,10 +228,10 @@ exports.viewBookingHistory = async (req, res) => {
     const whereCondition = { customerId };
 
     if (filterStatus !== "all") {
-      if (filterStatus.startsWith("invoice:")) {
+      if (filterStatus.startsWith("Invoice:")) {
         // Ví dụ ?status=invoice:Đã thanh toán
         const invoiceStatus = filterStatus.split(":")[1];
-        whereCondition["$invoice.status$"] = invoiceStatus;
+        whereCondition["$Invoice.status$"] = invoiceStatus;
       } else {
         // Lọc theo booking status
         whereCondition.status = filterStatus;
@@ -277,7 +247,6 @@ exports.viewBookingHistory = async (req, res) => {
         },
         {
           model: Invoice,
-          as: "invoice",
           required: false, // có thể null
         },
       ],
@@ -312,18 +281,18 @@ exports.viewBookingDetail = async (req, res) => {
     const booking = await Booking.findByPk(bookingId, {
       include: [
         { model: Room, include: [Provider] },
-        { model: Invoice, as: "invoice" },
+        { model: Invoice },
       ],
     });
 
     if (!booking) return res.status(404).send("Không tìm thấy đơn đặt phòng");
 
-    // ✅ Lấy review nếu khách đã đánh giá phòng này
+    // Lấy review nếu khách đã đánh giá phòng này
     const existingReview = await Review.findOne({
       where: { customerId, roomId: booking.Room.roomId },
     });
 
-    // ✅ Lấy message (nếu có)
+    // Lấy message (nếu có)
     const error = req.session.error || null;
     const success = req.session.success || null;
     req.session.error = null;
@@ -366,7 +335,7 @@ exports.showCustomerBookingDetail = async (req, res) => {
           attributes: { exclude: ["accountId"] },
         },
         {
-          model: Invoice, // Lấy thông tin hóa đơn (nếu có)
+          model: Invoice,
           required: false,
         },
       ],
@@ -382,3 +351,19 @@ exports.showCustomerBookingDetail = async (req, res) => {
     res.status(500).send("Lỗi máy chủ");
   }
 };
+
+function sortObject(obj) {
+  let sorted = {};
+  let str = [];
+  let key;
+  for (key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      str.push(encodeURIComponent(key));
+    }
+  }
+  str.sort();
+  for (key = 0; key < str.length; key++) {
+    sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+  }
+  return sorted;
+}

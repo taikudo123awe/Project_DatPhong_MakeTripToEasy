@@ -1,0 +1,71 @@
+/* DASHBOARD WRAPPER */
+.dashboard-container {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.provider-content {
+  padding: 30px 35px !important;
+  margin-left: 260px;
+  width: calc(100% - 260px);
+}
+
+/* Tiêu đề trang */
+.provider-content h2 {
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: #0f172a;
+  margin-bottom: 18px;
+}
+
+/* Link quay lại dashboard */
+.provider-content a[href="/provider/dashboard"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: #0369a1;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.provider-content a[href="/provider/dashboard"]:hover {
+  text-decoration: underline;
+}
+
+/* Khung danh sách phòng có đánh giá */
+.provider-content .list-group {
+  margin-top: 20px;
+}
+
+/* Mỗi item phòng */
+.provider-content .list-group-item {
+  border-radius: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+  transition: 0.2s ease;
+}
+
+.provider-content .list-group-item:hover {
+  background: #f8fafc;
+  transform: translateY(-2px);
+}
+
+/* Tiêu đề phòng + số đánh giá */
+.provider-content .list-group-item h5 {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.provider-content .list-group-item small {
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Giá phòng */
+.provider-content .list-group-item p {
+  margin-bottom: 0;
+  font-weight: 500;
+  color: #0f766e;
+}

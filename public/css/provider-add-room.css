@@ -1,0 +1,150 @@
+/* DASHBOARD WRAPPER */
+.dashboard-container {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.provider-content {
+  padding: 30px 35px !important;
+  margin-left: 260px;
+  width: calc(100% - 260px);
+}
+
+body {
+  background: #f3f6fb;
+}
+
+h2 {
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 25px;
+}
+
+/* ================================
+   FORM CARD
+================================ */
+form.card {
+  border-radius: 20px;
+  padding: 35px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+}
+
+/* ================================
+   LABEL & INPUT
+================================ */
+.form-label {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.form-control,
+.form-select,
+textarea {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+  transition: 0.25s;
+}
+
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+  border-color: #0284c7;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.18);
+}
+
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+/* ================================
+   THEO NHÓM — Category Title
+================================ */
+h5 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0284c7;
+  margin-top: 15px;
+}
+
+/* ================================
+   CHECKBOX GRID (amenities)
+================================ */
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.checkbox-grid label {
+  background: #ffffff;
+  border: 1.8px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: 0.25s ease;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.checkbox-grid input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.checkbox-grid label:hover {
+  background: #e0f2fe;
+  border-color: #38bdf8;
+}
+
+/* ================================
+   FILE INPUT
+================================ */
+input[type="file"] {
+  padding: 10px;
+}
+
+/* ================================
+   BUTTONS
+================================ */
+.btn-success {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  padding: 12px 38px;
+  border-radius: 14px;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(14, 165, 233, 0.28);
+  transition: 0.25s ease;
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  padding: 12px 38px;
+  border-radius: 14px;
+  font-weight: 700;
+  background: #cbd5e1;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background: #94a3b8;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+@media (max-width: 768px) {
+  form.card {
+    padding: 25px;
+  }
+}

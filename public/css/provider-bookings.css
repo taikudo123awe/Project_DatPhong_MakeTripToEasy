@@ -1,0 +1,146 @@
+/* DASHBOARD WRAPPER */
+.dashboard-container {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.provider-content {
+  padding: 30px 35px !important;
+  margin-left: 260px;
+  width: calc(100% - 260px);
+}
+
+/* Nền toàn trang */
+body {
+  background: #f3f6fb;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* KHUNG CONTENT GIỐNG DASHBOARD */
+.provider-layout .provider-content {
+  padding: 30px 35px;
+  margin-left: 260px;
+  width: calc(100% - 260px);
+  min-height: 100vh;
+}
+
+/* ================================
+   PAGE TITLE
+================================ */
+.booking-title {
+  font-weight: 800;
+  font-size: 2rem;
+  color: #0f172a;
+  margin-bottom: 25px;
+}
+
+/* ================================
+   TABS NAV-PILLS
+================================ */
+.nav-pills {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px; /* ⭐ spacing giống dashboard */
+}
+
+.nav-pills .nav-link {
+  font-weight: 600;
+  color: #475569;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 12px 20px;
+  transition: 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+
+.nav-pills .nav-link:hover {
+  background: #e2e8f0;
+}
+
+.nav-pills .nav-link.active {
+  background: #0d6efd;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(13,110,253,0.3);
+}
+
+/* Badge nhỏ trong tabs */
+.nav-pills .badge {
+  font-size: 0.85rem;
+  padding: 5px 10px;
+}
+
+/* ================================
+   TABLE BOX (giống dashboard)
+================================ */
+.table-wrapper,
+.tab-content table {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+.table {
+  margin-bottom: 0 !important;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.table thead th {
+  background: #f1f5f9 !important;
+  font-weight: 700;
+  color: #475569;
+  padding: 16px;
+}
+
+.table tbody td {
+  padding: 15px;
+  vertical-align: middle;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.table-hover tbody tr:hover {
+  background: #f8fafc;
+  transform: scale(1.01);
+}
+
+/* ================================
+   BADGES
+================================ */
+.badge {
+  font-size: 0.85rem;
+  padding: 7px 12px;
+  border-radius: 10px;
+}
+
+/* ================================
+   BUTTONS
+================================ */
+.btn-sm {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.btn-primary.btn-sm {
+  background: #0d6efd;
+  border: none;
+}
+
+.btn-primary.btn-sm:hover {
+  background: #0b59d0;
+}
+
+/* ================================
+   TAB CONTENT ANIMATION
+================================ */
+.tab-pane {
+  animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

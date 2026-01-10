@@ -7,7 +7,7 @@ module.exports.isAdmin = (req, res, next) => {
     }
 
     // Nếu có session admin -> cho phép đi tiếp
-    console.log(`✅ Admin đăng nhập: ${req.session.admin.username}`);
+    console.log(`Admin đăng nhập: ${req.session.admin.username}`);
     next();
   } catch (error) {
     console.error('❌ Lỗi trong middleware checkAdmin:', error);

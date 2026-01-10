@@ -1,3 +1,14 @@
+/* DASHBOARD WRAPPER */
+.dashboard-container {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.provider-content {
+  padding: 30px 35px !important;
+  margin-left: 260px;
+  width: calc(100% - 260px);
+}
 .report-container {
   max-width: 1000px;
 }

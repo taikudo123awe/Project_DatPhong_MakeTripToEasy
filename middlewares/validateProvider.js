@@ -12,7 +12,7 @@ module.exports = async (req, res, next) => {
   const { providerName, email, phoneNumber, identityNumber, taxCode, password, confirmPassword } = req.body;
 
   try {
-    // 1️⃣ Kiểm tra trường trống
+    // Kiểm tra trường trống
     if (!providerName || !email || !phoneNumber || !identityNumber || !password || !confirmPassword) {
       // return res.render('provider/register', { error: 'Vui lòng nhập đầy đủ thông tin!', success: null });
       return res.render('provider/register', {
@@ -23,7 +23,7 @@ module.exports = async (req, res, next) => {
 
     }
 
-    // 2️⃣ Kiểm tra định dạng email
+    // Kiểm tra định dạng email
     if (!emailRegex.test(email)) {
       return res.render('provider/register', {
         error: 'Email không hợp lệ! (vd: abc12@gmail.com)',
@@ -32,7 +32,7 @@ module.exports = async (req, res, next) => {
       });
     }
 
-    // 3️⃣ Kiểm tra số điện thoại
+    // Kiểm tra số điện thoại
     if (!phoneRegex.test(phoneNumber)) {
       return res.render('provider/register', {
         error: 'Số điện thoại phải có 10 chữ số và bắt đầu bằng 0!',
@@ -41,13 +41,12 @@ module.exports = async (req, res, next) => {
       });
     }
 
-
-    // 4️⃣ Kiểm tra CCCD
+    // Kiểm tra CCCD
     if (!cccdRegex.test(identityNumber)) {
       return res.render('provider/register', { error: 'Số CCCD phải gồm 12 chữ số!', success: null , formData: req.body});
     }
 
-    // 5️⃣ Kiểm tra mật khẩu
+    // Kiểm tra mật khẩu
     if (!passwordRegex.test(password)) {
       return res.render('provider/register', {
         error: 'Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường và số!',
@@ -56,12 +55,12 @@ module.exports = async (req, res, next) => {
       });
     }
 
-    // 6️⃣ Kiểm tra mật khẩu nhập lại
+    // Kiểm tra mật khẩu nhập lại
     if (password !== confirmPassword) {
       return res.render('provider/register', { error: 'Mật khẩu nhập lại không khớp!', success: null , formData: req.body});
     }
 
-    // 7️⃣ Kiểm tra trùng dữ liệu trong DB (email, phone, cccd, taxCode)
+    // Kiểm tra trùng dữ liệu trong DB (email, phone, cccd, taxCode)
     const existingEmail = await Provider.findOne({ where: { email } });
     if (existingEmail) {
       return res.render('provider/register', { error: 'Email đã được đăng ký!', success: null , formData: req.body});

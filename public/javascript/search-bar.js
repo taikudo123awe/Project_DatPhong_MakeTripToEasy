@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateGuestSummary() {
     const adults = document.getElementById("adultsCount").textContent;
     const rooms = document.getElementById("roomsCount").textContent;
-    guestInput.value = `${adults} người lớn · ${rooms} phòng`;
+    guestInput.value = `${adults} người ở · ${rooms} phòng`;
   }
 
   // 🔹 Gửi form đúng định dạng (chèn guests & rooms)
